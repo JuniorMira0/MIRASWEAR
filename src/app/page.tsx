@@ -1,9 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { Header } from "../components/common/header";
 
 const Home = () => {
-  return <div>
-    <Button>Click me</Button>
-  </div>;
+  return (
+    <div>
+      <Header />
+    </div>
+  );
 };
 
 export default Home;

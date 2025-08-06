@@ -1,4 +1,4 @@
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 import type { Metadata } from "next";
@@ -29,8 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <h1>Layout</h1>
-        { children }
+        {children}
         <Toaster />
       </body>
     </html>
