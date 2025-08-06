@@ -1,7 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
   email: z
@@ -35,6 +38,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const SignInForm = () => {
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,14 +47,39 @@ const SignInForm = () => {
     },
   });
 
-  function onSubmit(values: FormValues) {
-    console.log("FORMULARIO VALIDO E ENVIADO!");
-    console.log(values);
+  async function onSubmit(values: FormValues) {
+    await authClient.signIn.email({
+      email: values.email,
+      password: values.password,
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx) => {
+          if (ctx.error.code === "USER_NOT_FOUND") {
+            toast.error("Usuário não encontrado. Verifique o e-mail digitado.");
+            return form.setError("email", {
+              message: "Usuário não encontrado. Verifique o e-mail digitado.",
+            });
+          }
+          if (ctx.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+            toast.error("E-mail ou senha incorretos. Tente novamente.");
+            form.setError("password", {
+              message: "E-mail ou senha incorretos. Tente novamente.",
+            });
+            return form.setError("email", {
+              message: "E-mail ou senha incorretos. Tente novamente.",
+            });
+          }
+          toast.error("Erro ao fazer login. Tente novamente.");
+        },
+      },
+    });
   }
 
   return (
     <>
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Entrar</CardTitle>
           <CardDescription>Faça login para continuar.</CardDescription>
@@ -64,9 +93,13 @@ const SignInForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>E-mail</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite seu email" {...field} />
+                      <Input
+                        placeholder="Digite seu e-mail"
+                        type="email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -91,7 +124,9 @@ const SignInForm = () => {
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit">Entrar</Button>
+              <Button type="submit" className="w-full">
+                Entrar
+              </Button>
             </CardFooter>
           </form>
         </Form>
