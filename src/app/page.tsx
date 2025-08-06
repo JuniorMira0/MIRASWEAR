@@ -1,6 +1,9 @@
 import CategorySelector from "@/components/common/category-selector";
+import Footer from "@/components/common/footer";
 import ProductList from "@/components/common/product-list";
 import { db } from "@/db";
+import { productTable } from "@/db/schema";
+import { desc } from "drizzle-orm/sql/expressions/select";
 import Image from "next/image";
 import { Header } from "../components/common/header";
 
@@ -11,9 +14,16 @@ const Home = async () => {
     },
   });
 
+  const newlyAddedProducts = await db.query.productTable.findMany({
+    orderBy: [desc(productTable.createdAt)],
+    with: {
+      variants: true,
+    },
+  });
+
   const categories = await db.query.categoryTable.findMany({});
   return (
-    <div>
+    <>
       <Header />
 
       <div className="space-y-6">
@@ -29,6 +39,7 @@ const Home = async () => {
         </div>
 
         <ProductList title="Produtos em destaque" products={products} />
+
         <div className="px-5">
           <CategorySelector categories={categories} />
         </div>
@@ -43,8 +54,10 @@ const Home = async () => {
             className="h-auto w-full"
           />
         </div>
+        <ProductList title="Novidades" products={newlyAddedProducts} />
+        <Footer />
       </div>
-    </div>
+    </>
   );
 };
 
