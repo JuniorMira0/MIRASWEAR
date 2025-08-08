@@ -18,6 +18,14 @@
     "source.organizeImports": "always",
     "source.removeUnusedImports": "always"
   },
+  "editor.minimap.enabled": false,
+  "git.enabled": true,
+  "editor.smoothScrolling": false,
+  "workbench.iconTheme": "vscode-icons",
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true
+  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
