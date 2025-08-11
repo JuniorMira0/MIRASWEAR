@@ -367,8 +367,10 @@ const Addresses = ({
                   updateCartShippingAddressMutation.isPending
                 }
               >
-                { createShippingAddressMutation.isPending || 
-                  updateCartShippingAddressMutation.isPending
+                {createShippingAddressMutation.isPending ||
+                updateCartShippingAddressMutation.isPending
+                  ? "Processando..."
+                  : "Salvar endereço"}
               </Button>
             </form>
           </Form>
