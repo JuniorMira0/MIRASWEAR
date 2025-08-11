@@ -24,6 +24,7 @@ import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.email("Por favor, digite um e-mail válido"),
@@ -50,6 +51,7 @@ const Addresses = ({
   shippingAddresses,
   defaultShippingAddressId,
 }: AddressesProps) => {
+  const router = useRouter();
   const [selectedAddress, setSelectedAddress] = useState<string | null>(
     defaultShippingAddressId || null,
   );
@@ -101,6 +103,8 @@ const Addresses = ({
         shippingAddressId: selectedAddress,
       });
       toast.success("Endereço selecionado para entrega!");
+      router.push("/cart/confirmation");
+
     } catch (error) {
       toast.error("Erro ao selecionar endereço. Tente novamente.");
       console.error(error);
