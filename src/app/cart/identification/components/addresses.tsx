@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
@@ -24,7 +25,8 @@ import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
-import { useRouter } from 'next/navigation';
+
+import { formatAddress } from "../../helpers/address";
 
 const formSchema = z.object({
   email: z.email("Por favor, digite um e-mail válido"),
@@ -85,10 +87,11 @@ const Addresses = ({
       toast.success("Endereço criado com sucesso!");
       form.reset();
       setSelectedAddress(newAddress.id);
+
       await updateCartShippingAddressMutation.mutateAsync({
         shippingAddressId: newAddress.id,
       });
-      toast.success("Endereço atualizado no carrinho!");
+      toast.success("Endereço vinculado ao carrinho!");
     } catch (error) {
       toast.error("Erro ao criar endereço. Tente novamente.");
       console.error(error);
@@ -104,7 +107,6 @@ const Addresses = ({
       });
       toast.success("Endereço selecionado para entrega!");
       router.push("/cart/confirmation");
-
     } catch (error) {
       toast.error("Erro ao selecionar endereço. Tente novamente.");
       console.error(error);
@@ -142,14 +144,7 @@ const Addresses = ({
                     <div className="flex-1">
                       <Label htmlFor={address.id} className="cursor-pointer">
                         <div>
-                          <p className="text-sm">
-                            {address.recipientName} • {address.street},{" "}
-                            {address.number}
-                            {address.complement &&
-                              `, ${address.complement}`}, {address.neighborhood}
-                            , {address.city} - {address.state} • CEP:{" "}
-                            {address.zipCode}
-                          </p>
+                          <p className="text-sm">{formatAddress(address)}</p>
                         </div>
                       </Label>
                     </div>
@@ -197,7 +192,7 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="exemplo@email.com" {...field} />
+                        <Input placeholder="Digite seu email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -211,7 +206,10 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Nome completo</FormLabel>
                       <FormControl>
-                        <Input placeholder="Seu nome completo" {...field} />
+                        <Input
+                          placeholder="Digite seu nome completo"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -296,7 +294,7 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Número</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nº da residência" {...field} />
+                        <Input placeholder="Digite o número" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -308,10 +306,10 @@ const Addresses = ({
                   name="complement"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Complemento (opcional)</FormLabel>
+                      <FormLabel>Complemento</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Apto, bloco, casa, etc."
+                          placeholder="Apto, bloco, etc. (opcional)"
                           {...field}
                         />
                       </FormControl>
@@ -373,7 +371,7 @@ const Addresses = ({
               >
                 {createShippingAddressMutation.isPending ||
                 updateCartShippingAddressMutation.isPending
-                  ? "Processando..."
+                  ? "Salvando..."
                   : "Salvar endereço"}
               </Button>
             </form>

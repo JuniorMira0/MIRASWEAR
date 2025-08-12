@@ -218,6 +218,7 @@ export const cartItemRelations = relations(cartItemTable, ({ one }) => ({
 export const orderStatus = pgEnum("order_status", [
   "pending",
   "processing",
+  "paid",
   "shipped",
   "delivered",
   "canceled",
