@@ -5,6 +5,11 @@ import { db } from "@/db";
 export interface LocalCartItem {
   productVariantId: string;
   quantity: number;
+  // Dados completos para não precisar buscar no servidor
+  productName?: string;
+  productVariantName?: string;
+  productVariantImageUrl?: string;
+  productVariantPriceInCents?: number;
 }
 
 export const getLocalCartProductData = async (localItems: LocalCartItem[]) => {

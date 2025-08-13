@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { addProductToCart } from "@/actions/add-cart-product";
+import { getProductVariantDetails } from "@/actions/get-product-variant-details";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
 import { useLocalCart } from "@/hooks/use-local-cart";
@@ -37,12 +38,21 @@ const AddToCartButton = ({
     },
   });
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (session?.user) {
       mutate();
     } else {
-      localCart.addItem(productVariantId, quantity);
-      toast.success("Produto adicionado à sacola!");
+      try {
+        // Busca dados completos do produto para salvar no localStorage
+        const productDetails = await getProductVariantDetails(productVariantId);
+        localCart.addItem(productVariantId, quantity, productDetails);
+        toast.success("Produto adicionado à sacola!");
+      } catch (error) {
+        console.error("Erro ao buscar dados do produto:", error);
+        // Fallback: adiciona sem os dados completos
+        localCart.addItem(productVariantId, quantity);
+        toast.success("Produto adicionado à sacola!");
+      }
     }
   };
 

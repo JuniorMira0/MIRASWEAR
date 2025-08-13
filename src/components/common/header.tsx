@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useCategories } from "@/hooks/queries/use-categories";
+import { useCartMigration } from "@/hooks/use-cart-migration";
 import { authClient } from "@/lib/auth-client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -28,6 +29,9 @@ import { Cart } from "./cart";
 export const Header = () => {
   const { data: session } = authClient.useSession();
   const { data: categories, isLoading: isCategoriesLoading } = useCategories();
+
+  // Hook que migra carrinho local para servidor quando usuário faz login
+  useCartMigration();
   return (
     <header className="flex items-center justify-between p-5">
       <Link href="/">

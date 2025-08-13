@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getCart } from "@/actions/get-cart";
-import { getLocalCartProductData } from "@/actions/get-local-cart-product-data";
 import { useLocalCart } from "@/hooks/use-local-cart";
 import { authClient } from "@/lib/auth-client";
 
@@ -25,31 +24,45 @@ export const useCart = (params?: {
 
   const localCartQuery = useQuery({
     queryKey: getUseCartQueryKey(true),
-    queryFn: () => {
-      if (localCart.items.length === 0) {
-        return Promise.resolve([]);
-      }
-      return getLocalCartProductData(localCart.items);
-    },
-    enabled: !session?.user, // Sempre enabled para usuário local
-    staleTime: 5 * 60 * 1000, // 5 minutos - dados dos produtos não mudam frequentemente
-    gcTime: 10 * 60 * 1000, // 10 minutos de garbage collection
+    queryFn: () => Promise.resolve([]), // Não precisa mais buscar dados
+    enabled: false, // Desabilitada pois dados vêm direto do localStorage
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   // Se usuário não está logado, retorna dados do carrinho local
   if (!session?.user) {
-    return {
-      ...localCartQuery,
-      data: localCartQuery.data
+    // Cria dados diretamente do localStorage, sem precisar de query
+    const localCartData =
+      localCart.items.length > 0
         ? {
             id: "local",
             userId: "local",
             shippingAddressId: null,
             createdAt: new Date(),
             shippingAddress: null,
-            items: localCartQuery.data,
+            items: localCart.items.map((item) => ({
+              id: `local-${item.productVariantId}`,
+              cartId: "local",
+              productVariantId: item.productVariantId,
+              quantity: item.quantity,
+              productVariant: {
+                id: item.productVariantId,
+                name: item.productVariantName || "Produto",
+                imageUrl: item.productVariantImageUrl || "/logo.png",
+                priceInCents: item.productVariantPriceInCents || 0,
+                product: {
+                  id: "local-product",
+                  name: item.productName || "Produto",
+                },
+              },
+            })),
           }
-        : null,
+        : null;
+
+    return {
+      ...localCartQuery,
+      data: localCartData,
       // Métodos para manipular carrinho local
       addItem: localCart.addItem,
       removeItem: localCart.removeItem,

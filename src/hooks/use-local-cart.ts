@@ -36,7 +36,16 @@ export const useLocalCart = () => {
     }
   }, [items, queryClient, isLoaded]);
 
-  const addItem = (productVariantId: string, quantity: number) => {
+  const addItem = (
+    productVariantId: string,
+    quantity: number,
+    productDetails?: {
+      productName: string;
+      productVariantName: string;
+      productVariantImageUrl: string;
+      productVariantPriceInCents: number;
+    },
+  ) => {
     setItems((prev) => {
       const existingItem = prev.find(
         (item) => item.productVariantId === productVariantId,
@@ -50,7 +59,14 @@ export const useLocalCart = () => {
         );
       }
 
-      return [...prev, { productVariantId, quantity }];
+      return [
+        ...prev,
+        {
+          productVariantId,
+          quantity,
+          ...productDetails,
+        },
+      ];
     });
   };
 
