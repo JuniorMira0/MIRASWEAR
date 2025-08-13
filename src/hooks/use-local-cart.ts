@@ -1,0 +1,92 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+export interface LocalCartItem {
+  productVariantId: string;
+  quantity: number;
+}
+
+const LOCAL_CART_KEY = "miraswear-cart";
+
+export const useLocalCart = () => {
+  const [items, setItems] = useState<LocalCartItem[]>([]);
+
+  // Carrega o carrinho do localStorage ao montar
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedCart = localStorage.getItem(LOCAL_CART_KEY);
+      if (savedCart) {
+        try {
+          setItems(JSON.parse(savedCart));
+        } catch (error) {
+          console.error("Erro ao carregar carrinho local:", error);
+          localStorage.removeItem(LOCAL_CART_KEY);
+        }
+      }
+    }
+  }, []);
+
+  // Salva no localStorage sempre que items mudar
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(items));
+    }
+  }, [items]);
+
+  const addItem = (productVariantId: string, quantity: number) => {
+    setItems((prev) => {
+      const existingItem = prev.find(
+        (item) => item.productVariantId === productVariantId,
+      );
+
+      if (existingItem) {
+        return prev.map((item) =>
+          item.productVariantId === productVariantId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item,
+        );
+      }
+
+      return [...prev, { productVariantId, quantity }];
+    });
+  };
+
+  const removeItem = (productVariantId: string) => {
+    setItems((prev) =>
+      prev.filter((item) => item.productVariantId !== productVariantId),
+    );
+  };
+
+  const decreaseQuantity = (productVariantId: string) => {
+    setItems((prev) =>
+      prev
+        .map((item) =>
+          item.productVariantId === productVariantId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
+    );
+  };
+
+  const clearCart = () => {
+    setItems([]);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(LOCAL_CART_KEY);
+    }
+  };
+
+  const getTotalItems = () => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  return {
+    items,
+    addItem,
+    removeItem,
+    decreaseQuantity,
+    clearCart,
+    getTotalItems,
+  };
+};

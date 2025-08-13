@@ -4,8 +4,10 @@ import { ShoppingBasketIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { formatCentsToBRL } from "@/helpers/money";
+import { authClient } from "@/lib/auth-client";
 
 import { useCart } from "@/hooks/queries/use-cart";
+import Link from "next/link";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 import {
@@ -16,10 +18,28 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import CartItem from "./cart-item";
-import Link from 'next/link';
 
 export const Cart = () => {
+  const { data: session } = authClient.useSession();
   const { data: cart } = useCart();
+  const isLocal = !session?.user;
+
+  // Calcula o total do carrinho (local ou servidor)
+  const getTotalPrice = () => {
+    if (!cart?.items) return 0;
+
+    return cart.items
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .reduce((total, item) => {
+        if (!item) return total;
+        return total + item.productVariant.priceInCents * item.quantity;
+      }, 0);
+  };
+
+  const totalPriceInCents =
+    isLocal || !("totalPriceInCents" in (cart || {}))
+      ? getTotalPrice()
+      : ((cart as any)?.totalPriceInCents ?? 0);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -36,20 +56,28 @@ export const Cart = () => {
           <div className="flex h-full max-h-full flex-col overflow-hidden">
             <ScrollArea className="h-full">
               <div className="flex h-full flex-col gap-8">
-                {cart?.items.map((item) => (
-                  <CartItem
-                    key={item.id}
-                    id={item.id}
-                    productVariantId={item.productVariant.id}
-                    productName={item.productVariant.product.name}
-                    productVariantName={item.productVariant.name}
-                    productVariantImageUrl={item.productVariant.imageUrl}
-                    productVariantPriceInCents={
-                      item.productVariant.priceInCents
-                    }
-                    quantity={item.quantity}
-                  />
-                ))}
+                {cart?.items
+                  ?.filter(
+                    (item): item is NonNullable<typeof item> => item !== null,
+                  )
+                  .map((item) => {
+                    if (!item) return null;
+                    return (
+                      <CartItem
+                        key={item.id}
+                        id={item.id}
+                        productVariantId={item.productVariant.id}
+                        productName={item.productVariant.product.name}
+                        productVariantName={item.productVariant.name}
+                        productVariantImageUrl={item.productVariant.imageUrl}
+                        productVariantPriceInCents={
+                          item.productVariant.priceInCents
+                        }
+                        quantity={item.quantity}
+                        isLocal={isLocal}
+                      />
+                    );
+                  })}
               </div>
             </ScrollArea>
           </div>
@@ -60,7 +88,7 @@ export const Cart = () => {
 
               <div className="flex items-center justify-between text-xs font-medium">
                 <p>Subtotal</p>
-                <p>{formatCentsToBRL(cart?.totalPriceInCents ?? 0)}</p>
+                <p>{formatCentsToBRL(totalPriceInCents)}</p>
               </div>
 
               <Separator />
@@ -74,7 +102,7 @@ export const Cart = () => {
 
               <div className="flex items-center justify-between text-xs font-medium">
                 <p>Total</p>
-                <p>{formatCentsToBRL(cart?.totalPriceInCents ?? 0)}</p>
+                <p>{formatCentsToBRL(totalPriceInCents)}</p>
               </div>
 
               <Button className="mt-5 rounded-full" asChild>
