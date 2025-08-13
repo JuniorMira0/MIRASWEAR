@@ -1,6 +1,7 @@
 import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
 
+import { TOAST_MESSAGES } from "@/constants/toast-messages";
 import { formatCentsToBRL } from "@/helpers/money";
 
 import { useDecreaseCartProductQuantity } from "@/hooks/mutations/use-decrease-cart-product";
@@ -39,27 +40,27 @@ const CartItem = ({
   const handleDeleteClick = () => {
     removeProductFromCartMutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Produto removido do carrinho com sucesso!");
+        toast.success(TOAST_MESSAGES.CART.PRODUCT_REMOVED);
       },
       onError: (error) => {
-        toast.error("Erro ao remover produto do carrinho.");
+        toast.error(TOAST_MESSAGES.CART.PRODUCT_REMOVED_ERROR);
       },
     });
   };
   const handleDecreaseQuantityClick = () => {
     decreaseCartProductQuantityMutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Quantidade do produto diminuída com sucesso!");
+        toast.success(TOAST_MESSAGES.CART.QUANTITY_DECREASED);
       },
       onError: (error) => {
-        toast.error("Erro ao diminuir quantidade do produto.");
+        toast.error(TOAST_MESSAGES.CART.QUANTITY_DECREASED_ERROR);
       },
     });
   };
   const handleIncreaseQuantityClick = () => {
     increaseCartProductQuantityMutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Quantidade do produto aumentada.");
+        toast.success(TOAST_MESSAGES.CART.QUANTITY_INCREASED);
       },
     });
   };

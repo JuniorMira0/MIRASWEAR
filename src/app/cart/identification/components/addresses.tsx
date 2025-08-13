@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { TOAST_MESSAGES } from "@/constants/toast-messages";
 import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
@@ -84,16 +85,16 @@ const Addresses = ({
     try {
       const newAddress =
         await createShippingAddressMutation.mutateAsync(values);
-      toast.success("Endereço criado com sucesso!");
+      toast.success(TOAST_MESSAGES.ADDRESS.CREATED_SUCCESS);
       form.reset();
       setSelectedAddress(newAddress.id);
 
       await updateCartShippingAddressMutation.mutateAsync({
         shippingAddressId: newAddress.id,
       });
-      toast.success("Endereço vinculado ao carrinho!");
+      toast.success(TOAST_MESSAGES.ADDRESS.LINKED_SUCCESS);
     } catch (error) {
-      toast.error("Erro ao criar endereço. Tente novamente.");
+      toast.error(TOAST_MESSAGES.ADDRESS.CREATED_ERROR);
       console.error(error);
     }
   };
@@ -105,10 +106,10 @@ const Addresses = ({
       await updateCartShippingAddressMutation.mutateAsync({
         shippingAddressId: selectedAddress,
       });
-      toast.success("Endereço selecionado para entrega!");
+      toast.success(TOAST_MESSAGES.ADDRESS.SELECTED_SUCCESS);
       router.push("/cart/confirmation");
     } catch (error) {
-      toast.error("Erro ao selecionar endereço. Tente novamente.");
+      toast.error(TOAST_MESSAGES.ADDRESS.SELECTED_ERROR);
       console.error(error);
     }
   };
