@@ -1,17 +1,16 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import Stripe from "stripe";
 
 import { db } from "@/db";
 import { orderItemTable, orderTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
 
 import {
   CreateCheckoutSessionSchema,
   createCheckoutSessionSchema,
 } from "./schema";
+import { requireAuth } from '@/lib/auth-middleware';
 
 export const createCheckoutSession = async (
   data: CreateCheckoutSessionSchema,
@@ -19,10 +18,10 @@ export const createCheckoutSession = async (
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Stripe secret key is not set");
   }
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
+  
+  const userId = await requireAuth();
+
+  if (!userId) {
     throw new Error("Unauthorized");
   }
   const { orderId } = createCheckoutSessionSchema.parse(data);
@@ -32,7 +31,7 @@ export const createCheckoutSession = async (
   if (!order) {
     throw new Error("Order not found");
   }
-  if (order.userId !== session.user.id) {
+  if (order.userId !== userId) {
     throw new Error("Unauthorized");
   }
   const orderItems = await db.query.orderItemTable.findMany({
@@ -49,7 +48,7 @@ export const createCheckoutSession = async (
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel`,
     metadata: {
       orderId,
-      userId: session.user.id,
+      userId,
     },
     line_items: orderItems.map((orderItem) => {
       return {

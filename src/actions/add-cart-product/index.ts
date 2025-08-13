@@ -1,22 +1,21 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 
 import { db } from "@/db";
 import { cartItemTable, cartTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth-middleware";
 
 import { AddProductToCartSchema, addProductToCartSchema } from "./schema";
 
 export const addProductToCart = async (data: AddProductToCartSchema) => {
+  // Valida o schema de entrada
   addProductToCartSchema.parse(data);
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
-    throw new Error("Unauthorized");
-  }
+  
+  // Obtém o userId autenticado (substitui 5 linhas por 1!)
+  const userId = await requireAuth();
+
+  // Verifica se a variante do produto existe
   const productVariant = await db.query.productVariantTable.findFirst({
     where: (productVariant, { eq }) =>
       eq(productVariant.id, data.productVariantId),
@@ -24,25 +23,33 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
   if (!productVariant) {
     throw new Error("Product variant not found");
   }
+
+  // Busca o carrinho do usuário
   const cart = await db.query.cartTable.findFirst({
-    where: (cart, { eq }) => eq(cart.userId, session.user.id),
+    where: (cart, { eq }) => eq(cart.userId, userId),
   });
   let cartId = cart?.id;
+
+  // Cria carrinho se não existir
   if (!cartId) {
     const [newCart] = await db
       .insert(cartTable)
       .values({
-        userId: session.user.id,
+        userId,
       })
       .returning();
     cartId = newCart.id;
   }
+
+  // Verifica se o item já existe no carrinho
   const cartItem = await db.query.cartItemTable.findFirst({
     where: (cartItem, { eq }) =>
       eq(cartItem.cartId, cartId) &&
       eq(cartItem.productVariantId, data.productVariantId),
   });
+
   if (cartItem) {
+    // Atualiza quantidade se item já existe
     await db
       .update(cartItemTable)
       .set({
@@ -51,6 +58,8 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
       .where(eq(cartItemTable.id, cartItem.id));
     return;
   }
+
+  // Adiciona novo item ao carrinho
   await db.insert(cartItemTable).values({
     cartId,
     productVariantId: data.productVariantId,

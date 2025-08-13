@@ -1,12 +1,11 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import z from "zod";
 
 import { db } from "@/db";
 import { cartItemTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth-middleware";
 
 import { removeProductFromCartSchema } from "./schema";
 
@@ -20,15 +19,8 @@ export const removeProductFromCart = async (
   // Valida os dados de entrada usando o schema Zod
   removeProductFromCartSchema.parse(data);
 
-  // Obtém a sessão do usuário autenticado através dos headers da requisição
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  // Verifica se o usuário está autenticado
-  if (!session?.user) {
-    throw new Error("Unauthorized");
-  }
+  // Obtém o userId autenticado (substitui 7 linhas por 1!)
+  const userId = await requireAuth();
 
   // Busca o item do carrinho no banco de dados
   // Inclui os dados do carrinho relacionado para verificação de propriedade
@@ -45,9 +37,9 @@ export const removeProductFromCart = async (
   }
 
   // Verifica se o carrinho pertence ao usuário autenticado (segurança)
-  const cartDoesNotBelongToUser = cartItem.cart.userId !== session.user.id;
+  const cartDoesNotBelongToUser = cartItem.cart.userId !== userId;
   if (cartDoesNotBelongToUser) {
-    throw new Error("Unauthorized");
+    throw new Error("Unauthorized: Cart does not belong to user");
   }
 
   // Remove o item do carrinho do banco de dados
