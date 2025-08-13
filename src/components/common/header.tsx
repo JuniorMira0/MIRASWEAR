@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
+import { useCategories } from "@/hooks/queries/use-categories";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -26,6 +27,7 @@ import { Cart } from "./cart";
 
 export const Header = () => {
   const { data: session } = authClient.useSession();
+  const { data: categories, isLoading: isCategoriesLoading } = useCategories();
   return (
     <header className="flex items-center justify-between p-5">
       <Link href="/">
@@ -129,21 +131,24 @@ export const Header = () => {
                   CATEGORIAS
                 </h3>
 
-                <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/camisetas">Camisetas</Link>
-                </Button>
-
-                <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/calcas">Calças</Link>
-                </Button>
-
-                <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/tenis">Tênis</Link>
-                </Button>
-
-                <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/acessorios">Acessórios</Link>
-                </Button>
+                {isCategoriesLoading ? (
+                  <div className="text-sm text-muted-foreground">
+                    Carregando categorias...
+                  </div>
+                ) : (
+                  categories?.map((category) => (
+                    <Button
+                      key={category.id}
+                      variant="ghost"
+                      className="justify-start"
+                      asChild
+                    >
+                      <Link href={`/category/${category.slug}`}>
+                        {category.name}
+                      </Link>
+                    </Button>
+                  ))
+                )}
               </div>
             </div>
           </SheetContent>
