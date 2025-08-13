@@ -9,13 +9,9 @@ import { requireAuth } from "@/lib/auth-middleware";
 import { AddProductToCartSchema, addProductToCartSchema } from "./schema";
 
 export const addProductToCart = async (data: AddProductToCartSchema) => {
-  // Valida o schema de entrada
   addProductToCartSchema.parse(data);
-  
-  // Obtém o userId autenticado (substitui 5 linhas por 1!)
   const userId = await requireAuth();
 
-  // Verifica se a variante do produto existe
   const productVariant = await db.query.productVariantTable.findFirst({
     where: (productVariant, { eq }) =>
       eq(productVariant.id, data.productVariantId),
@@ -24,13 +20,11 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
     throw new Error("Product variant not found");
   }
 
-  // Busca o carrinho do usuário
   const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, userId),
   });
   let cartId = cart?.id;
 
-  // Cria carrinho se não existir
   if (!cartId) {
     const [newCart] = await db
       .insert(cartTable)
@@ -41,7 +35,6 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
     cartId = newCart.id;
   }
 
-  // Verifica se o item já existe no carrinho
   const cartItem = await db.query.cartItemTable.findFirst({
     where: (cartItem, { eq }) =>
       eq(cartItem.cartId, cartId) &&
@@ -49,7 +42,6 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
   });
 
   if (cartItem) {
-    // Atualiza quantidade se item já existe
     await db
       .update(cartItemTable)
       .set({
@@ -59,7 +51,6 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
     return;
   }
 
-  // Adiciona novo item ao carrinho
   await db.insert(cartItemTable).values({
     cartId,
     productVariantId: data.productVariantId,
