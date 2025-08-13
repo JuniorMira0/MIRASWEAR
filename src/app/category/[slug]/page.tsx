@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 
+import { getCategoryBySlug } from "@/actions/get-categories";
 import { Header } from "@/components/common/header";
 import ProductItem from "@/components/common/product-item";
-import { getProductsByCategory } from '@/data/products/get-products';
-import { getCategoryBySlug } from '@/data/categories/get-categories';
+import { getProductsByCategory } from "@/data/products/get-products";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
