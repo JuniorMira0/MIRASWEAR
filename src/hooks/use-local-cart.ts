@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { LocalCartItem } from "@/actions/get-local-cart-product-data";
+import { useEffect, useState } from "react";
 
 const LOCAL_CART_KEY = "miraswear-cart";
 

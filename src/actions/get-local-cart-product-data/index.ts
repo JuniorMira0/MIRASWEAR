@@ -10,29 +10,31 @@ export interface LocalCartItem {
 export const getLocalCartProductData = async (localItems: LocalCartItem[]) => {
   if (localItems.length === 0) return [];
 
-  const productVariantIds = localItems.map(item => item.productVariantId);
-  
+  const productVariantIds = localItems.map((item) => item.productVariantId);
+
   const productVariants = await db.query.productVariantTable.findMany({
-    where: (productVariant, { inArray }) => 
+    where: (productVariant, { inArray }) =>
       inArray(productVariant.id, productVariantIds),
     with: {
       product: true,
     },
   });
 
-  return localItems.map(localItem => {
-    const productVariant = productVariants.find(
-      pv => pv.id === localItem.productVariantId
-    );
-    
-    if (!productVariant) return null;
-    
-    return {
-      id: `local-${localItem.productVariantId}`,
-      cartId: "local",
-      productVariantId: localItem.productVariantId,
-      quantity: localItem.quantity,
-      productVariant,
-    };
-  }).filter(Boolean);
+  return localItems
+    .map((localItem) => {
+      const productVariant = productVariants.find(
+        (pv) => pv.id === localItem.productVariantId,
+      );
+
+      if (!productVariant) return null;
+
+      return {
+        id: `local-${localItem.productVariantId}`,
+        cartId: "local",
+        productVariantId: localItem.productVariantId,
+        quantity: localItem.quantity,
+        productVariant,
+      };
+    })
+    .filter(Boolean);
 };
