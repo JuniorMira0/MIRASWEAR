@@ -1,10 +1,10 @@
+import { getCategories } from "@/actions/get-categories";
 import CategorySelector from "@/components/common/category-selector";
 import Footer from "@/components/common/footer";
 import ProductList from "@/components/common/product-list";
 import { getProducts, getRecentProducts } from "@/data/products/get-products";
 import Image from "next/image";
 import { Header } from "../components/common/header";
-import { getCategories } from '@/data/categories/get-categories';
 
 const Home = async () => {
   const products = await getProducts();
