@@ -32,6 +32,8 @@ export const useCart = (params?: {
       return getLocalCartProductData(localCart.items);
     },
     enabled: !session?.user, // Sempre enabled para usuário local
+    staleTime: 5 * 60 * 1000, // 5 minutos - dados dos produtos não mudam frequentemente
+    gcTime: 10 * 60 * 1000, // 10 minutos de garbage collection
   });
 
   // Se usuário não está logado, retorna dados do carrinho local

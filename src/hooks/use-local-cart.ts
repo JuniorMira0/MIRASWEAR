@@ -29,8 +29,11 @@ export const useLocalCart = () => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(items));
-      // Invalida o cache do carrinho local quando o localStorage muda
-      queryClient.invalidateQueries({ queryKey: ["cart", "local"] });
+      // Apenas refetch se já existe cache, para não fazer requests desnecessários
+      queryClient.refetchQueries({
+        queryKey: ["cart", "local"],
+        type: "active", // só refetch se a query estiver ativa
+      });
     }
   }, [items, queryClient]);
 
