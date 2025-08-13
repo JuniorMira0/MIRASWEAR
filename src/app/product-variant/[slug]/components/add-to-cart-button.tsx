@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 
 import { addProductToCart } from "@/actions/add-cart-product";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
 
 interface AddToCartButtonProps {
@@ -27,16 +26,15 @@ const AddToCartButton = ({
     },
   });
   return (
-    <Button
+    <LoadingButton
       className="rounded-full"
       size="lg"
       variant="outline"
-      disabled={isPending}
+      isLoading={isPending}
       onClick={() => mutate()}
     >
-      {isPending && <Loader2 className="animate-spin" />}
       Adicionar à sacola
-    </Button>
+    </LoadingButton>
   );
 };
 

@@ -8,7 +8,6 @@ import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { TOAST_MESSAGES } from "@/constants/toast-messages";
 import { shippingAddressTable } from "@/db/schema";
@@ -167,15 +167,14 @@ const Addresses = ({
 
         {selectedAddress && selectedAddress !== "add_new" && (
           <div className="mt-4">
-            <Button
+            <LoadingButton
               onClick={handleGoToPayment}
               className="w-full"
-              disabled={updateCartShippingAddressMutation.isPending}
+              isLoading={updateCartShippingAddressMutation.isPending}
+              loadingText="Processando..."
             >
-              {updateCartShippingAddressMutation.isPending
-                ? "Processando..."
-                : "Ir para pagamento"}
-            </Button>
+              Ir para pagamento
+            </LoadingButton>
           </div>
         )}
 
@@ -362,19 +361,17 @@ const Addresses = ({
                 />
               </div>
 
-              <Button
+              <LoadingButton
                 type="submit"
                 className="w-full"
-                disabled={
+                isLoading={
                   createShippingAddressMutation.isPending ||
                   updateCartShippingAddressMutation.isPending
                 }
+                loadingText="Salvando..."
               >
-                {createShippingAddressMutation.isPending ||
-                updateCartShippingAddressMutation.isPending
-                  ? "Salvando..."
-                  : "Salvar endereço"}
-              </Button>
+                Salvar endereço
+              </LoadingButton>
             </form>
           </Form>
         )}
