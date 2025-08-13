@@ -1,27 +1,16 @@
 import CategorySelector from "@/components/common/category-selector";
 import Footer from "@/components/common/footer";
 import ProductList from "@/components/common/product-list";
-import { db } from "@/db";
-import { productTable } from "@/db/schema";
-import { desc } from "drizzle-orm/sql/expressions/select";
+import { getProducts, getRecentProducts } from "@/data/products/get-products";
 import Image from "next/image";
 import { Header } from "../components/common/header";
+import { getCategories } from '@/data/categories/get-categories';
 
 const Home = async () => {
-  const products = await db.query.productTable.findMany({
-    with: {
-      variants: true,
-    },
-  });
+  const products = await getProducts();
+  const newlyAddedProducts = await getRecentProducts();
 
-  const newlyAddedProducts = await db.query.productTable.findMany({
-    orderBy: [desc(productTable.createdAt)],
-    with: {
-      variants: true,
-    },
-  });
-
-  const categories = await db.query.categoryTable.findMany({});
+  const categories = await getCategories();
   return (
     <>
       <Header />
