@@ -1,10 +1,9 @@
-"use client";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import { addProductToCart } from "@/actions/add-cart-product";
 import { Button } from "@/components/ui/button";
+import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
 
 interface AddToCartButtonProps {
   productVariantId: string;
@@ -24,7 +23,7 @@ const AddToCartButton = ({
         quantity,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
     },
   });
   return (
