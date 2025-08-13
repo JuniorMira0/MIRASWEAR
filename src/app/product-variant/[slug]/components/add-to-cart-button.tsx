@@ -46,11 +46,23 @@ const AddToCartButton = ({
         // Busca dados completos do produto para salvar no localStorage
         const productDetails = await getProductVariantDetails(productVariantId);
         localCart.addItem(productVariantId, quantity, productDetails);
+
+        // Força a invalidação das queries do carrinho local
+        queryClient.invalidateQueries({
+          queryKey: getUseCartQueryKey(true),
+        });
+
         toast.success("Produto adicionado à sacola!");
       } catch (error) {
         console.error("Erro ao buscar dados do produto:", error);
         // Fallback: adiciona sem os dados completos
         localCart.addItem(productVariantId, quantity);
+
+        // Força a invalidação das queries do carrinho local
+        queryClient.invalidateQueries({
+          queryKey: getUseCartQueryKey(true),
+        });
+
         toast.success("Produto adicionado à sacola!");
       }
     }
