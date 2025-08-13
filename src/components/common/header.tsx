@@ -1,6 +1,6 @@
 "use client";
 
-import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
+import { HomeIcon, LogInIcon, LogOutIcon, MenuIcon, PackageIcon, ShoppingBagIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -8,6 +8,7 @@ import { authClient } from "@/lib/auth-client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -42,47 +43,104 @@ export const Header = () => {
             <SheetHeader>
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
-            <div className="px-5">
-              {session?.user ? (
-                <>
-                  <div className="flex justify-between space-y-6">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage
-                          src={session?.user?.image as string | undefined}
-                        />
-                        <AvatarFallback>
-                          {session?.user?.name?.split(" ")?.[0]?.[0]}
-                          {session?.user?.name?.split(" ")?.[1]?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
+            <div className="flex flex-col gap-4 py-4">
+              {/* Seção do Usuário */}
+              <div className="px-5">
+                {session?.user ? (
+                  <>
+                    <div className="flex justify-between space-y-6">
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage
+                            src={session?.user?.image as string | undefined}
+                          />
+                          <AvatarFallback>
+                            {session?.user?.name?.split(" ")?.[0]?.[0]}
+                            {session?.user?.name?.split(" ")?.[1]?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
 
-                      <div>
-                        <h3 className="font-semibold">{session?.user?.name}</h3>
-                        <span className="text-muted-foreground block text-xs">
-                          {session?.user?.email}
-                        </span>
+                        <div>
+                          <h3 className="font-semibold">{session?.user?.name}</h3>
+                          <span className="text-muted-foreground block text-xs">
+                            {session?.user?.email}
+                          </span>
+                        </div>
                       </div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => authClient.signOut()}
+                      >
+                        <LogOutIcon />
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => authClient.signOut()}
-                    >
-                      <LogOutIcon />
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-semibold">Olá. Faça seu login!</h2>
+                    <Button size="icon" asChild variant="outline">
+                      <Link href="/authentication">
+                        <LogInIcon />
+                      </Link>
                     </Button>
                   </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <h2 className="font-semibold">Olá. Faça seu login!</h2>
-                  <Button size="icon" asChild variant="outline">
-                    <Link href="/authentication">
-                      <LogInIcon />
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Navegação Principal */}
+              <div className="flex flex-col gap-2 px-5">
+                <Button variant="ghost" className="justify-start gap-3" asChild>
+                  <Link href="/">
+                    <HomeIcon className="h-4 w-4" />
+                    Início
+                  </Link>
+                </Button>
+
+                {session?.user && (
+                  <Button variant="ghost" className="justify-start gap-3" asChild>
+                    <Link href="/my-orders">
+                      <PackageIcon className="h-4 w-4" />
+                      Meus Pedidos
                     </Link>
                   </Button>
-                </div>
-              )}
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Categorias */}
+              <div className="flex flex-col gap-2 px-5">
+                <h3 className="font-semibold text-sm text-muted-foreground mb-2">
+                  CATEGORIAS
+                </h3>
+                
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link href="/category/camisetas">
+                    Camisetas
+                  </Link>
+                </Button>
+                
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link href="/category/calcas">
+                    Calças
+                  </Link>
+                </Button>
+                
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link href="/category/tenis">
+                    Tênis
+                  </Link>
+                </Button>
+                
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link href="/category/acessorios">
+                    Acessórios
+                  </Link>
+                </Button>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
