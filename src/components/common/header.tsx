@@ -10,8 +10,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-import { authClient } from "@/lib/auth-client";
 import { useCategories } from "@/hooks/queries/use-categories";
+import { authClient } from "@/lib/auth-client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -132,7 +132,7 @@ export const Header = () => {
                 </h3>
 
                 {isCategoriesLoading ? (
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     Carregando categorias...
                   </div>
                 ) : (
