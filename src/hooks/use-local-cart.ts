@@ -29,9 +29,8 @@ export const useLocalCart = () => {
   useEffect(() => {
     if (typeof window !== "undefined" && isLoaded) {
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(items));
-      queryClient.refetchQueries({
+      queryClient.invalidateQueries({
         queryKey: ["cart", "local"],
-        type: "active",
       });
     }
   }, [items, queryClient, isLoaded]);
