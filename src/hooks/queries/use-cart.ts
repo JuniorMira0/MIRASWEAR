@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getCart } from "@/actions/get-cart";
-import { getLocalCartItems } from "@/data/cart/get-local-cart-items";
+import { getLocalCartProductData } from "@/actions/get-local-cart-product-data";
 import { useLocalCart } from "@/hooks/use-local-cart";
 import { authClient } from "@/lib/auth-client";
 
@@ -23,7 +23,7 @@ export const useCart = (params?: {
 
   const localCartQuery = useQuery({
     queryKey: [...getLocalCartQueryKey(), localCart.items],
-    queryFn: () => getLocalCartItems(localCart.items),
+    queryFn: () => getLocalCartProductData(localCart.items),
     enabled: !session?.user && localCart.items.length > 0,
   });
 

@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-export interface LocalCartItem {
-  productVariantId: string;
-  quantity: number;
-}
+import type { LocalCartItem } from "@/actions/get-local-cart-product-data";
 
 const LOCAL_CART_KEY = "miraswear-cart";
 
