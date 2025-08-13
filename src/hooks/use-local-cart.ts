@@ -1,12 +1,14 @@
 "use client";
 
 import type { LocalCartItem } from "@/actions/get-local-cart-product-data";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 const LOCAL_CART_KEY = "miraswear-cart";
 
 export const useLocalCart = () => {
   const [items, setItems] = useState<LocalCartItem[]>([]);
+  const queryClient = useQueryClient();
 
   // Carrega o carrinho do localStorage ao montar
   useEffect(() => {
@@ -27,8 +29,10 @@ export const useLocalCart = () => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(items));
+      // Invalida o cache do carrinho local quando o localStorage muda
+      queryClient.invalidateQueries({ queryKey: ["cart", "local"] });
     }
-  }, [items]);
+  }, [items, queryClient]);
 
   const addItem = (productVariantId: string, quantity: number) => {
     setItems((prev) => {

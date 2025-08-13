@@ -5,7 +5,8 @@ import { getLocalCartProductData } from "@/actions/get-local-cart-product-data";
 import { useLocalCart } from "@/hooks/use-local-cart";
 import { authClient } from "@/lib/auth-client";
 
-export const getUseCartQueryKey = () => ["cart"] as const;
+export const getUseCartQueryKey = (isLocal: boolean = false) =>
+  isLocal ? (["cart", "local"] as const) : (["cart", "server"] as const);
 export const getLocalCartQueryKey = () => ["localCart"] as const;
 
 export const useCart = (params?: {
@@ -13,18 +14,24 @@ export const useCart = (params?: {
 }) => {
   const { data: session } = authClient.useSession();
   const localCart = useLocalCart();
+  const isLocal = !session?.user;
 
   const serverCartQuery = useQuery({
-    queryKey: getUseCartQueryKey(),
+    queryKey: getUseCartQueryKey(false),
     queryFn: getCart,
     initialData: params?.initialData,
     enabled: !!session?.user, // Só busca carrinho do servidor se logado
   });
 
   const localCartQuery = useQuery({
-    queryKey: [...getLocalCartQueryKey(), localCart.items],
-    queryFn: () => getLocalCartProductData(localCart.items),
-    enabled: !session?.user && localCart.items.length > 0,
+    queryKey: getUseCartQueryKey(true),
+    queryFn: () => {
+      if (localCart.items.length === 0) {
+        return Promise.resolve([]);
+      }
+      return getLocalCartProductData(localCart.items);
+    },
+    enabled: !session?.user, // Sempre enabled para usuário local
   });
 
   // Se usuário não está logado, retorna dados do carrinho local
