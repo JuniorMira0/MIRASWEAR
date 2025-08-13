@@ -1,10 +1,9 @@
-import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 import { Header } from "@/components/common/header";
 import ProductItem from "@/components/common/product-item";
-import { db } from "@/db";
-import { categoryTable, productTable } from "@/db/schema";
+import { getProductsByCategory } from '@/data/products/get-products';
+import { getCategoryBySlug } from '@/data/categories/get-categories';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -12,18 +11,12 @@ interface CategoryPageProps {
 
 const CategoryPage = async ({ params }: CategoryPageProps) => {
   const { slug } = await params;
-  const category = await db.query.categoryTable.findFirst({
-    where: eq(categoryTable.slug, slug),
-  });
+  const category = await getCategoryBySlug(slug);
+
   if (!category) {
     return notFound();
   }
-  const products = await db.query.productTable.findMany({
-    where: eq(productTable.categoryId, category.id),
-    with: {
-      variants: true,
-    },
-  });
+  const products = await getProductsByCategory(category.id);
   return (
     <>
       <Header />
