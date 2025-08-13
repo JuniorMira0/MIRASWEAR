@@ -5,12 +5,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 
 import { db } from "@/db";
-import {
-  cartItemTable,
-  cartTable,
-  orderItemTable,
-  orderTable,
-} from "@/db/schema";
+import { orderItemTable, orderTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 import {
@@ -54,6 +49,7 @@ export const createCheckoutSession = async (
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel`,
     metadata: {
       orderId,
+      userId: session.user.id,
     },
     line_items: orderItems.map((orderItem) => {
       return {
