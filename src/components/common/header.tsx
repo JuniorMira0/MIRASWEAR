@@ -1,6 +1,12 @@
 "use client";
 
-import { HomeIcon, LogInIcon, LogOutIcon, MenuIcon, PackageIcon, ShoppingBagIcon } from "lucide-react";
+import {
+  HomeIcon,
+  LogInIcon,
+  LogOutIcon,
+  MenuIcon,
+  PackageIcon,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -61,7 +67,9 @@ export const Header = () => {
                         </Avatar>
 
                         <div>
-                          <h3 className="font-semibold">{session?.user?.name}</h3>
+                          <h3 className="font-semibold">
+                            {session?.user?.name}
+                          </h3>
                           <span className="text-muted-foreground block text-xs">
                             {session?.user?.email}
                           </span>
@@ -100,7 +108,11 @@ export const Header = () => {
                 </Button>
 
                 {session?.user && (
-                  <Button variant="ghost" className="justify-start gap-3" asChild>
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-3"
+                    asChild
+                  >
                     <Link href="/my-orders">
                       <PackageIcon className="h-4 w-4" />
                       Meus Pedidos
@@ -113,32 +125,24 @@ export const Header = () => {
 
               {/* Categorias */}
               <div className="flex flex-col gap-2 px-5">
-                <h3 className="font-semibold text-sm text-muted-foreground mb-2">
+                <h3 className="text-muted-foreground mb-2 text-sm font-semibold">
                   CATEGORIAS
                 </h3>
-                
+
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/camisetas">
-                    Camisetas
-                  </Link>
+                  <Link href="/category/camisetas">Camisetas</Link>
                 </Button>
-                
+
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/calcas">
-                    Calças
-                  </Link>
+                  <Link href="/category/calcas">Calças</Link>
                 </Button>
-                
+
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/tenis">
-                    Tênis
-                  </Link>
+                  <Link href="/category/tenis">Tênis</Link>
                 </Button>
-                
+
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/category/acessorios">
-                    Acessórios
-                  </Link>
+                  <Link href="/category/acessorios">Acessórios</Link>
                 </Button>
               </div>
             </div>
