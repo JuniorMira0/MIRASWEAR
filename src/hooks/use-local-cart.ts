@@ -8,9 +8,9 @@ const LOCAL_CART_KEY = "miraswear-cart";
 
 export const useLocalCart = () => {
   const [items, setItems] = useState<LocalCartItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const queryClient = useQueryClient();
 
-  // Carrega o carrinho do localStorage ao montar
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedCart = localStorage.getItem(LOCAL_CART_KEY);
@@ -22,20 +22,19 @@ export const useLocalCart = () => {
           localStorage.removeItem(LOCAL_CART_KEY);
         }
       }
+      setIsLoaded(true);
     }
   }, []);
 
-  // Salva no localStorage sempre que items mudar
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && isLoaded) {
       localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(items));
-      // Apenas refetch se já existe cache, para não fazer requests desnecessários
       queryClient.refetchQueries({
         queryKey: ["cart", "local"],
-        type: "active", // só refetch se a query estiver ativa
+        type: "active",
       });
     }
-  }, [items, queryClient]);
+  }, [items, queryClient, isLoaded]);
 
   const addItem = (productVariantId: string, quantity: number) => {
     setItems((prev) => {
