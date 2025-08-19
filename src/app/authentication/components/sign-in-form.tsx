@@ -37,7 +37,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SignInForm = () => {
+const SignInForm = ({ redirect }: { redirect?: string }) => {
   const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -53,7 +53,7 @@ const SignInForm = () => {
       password: values.password,
       fetchOptions: {
         onSuccess: () => {
-          router.push("/");
+          router.push(redirect || "/");
         },
         onError: (ctx) => {
           if (ctx.error.code === "USER_NOT_FOUND") {

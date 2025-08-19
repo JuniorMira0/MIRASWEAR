@@ -4,7 +4,11 @@ import { Header } from "@/components/common/header";
 import SignInForm from "./components/sign-in-form";
 import SignUpForm from "./components/sign-up-form";
 
-export function Authentication() {
+export function Authentication({
+  searchParams,
+}: {
+  searchParams: { redirect?: string };
+}) {
   return (
     <>
       <Header />
@@ -16,7 +20,7 @@ export function Authentication() {
             <TabsTrigger value="sign-up">Criar conta</TabsTrigger>
           </TabsList>
           <TabsContent value="sign-in">
-            <SignInForm />
+            <SignInForm redirect={searchParams?.redirect} />
           </TabsContent>
           <TabsContent value="sign-up">
             <SignUpForm />

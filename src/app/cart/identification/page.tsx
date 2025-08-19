@@ -17,7 +17,7 @@ const IdentificationPage = async () => {
     headers: await headers(),
   });
   if (!session?.user.id) {
-    redirect("/");
+    redirect("/authentication");
   }
   const cart = await getCartWithItems(session.user.id);
 

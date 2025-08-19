@@ -49,7 +49,7 @@ export const Cart = () => {
         <Button variant="outline" size="icon" className="relative">
           <ShoppingBasketIcon />
           {totalItems > 0 && (
-            <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold">
+            <span className="bg-primary text-primary-foreground absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold">
               {totalItems > 99 ? "99+" : totalItems}
             </span>
           )}
@@ -99,7 +99,15 @@ export const Cart = () => {
                 <p>{formatCentsToBRL(totalPriceInCents)}</p>
               </div>
               <Button className="mt-5 rounded-full" asChild>
-                <Link href="/cart/identification">Finalizar compra</Link>
+                <Link
+                  href={
+                    isLogged
+                      ? "/cart/identification"
+                      : `/authentication?redirect=/cart/identification`
+                  }
+                >
+                  {isLogged ? "Finalizar compra" : "Fazer login para continuar"}
+                </Link>
               </Button>
             </div>
           )}
