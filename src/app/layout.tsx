@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { CartStoreProvider } from "@/hooks/cart-store";
 import ReactQueryProvider from "@/providers/react-query";
 import "./globals.css";
 
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <ReactQueryProvider>
+          <CartStoreProvider>{children}</CartStoreProvider>
+        </ReactQueryProvider>
         <Toaster position="top-center" />
       </body>
     </html>

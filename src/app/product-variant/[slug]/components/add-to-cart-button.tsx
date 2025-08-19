@@ -1,11 +1,13 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { addProductToCart } from "@/actions/add-cart-product";
 import { getProductVariantDetails } from "@/actions/get-product-variant-details";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { useCartStore } from "@/hooks/cart-store";
 import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
-import { useLocalCart } from "@/hooks/use-local-cart";
 import { authClient } from "@/lib/auth-client";
 
 interface AddToCartButtonProps {
@@ -19,7 +21,7 @@ const AddToCartButton = ({
 }: AddToCartButtonProps) => {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
-  const localCart = useLocalCart();
+  const { addItem: addGuestItem } = useCartStore();
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["addProductToCart", productVariantId, quantity],
@@ -29,7 +31,7 @@ const AddToCartButton = ({
         quantity,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getUseCartQueryKey(false) });
+      queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
       toast.success("Produto adicionado à sacola!");
     },
     onError: (error) => {
@@ -43,26 +45,17 @@ const AddToCartButton = ({
       mutate();
     } else {
       try {
-        // Busca dados completos do produto para salvar no localStorage
         const productDetails = await getProductVariantDetails(productVariantId);
-        localCart.addItem(productVariantId, quantity, productDetails);
-
-        // Força a invalidação das queries do carrinho local
-        queryClient.invalidateQueries({
-          queryKey: getUseCartQueryKey(true),
+        addGuestItem(productVariantId, quantity, {
+          productName: productDetails.productName,
+          productVariantName: productDetails.productVariantName,
+          productVariantImageUrl: productDetails.productVariantImageUrl,
+          productVariantPriceInCents: productDetails.productVariantPriceInCents,
         });
-
         toast.success("Produto adicionado à sacola!");
       } catch (error) {
         console.error("Erro ao buscar dados do produto:", error);
-        // Fallback: adiciona sem os dados completos
-        localCart.addItem(productVariantId, quantity);
-
-        // Força a invalidação das queries do carrinho local
-        queryClient.invalidateQueries({
-          queryKey: getUseCartQueryKey(true),
-        });
-
+        addGuestItem(productVariantId, quantity);
         toast.success("Produto adicionado à sacola!");
       }
     }

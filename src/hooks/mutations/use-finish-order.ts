@@ -14,7 +14,7 @@ export const useFinishOrder = () => {
       return await finishOrder();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getUseCartQueryKey(false) });
+      queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
     },
   });
 };

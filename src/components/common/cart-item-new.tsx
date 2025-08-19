@@ -1,13 +1,11 @@
-import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
-import Image from "next/image";
-
 import { TOAST_MESSAGES } from "@/constants/toast-messages";
 import { formatCentsToBRL } from "@/helpers/money";
-
+import { useCartStore } from "@/hooks/cart-store";
 import { useDecreaseCartProductQuantity } from "@/hooks/mutations/use-decrease-cart-product";
 import { useIncreaseCartProduct } from "@/hooks/mutations/use-increase-cart-product";
 import { useRemoveProductFromCart } from "@/hooks/mutations/use-remove-product-from-cart";
-import { useLocalCart } from "@/hooks/use-local-cart";
+import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 
@@ -32,7 +30,7 @@ const CartItem = ({
   quantity,
   isLocal = false,
 }: CartItemProps) => {
-  const localCart = useLocalCart();
+  const { removeItem, decrease, addItem } = useCartStore();
 
   const removeProductFromCartMutation = useRemoveProductFromCart(id);
   const decreaseCartProductQuantityMutation =
@@ -42,7 +40,7 @@ const CartItem = ({
 
   const handleDeleteClick = () => {
     if (isLocal) {
-      localCart.removeItem(productVariantId);
+      removeItem(productVariantId);
       toast.success(TOAST_MESSAGES.CART.PRODUCT_REMOVED);
     } else {
       removeProductFromCartMutation.mutate(undefined, {
@@ -58,7 +56,7 @@ const CartItem = ({
 
   const handleDecreaseQuantityClick = () => {
     if (isLocal) {
-      localCart.decreaseQuantity(productVariantId);
+      decrease(productVariantId);
     } else {
       decreaseCartProductQuantityMutation.mutate(undefined, {
         onSuccess: () => {
@@ -73,7 +71,7 @@ const CartItem = ({
 
   const handleIncreaseQuantityClick = () => {
     if (isLocal) {
-      localCart.addItem(productVariantId, 1);
+      addItem(productVariantId, 1);
     } else {
       increaseCartProductQuantityMutation.mutate(undefined, {
         onSuccess: () => {

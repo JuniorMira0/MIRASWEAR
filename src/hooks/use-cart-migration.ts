@@ -1,8 +1,8 @@
 "use client";
 
 import { migrateLocalCartToServer } from "@/actions/migrate-local-cart";
+import { useCartStore } from "@/hooks/cart-store";
 import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
-import { useLocalCart } from "@/hooks/use-local-cart";
 import { authClient } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 export const useCartMigration = () => {
   const { data: session } = authClient.useSession();
-  const localCart = useLocalCart();
+  const { state, clear } = useCartStore();
   const queryClient = useQueryClient();
   const previouslyLoggedIn = useRef(false);
 
@@ -18,24 +18,29 @@ export const useCartMigration = () => {
     const isLoggedIn = !!session?.user;
     const wasLoggedOut = !previouslyLoggedIn.current;
 
-    if (isLoggedIn && wasLoggedOut && localCart.items.length > 0) {
-      const migrateCart = async () => {
+    if (isLoggedIn && wasLoggedOut && state.items.length > 0) {
+      (async () => {
         try {
-          await migrateLocalCartToServer(localCart.items);
-          localCart.clearCart();
-          queryClient.invalidateQueries({
-            queryKey: getUseCartQueryKey(false),
-          });
+          await migrateLocalCartToServer(
+            state.items.map((i) => ({
+              productVariantId: i.productVariantId,
+              quantity: i.quantity,
+              productName: i.productName,
+              productVariantName: i.productVariantName,
+              productVariantImageUrl: i.productVariantImageUrl,
+              productVariantPriceInCents: i.productVariantPriceInCents,
+            })),
+          );
+          clear();
+          queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
           toast.success("Carrinho sincronizado com sua conta!");
-        } catch (error) {
-          console.error("Erro ao migrar carrinho:", error);
+        } catch (e) {
+          console.error("Erro ao migrar carrinho", e);
           toast.error("Erro ao sincronizar carrinho");
         }
-      };
-
-      migrateCart();
+      })();
     }
 
     previouslyLoggedIn.current = isLoggedIn;
-  }, [session?.user, localCart, queryClient]);
+  }, [session?.user, state.items, clear, queryClient]);
 };
