@@ -42,11 +42,17 @@ export const Cart = () => {
     (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
     0,
   );
+  const totalItems = cartItems.reduce((acc, i) => acc + i.quantity, 0);
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" className="relative">
           <ShoppingBasketIcon />
+          {totalItems > 0 && (
+            <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold">
+              {totalItems > 99 ? "99+" : totalItems}
+            </span>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent>

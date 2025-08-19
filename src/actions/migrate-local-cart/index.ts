@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { cartItemTable, cartTable } from "@/db/schema";
 import { requireAuth } from "@/lib/auth-middleware";
-import { eq } from 'drizzle-orm';
+import { eq } from "drizzle-orm";
 
 export interface LocalCartItem {
   productVariantId: string;
@@ -31,9 +31,18 @@ export const migrateLocalCartToServer = async (
     cart = newCart;
   }
 
-  // Para cada item do carrinho local
+  const variantIds = Array.from(
+    new Set(localCartItems.map((i) => i.productVariantId)),
+  );
+  const variants = await db.query.productVariantTable.findMany({
+    where: (pv, { inArray }) => inArray(pv.id, variantIds),
+  });
+  const variantMap = new Map(variants.map((v) => [v.id, v]));
+
   for (const localItem of localCartItems) {
-    // Verifica se já existe no carrinho do servidor
+    if (localItem.quantity <= 0) continue;
+    const variant = variantMap.get(localItem.productVariantId);
+    if (!variant) continue;
     const existingItem = await db.query.cartItemTable.findFirst({
       where: (cartItem, { eq, and }) =>
         and(
@@ -43,15 +52,11 @@ export const migrateLocalCartToServer = async (
     });
 
     if (existingItem) {
-      // Se existe, soma as quantidades
       await db
         .update(cartItemTable)
-        .set({
-          quantity: existingItem.quantity + localItem.quantity,
-        })
+        .set({ quantity: existingItem.quantity + localItem.quantity })
         .where(eq(cartItemTable.id, existingItem.id));
     } else {
-      // Se não existe, cria novo item
       await db.insert(cartItemTable).values({
         cartId: cart.id,
         productVariantId: localItem.productVariantId,
