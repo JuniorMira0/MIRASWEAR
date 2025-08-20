@@ -46,10 +46,14 @@ export const Cart = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative">
-          <ShoppingBasketIcon />
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative md:h-12 md:w-12"
+        >
+          <ShoppingBasketIcon className="md:h-7 md:w-7" />
           {totalItems > 0 && (
-            <span className="bg-primary text-primary-foreground absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold">
+            <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold">
               {totalItems > 99 ? "99+" : totalItems}
             </span>
           )}

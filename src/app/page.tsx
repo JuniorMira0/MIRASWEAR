@@ -23,7 +23,7 @@ const Home = async () => {
             height={0}
             width={0}
             sizes="100vw"
-            className="h-auto w-full rounded-3xl object-cover"
+            className="max-h-screen w-full rounded-3xl object-cover"
           />
         </div>
         <div className="mx-auto max-w-7xl px-5 md:px-0">
@@ -39,7 +39,7 @@ const Home = async () => {
             height={0}
             width={0}
             sizes="100vw"
-            className="h-auto w-full rounded-3xl object-cover"
+            className="max-h-screen w-full rounded-3xl object-cover"
           />
         </div>
         <div className="mx-auto max-w-7xl px-5 md:px-0">
