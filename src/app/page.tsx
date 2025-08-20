@@ -15,35 +15,36 @@ const Home = async () => {
     <>
       <Header />
 
-      <div className="space-y-6">
-        <div className="px-5">
+      <div className="space-y-10 md:space-y-14">
+        <div className="mx-auto max-w-7xl px-5 md:px-0">
           <Image
             src="/banner-01.png"
             alt="Leve uma vida com estilo"
             height={0}
             width={0}
             sizes="100vw"
-            className="h-auto w-full"
+            className="h-auto w-full rounded-3xl object-cover"
           />
         </div>
-
-        <ProductList title="Produtos em destaque" products={products} />
-
-        <div className="px-5">
+        <div className="mx-auto max-w-7xl px-5 md:px-0">
+          <ProductList title="Produtos em destaque" products={products} />
+        </div>
+        <div className="mx-auto max-w-7xl px-5 md:px-0">
           <CategorySelector categories={categories} />
         </div>
-
-        <div className="px-5">
+        <div className="mx-auto max-w-7xl px-5 md:px-0">
           <Image
             src="/banner-02.png"
             alt="Leve uma vida com estilo"
             height={0}
             width={0}
             sizes="100vw"
-            className="h-auto w-full"
+            className="h-auto w-full rounded-3xl object-cover"
           />
         </div>
-        <ProductList title="Novidades" products={newlyAddedProducts} />
+        <div className="mx-auto max-w-7xl px-5 md:px-0">
+          <ProductList title="Novidades" products={newlyAddedProducts} />
+        </div>
         <Footer />
       </div>
     </>

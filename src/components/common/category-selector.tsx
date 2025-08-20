@@ -11,12 +11,12 @@ interface CategorySelectorProps {
 const CategorySelector = ({ categories }: CategorySelectorProps) => {
   return (
     <div className="rounded-3xl bg-[#F4EFFF] p-6">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
         {categories.map((category) => (
           <Button
             key={category.id}
             variant="ghost"
-            className="rounded-full bg-white text-xs font-semibold"
+            className="rounded-full bg-white text-xs font-semibold hover:bg-white/80"
           >
             <Link href={`/category/${category.slug}`}>{category.name}</Link>
           </Button>
