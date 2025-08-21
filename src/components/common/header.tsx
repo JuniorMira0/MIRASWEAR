@@ -33,7 +33,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
   useCartMigration();
 
   return (
-    <header className="border-border bg-background relative z-10 w-full border-b">
+    <header className="bg-background relative z-10 w-full">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:py-4">
         <div className="hidden min-w-[180px] items-center gap-2 md:flex">
           <UserIcon className="text-muted-foreground h-5 w-5" />
@@ -170,8 +170,8 @@ export const Header = ({ categories = [] }: HeaderProps) => {
         </div>
       </div>
       {categories.length > 0 && (
-        <nav className="border-border bg-background hidden w-full border-t md:block">
-          <div className="mx-auto flex max-w-7xl gap-8 overflow-x-auto px-4 py-3 text-sm md:px-8">
+        <nav className="bg-background hidden w-full md:block">
+          <div className="mx-auto flex max-w-7xl justify-center gap-14 overflow-x-auto px-6 py-3 text-sm md:px-10">
             {categories.map((c) => (
               <Link
                 key={c.id}
