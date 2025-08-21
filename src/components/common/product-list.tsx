@@ -42,38 +42,6 @@ const ProductList = ({ title, products }: ProductListProps) => {
     };
   }, [update]);
 
-  const isDraggingRef = useRef(false);
-  const dragStartXRef = useRef(0);
-  const dragStartScrollLeftRef = useRef(0);
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    isDraggingRef.current = true;
-    dragStartXRef.current = e.clientX;
-    dragStartScrollLeftRef.current = el.scrollLeft;
-    el.setPointerCapture(e.pointerId);
-    (el as HTMLElement).style.scrollBehavior = "auto";
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    const deltaX = e.clientX - dragStartXRef.current;
-    el.scrollLeft = dragStartScrollLeftRef.current - deltaX;
-    update();
-  };
-
-  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return;
-    const el = scrollRef.current;
-    isDraggingRef.current = false;
-    if (el) {
-      (el as HTMLElement).style.scrollBehavior = "smooth";
-    }
-  };
-
   const scrollByAmount = (dir: 1 | -1) => {
     const el = scrollRef.current;
     if (!el) return;
@@ -98,12 +66,8 @@ const ProductList = ({ title, products }: ProductListProps) => {
           ref={scrollRef}
           tabIndex={0}
           onKeyDown={onKeyDown}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={endDrag}
-          onPointerLeave={endDrag}
           aria-label={`Lista de produtos: ${title}`}
-          className="flex w-full cursor-grab snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-5 select-none active:cursor-grabbing md:px-0 [&::-webkit-scrollbar]:hidden"
+          className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-5 md:px-0 [&::-webkit-scrollbar]:hidden"
         >
           {products.map((product) => (
             <div
