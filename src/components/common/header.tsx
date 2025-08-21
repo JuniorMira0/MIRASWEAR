@@ -15,10 +15,10 @@ import {
 } from "../ui/sheet";
 import { Cart } from "./cart";
 interface HeaderProps {
-  categories: { id: string; name: string; slug: string }[];
+  categories?: { id: string; name: string; slug: string }[];
 }
 
-export const Header = ({ categories }: HeaderProps) => {
+export const Header = ({ categories = [] }: HeaderProps) => {
   const { data: session } = authClient.useSession();
   useCartMigration();
 
@@ -52,7 +52,7 @@ export const Header = ({ categories }: HeaderProps) => {
                   <span className="text-muted-foreground text-xs font-semibold">
                     CATEGORIAS
                   </span>
-                  {categories.map((c) => (
+                  {categories?.map((c) => (
                     <Link
                       key={c.id}
                       href={`/category/${c.slug}`}
@@ -95,19 +95,21 @@ export const Header = ({ categories }: HeaderProps) => {
           </div>
         </div>
       </div>
-      <nav className="border-border bg-background hidden w-full border-t md:block">
-        <div className="mx-auto flex max-w-7xl gap-8 overflow-x-auto px-4 py-3 text-sm md:px-8">
-          {categories.map((c) => (
-            <Link
-              key={c.id}
-              href={`/category/${c.slug}`}
-              className="text-muted-foreground hover:text-foreground shrink-0 font-medium whitespace-nowrap transition-colors"
-            >
-              {c.name}
-            </Link>
-          ))}
-        </div>
-      </nav>
+      {categories.length > 0 && (
+        <nav className="border-border bg-background hidden w-full border-t md:block">
+          <div className="mx-auto flex max-w-7xl gap-8 overflow-x-auto px-4 py-3 text-sm md:px-8">
+            {categories.map((c) => (
+              <Link
+                key={c.id}
+                href={`/category/${c.slug}`}
+                className="text-muted-foreground hover:text-foreground shrink-0 font-medium whitespace-nowrap transition-colors"
+              >
+                {c.name}
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
     </header>
   );
 };
