@@ -13,12 +13,9 @@ export const getCart = async () => {
       shippingAddress: true,
       items: {
         with: {
-          productVariant: {
-            with: {
-              product: true,
-            },
-          },
+          productVariant: { with: { product: true } },
         },
+        orderBy: (cartItem, { asc }) => [asc(cartItem.createdAt)],
       },
     },
   });
