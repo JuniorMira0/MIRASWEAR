@@ -43,14 +43,7 @@ const CartItem = ({
       removeItem(productVariantId);
       toast.success(TOAST_MESSAGES.CART.PRODUCT_REMOVED);
     } else {
-      removeProductFromCartMutation.mutate(undefined, {
-        onSuccess: () => {
-          toast.success(TOAST_MESSAGES.CART.PRODUCT_REMOVED);
-        },
-        onError: (error) => {
-          toast.error(TOAST_MESSAGES.CART.PRODUCT_REMOVED_ERROR);
-        },
-      });
+      removeProductFromCartMutation.mutate();
     }
   };
 
