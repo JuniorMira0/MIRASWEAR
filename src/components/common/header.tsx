@@ -1,6 +1,5 @@
 "use client";
 
-import { useCategories } from "@/hooks/queries/use-categories";
 import { useCartMigration } from "@/hooks/use-cart-migration";
 import { authClient } from "@/lib/auth-client";
 import { MenuIcon, SearchIcon, UserIcon } from "lucide-react";
@@ -15,11 +14,12 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { Cart } from "./cart";
-import CategorySelector from "./category-selector";
+interface HeaderProps {
+  categories: { id: string; name: string; slug: string }[];
+}
 
-export const Header = () => {
+export const Header = ({ categories }: HeaderProps) => {
   const { data: session } = authClient.useSession();
-  const { data: categories } = useCategories();
   useCartMigration();
 
   return (
@@ -42,6 +42,27 @@ export const Header = () => {
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
+              <div className="mt-6 flex flex-col gap-6">
+                {session?.user && (
+                  <div className="text-sm font-medium">
+                    Olá, {session.user.name?.split(" ")[0]}!
+                  </div>
+                )}
+                <nav className="flex flex-col gap-2">
+                  <span className="text-muted-foreground text-xs font-semibold">
+                    CATEGORIAS
+                  </span>
+                  {categories.map((c) => (
+                    <Link
+                      key={c.id}
+                      href={`/category/${c.slug}`}
+                      className="hover:bg-muted rounded-md px-2 py-2 text-sm font-medium"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
@@ -74,9 +95,17 @@ export const Header = () => {
           </div>
         </div>
       </div>
-      <nav className="border-border bg-background w-full border-t">
-        <div className="mx-auto max-w-7xl px-2 md:px-0">
-          <CategorySelector categories={categories || []} />
+      <nav className="border-border bg-background hidden w-full border-t md:block">
+        <div className="mx-auto flex max-w-7xl gap-8 overflow-x-auto px-4 py-3 text-sm md:px-8">
+          {categories.map((c) => (
+            <Link
+              key={c.id}
+              href={`/category/${c.slug}`}
+              className="text-muted-foreground hover:text-foreground shrink-0 font-medium whitespace-nowrap transition-colors"
+            >
+              {c.name}
+            </Link>
+          ))}
         </div>
       </nav>
     </header>

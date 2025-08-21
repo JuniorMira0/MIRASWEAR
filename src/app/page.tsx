@@ -1,5 +1,4 @@
 import { getCategories } from "@/actions/get-categories";
-import CategorySelector from "@/components/common/category-selector";
 import Footer from "@/components/common/footer";
 import ProductList from "@/components/common/product-list";
 import { getProducts, getRecentProducts } from "@/data/products/get-products";
@@ -12,7 +11,7 @@ const Home = async () => {
   const categories = await getCategories();
   return (
     <>
-      <Header />
+      <Header categories={categories} />
       <main className="min-h-screen bg-[#F4F4FF]">
         <div className="mx-auto max-w-7xl space-y-10 px-2 py-6 md:px-0">
           <div className="overflow-hidden rounded-3xl">
@@ -32,10 +31,6 @@ const Home = async () => {
               sizes="100vw"
               className="hidden w-full object-cover md:block md:h-[420px] lg:h-[520px] xl:h-[600px]"
             />
-          </div>
-
-          <div className="">
-            <CategorySelector categories={categories} />
           </div>
 
           <div className="">
