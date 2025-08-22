@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -108,6 +108,56 @@ const Addresses = ({
       state: "",
     },
   });
+
+  const zipCodeValue = form.watch("zipCode");
+  const [cepStatus, setCepStatus] = useState<
+    "idle" | "loading" | "done" | "error"
+  >("idle");
+  const [lastFetchedCep, setLastFetchedCep] = useState<string>("");
+
+  useEffect(() => {
+    const cleanCep = (zipCodeValue || "").replace(/\D/g, "");
+    if (cleanCep.length !== 8 || cleanCep === lastFetchedCep) return;
+
+    let cancelled = false;
+    const lookup = async () => {
+      try {
+        setCepStatus("loading");
+        const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        if (!res.ok) throw new Error("Falha ao buscar CEP");
+        const data = await res.json();
+        if (cancelled) return;
+        if (data?.erro) {
+          setCepStatus("error");
+          toast.error("CEP não encontrado");
+          return;
+        }
+        form.setValue("address", data.logradouro || "", {
+          shouldValidate: true,
+        });
+        form.setValue("neighborhood", data.bairro || "", {
+          shouldValidate: true,
+        });
+        form.setValue("city", data.localidade || "", { shouldValidate: true });
+        form.setValue("state", data.uf || "", { shouldValidate: true });
+        if (data.complemento) {
+          form.setValue("complement", data.complemento, {
+            shouldValidate: true,
+          });
+        }
+        setLastFetchedCep(cleanCep);
+        setCepStatus("done");
+      } catch (e) {
+        if (cancelled) return;
+        setCepStatus("error");
+        toast.error("Não foi possível buscar o CEP");
+      }
+    };
+    lookup();
+    return () => {
+      cancelled = true;
+    };
+  }, [zipCodeValue, lastFetchedCep, form]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -339,6 +389,11 @@ const Addresses = ({
                         />
                       </FormControl>
                       <FormMessage />
+                      {cepStatus === "loading" && (
+                        <p className="text-muted-foreground text-xs">
+                          Buscando endereço pelo CEP…
+                        </p>
+                      )}
                     </FormItem>
                   )}
                 />
