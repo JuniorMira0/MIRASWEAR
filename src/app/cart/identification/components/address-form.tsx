@@ -19,7 +19,6 @@ import { toast } from "sonner";
 import z from "zod";
 
 const formSchema = z.object({
-  email: z.string().email("Por favor, digite um e-mail válido"),
   fullName: z.string().min(1, "Por favor, digite seu nome completo"),
   cpf: z.string().min(14, "Por favor, digite um CPF válido"),
   phone: z.string().min(15, "Por favor, digite um número de celular válido"),
@@ -43,7 +42,6 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
       fullName: "",
       cpf: "",
       phone: "",
@@ -57,14 +55,9 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
     },
   });
 
-  // Prefill email and name autocomplete
   const { data: session } = authClient.useSession();
   useEffect(() => {
-    const sesEmail = session?.user?.email ?? "";
     const sesName = session?.user?.name ?? "";
-    if (sesEmail && !form.getValues("email")) {
-      form.setValue("email", sesEmail, { shouldValidate: true });
-    }
     if (sesName && !form.getValues("fullName")) {
       form.setValue("fullName", sesName, { shouldValidate: true });
     }
@@ -126,24 +119,6 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
         className="mt-4 space-y-4"
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Digite seu email"
-                    autoComplete="email"
-                    inputMode="email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="fullName"

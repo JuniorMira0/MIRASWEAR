@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createShippingAddressSchema = z.object({
-  email: z.email("Por favor, digite um e-mail válido"),
   fullName: z.string().min(1, "Por favor, digite seu nome completo"),
   cpf: z.string().min(14, "Por favor, digite um CPF válido"),
   phone: z.string().min(15, "Por favor, digite um número de celular válido"),

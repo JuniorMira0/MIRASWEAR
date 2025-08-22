@@ -1,25 +1,35 @@
 "use server";
 
 import { db } from "@/db";
-import { shippingAddressTable } from "@/db/schema";
+import { shippingAddressTable, userTable } from "@/db/schema";
 
+import { requireAuth } from "@/lib/auth-middleware";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import {
   CreateShippingAddressSchema,
   createShippingAddressSchema,
 } from "./schema";
-import { revalidatePath } from 'next/cache';
-import { requireAuth } from '@/lib/auth-middleware';
 
 export const createShippingAddress = async (
   data: CreateShippingAddressSchema,
 ) => {
   createShippingAddressSchema.parse(data);
 
-
   const userId = await requireAuth();
 
   if (!userId) {
     throw new Error("Unauthorized");
+  }
+
+  const [user] = await db
+    .select({ email: userTable.email })
+    .from(userTable)
+    .where(eq(userTable.id, userId))
+    .limit(1);
+
+  if (!user?.email) {
+    throw new Error("User email not found");
   }
 
   const [shippingAddress] = await db
@@ -36,12 +46,12 @@ export const createShippingAddress = async (
       zipCode: data.zipCode,
       country: "Brasil",
       phone: data.phone,
-      email: data.email,
+      email: user.email,
       cpfOrCnpj: data.cpf,
     })
     .returning();
 
-    revalidatePath("/cart/identification");
+  revalidatePath("/cart/identification");
 
   return shippingAddress;
 };
