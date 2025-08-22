@@ -8,7 +8,17 @@ import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -24,8 +34,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { TOAST_MESSAGES } from "@/constants/toast-messages";
 import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
+import { useDeleteShippingAddress } from "@/hooks/mutations/use-delete-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
+import { TrashIcon } from "lucide-react";
 
 import { formatAddress } from "../../helpers/address";
 
@@ -63,6 +75,20 @@ const Addresses = ({
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
+  const deleteMutation = useDeleteShippingAddress();
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const handleConfirmDelete = async () => {
+    if (!confirmId) return;
+    try {
+      await deleteMutation.mutateAsync(confirmId);
+      if (selectedAddress === confirmId) setSelectedAddress(null);
+      toast.success("Endereço excluído com sucesso");
+    } catch (e) {
+      toast.error("Não foi possível excluir o endereço");
+    } finally {
+      setConfirmId(null);
+    }
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -149,6 +175,48 @@ const Addresses = ({
                         </div>
                       </Label>
                     </div>
+                    <Dialog
+                      open={confirmId === address.id}
+                      onOpenChange={(o) => setConfirmId(o ? address.id : null)}
+                    >
+                      <DialogTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          aria-label="Excluir endereço"
+                          onClick={() => setConfirmId(address.id)}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Excluir endereço?</DialogTitle>
+                          <DialogDescription>
+                            Essa ação não pode ser desfeita. Deseja remover este
+                            endereço da sua conta?
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => setConfirmId(null)}
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={handleConfirmDelete}
+                            disabled={deleteMutation.isPending}
+                          >
+                            {deleteMutation.isPending
+                              ? "Excluindo..."
+                              : "Excluir"}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </CardContent>
               </Card>
