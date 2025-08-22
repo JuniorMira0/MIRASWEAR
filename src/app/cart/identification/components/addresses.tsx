@@ -1,62 +1,21 @@
 "use client";
 
-import { authClient } from "@/lib/auth-client";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { PatternFormat } from "react-number-format";
+import { useState } from "react";
 import { toast } from "sonner";
-import z from "zod";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { TOAST_MESSAGES } from "@/constants/toast-messages";
 import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
-import { useDeleteShippingAddress } from "@/hooks/mutations/use-delete-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
-import { TrashIcon } from "lucide-react";
 
-import { formatAddress } from "../../helpers/address";
-
-const formSchema = z.object({
-  email: z.email("Por favor, digite um e-mail válido"),
-  fullName: z.string().min(1, "Por favor, digite seu nome completo"),
-  cpf: z.string().min(14, "Por favor, digite um CPF válido"),
-  phone: z.string().min(15, "Por favor, digite um número de celular válido"),
-  zipCode: z.string().min(9, "Por favor, digite um CEP válido"),
-  address: z.string().min(1, "Por favor, digite seu endereço"),
-  number: z.string().min(1, "Por favor, digite o número"),
-  complement: z.string().optional(),
-  neighborhood: z.string().min(1, "Por favor, digite o bairro"),
-  city: z.string().min(1, "Por favor, digite a cidade"),
-  state: z.string().min(1, "Por favor, digite o estado"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { AddressCardItem } from "./address-card-item";
+import { AddressForm, type AddressFormValues } from "./address-form";
 
 interface AddressesProps {
   shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
@@ -76,108 +35,11 @@ const Addresses = ({
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
-  const deleteMutation = useDeleteShippingAddress();
-  const [confirmId, setConfirmId] = useState<string | null>(null);
-  const handleConfirmDelete = async () => {
-    if (!confirmId) return;
-    try {
-      await deleteMutation.mutateAsync(confirmId);
-      if (selectedAddress === confirmId) setSelectedAddress(null);
-      toast.success("Endereço excluído com sucesso");
-    } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "Não foi possível excluir o endereço";
-      toast.error(msg);
-    } finally {
-      setConfirmId(null);
-    }
-  };
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      fullName: "",
-      cpf: "",
-      phone: "",
-      zipCode: "",
-      address: "",
-      number: "",
-      complement: "",
-      neighborhood: "",
-      city: "",
-      state: "",
-    },
-  });
-
-  const { data: session } = authClient.useSession();
-  useEffect(() => {
-    const sesEmail = session?.user?.email ?? "";
-    const sesName = session?.user?.name ?? "";
-    if (sesEmail && !form.getValues("email")) {
-      form.setValue("email", sesEmail, { shouldValidate: true });
-    }
-    if (sesName && !form.getValues("fullName")) {
-      form.setValue("fullName", sesName, { shouldValidate: true });
-    }
-  }, [session, form]);
-
-  const zipCodeValue = form.watch("zipCode");
-  const [cepStatus, setCepStatus] = useState<
-    "idle" | "loading" | "done" | "error"
-  >("idle");
-  const [lastFetchedCep, setLastFetchedCep] = useState<string>("");
-
-  useEffect(() => {
-    const cleanCep = (zipCodeValue || "").replace(/\D/g, "");
-    if (cleanCep.length !== 8 || cleanCep === lastFetchedCep) return;
-
-    let cancelled = false;
-    const lookup = async () => {
-      try {
-        setCepStatus("loading");
-        const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-        if (!res.ok) throw new Error("Falha ao buscar CEP");
-        const data = await res.json();
-        if (cancelled) return;
-        if (data?.erro) {
-          setCepStatus("error");
-          toast.error("CEP não encontrado");
-          return;
-        }
-        form.setValue("address", data.logradouro || "", {
-          shouldValidate: true,
-        });
-        form.setValue("neighborhood", data.bairro || "", {
-          shouldValidate: true,
-        });
-        form.setValue("city", data.localidade || "", { shouldValidate: true });
-        form.setValue("state", data.uf || "", { shouldValidate: true });
-        if (data.complemento) {
-          form.setValue("complement", data.complemento, {
-            shouldValidate: true,
-          });
-        }
-        setLastFetchedCep(cleanCep);
-        setCepStatus("done");
-      } catch (e) {
-        if (cancelled) return;
-        setCepStatus("error");
-        toast.error("Não foi possível buscar o CEP");
-      }
-    };
-    lookup();
-    return () => {
-      cancelled = true;
-    };
-  }, [zipCodeValue, lastFetchedCep, form]);
-
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: AddressFormValues) => {
     try {
       const newAddress =
         await createShippingAddressMutation.mutateAsync(values);
       toast.success(TOAST_MESSAGES.ADDRESS.CREATED_SUCCESS);
-      form.reset();
       setSelectedAddress(newAddress.id);
 
       await updateCartShippingAddressMutation.mutateAsync({
@@ -229,62 +91,13 @@ const Addresses = ({
             )}
 
             {addresses?.map((address) => (
-              <Card key={address.id}>
-                <CardContent>
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value={address.id} id={address.id} />
-                    <div className="flex-1">
-                      <Label htmlFor={address.id} className="cursor-pointer">
-                        <div>
-                          <p className="text-sm">{formatAddress(address)}</p>
-                        </div>
-                      </Label>
-                    </div>
-                    <Dialog
-                      open={confirmId === address.id}
-                      onOpenChange={(o) => setConfirmId(o ? address.id : null)}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          aria-label="Excluir endereço"
-                          onClick={() => setConfirmId(address.id)}
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Excluir endereço?</DialogTitle>
-                          <DialogDescription>
-                            Essa ação não pode ser desfeita. Deseja remover este
-                            endereço da sua conta?
-                          </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                          <Button
-                            variant="outline"
-                            onClick={() => setConfirmId(null)}
-                          >
-                            Cancelar
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={handleConfirmDelete}
-                            disabled={deleteMutation.isPending}
-                          >
-                            {deleteMutation.isPending
-                              ? "Excluindo..."
-                              : "Excluir"}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardContent>
-              </Card>
+              <AddressCardItem
+                key={address.id}
+                address={address}
+                onDeleted={(id) => {
+                  if (selectedAddress === id) setSelectedAddress(null);
+                }}
+              />
             ))}
 
             <Card>
@@ -312,212 +125,13 @@ const Addresses = ({
         )}
 
         {selectedAddress === "add_new" && (
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="mt-4 space-y-4"
-            >
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Digite seu email"
-                          autoComplete="email"
-                          inputMode="email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome completo</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Digite seu nome completo"
-                          autoComplete="name"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="cpf"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CPF</FormLabel>
-                      <FormControl>
-                        <PatternFormat
-                          format="###.###.###-##"
-                          placeholder="000.000.000-00"
-                          customInput={Input}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Celular</FormLabel>
-                      <FormControl>
-                        <PatternFormat
-                          format="(##) #####-####"
-                          placeholder="(11) 99999-9999"
-                          customInput={Input}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="zipCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CEP</FormLabel>
-                      <FormControl>
-                        <PatternFormat
-                          format="#####-###"
-                          placeholder="00000-000"
-                          customInput={Input}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      {cepStatus === "loading" && (
-                        <p className="text-muted-foreground text-xs">
-                          Buscando endereço pelo CEP…
-                        </p>
-                      )}
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Endereço</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite seu endereço" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite o número" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="complement"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Complemento</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Apto, bloco, etc. (opcional)"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="neighborhood"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bairro</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite o bairro" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite a cidade" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estado</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite o estado" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <LoadingButton
-                type="submit"
-                className="w-full"
-                isLoading={
-                  createShippingAddressMutation.isPending ||
-                  updateCartShippingAddressMutation.isPending
-                }
-                loadingText="Salvando..."
-              >
-                Salvar endereço
-              </LoadingButton>
-            </form>
-          </Form>
+          <AddressForm
+            onSubmit={onSubmit}
+            isSubmitting={
+              createShippingAddressMutation.isPending ||
+              updateCartShippingAddressMutation.isPending
+            }
+          />
         )}
       </CardContent>
     </Card>
