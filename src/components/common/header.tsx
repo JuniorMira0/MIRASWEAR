@@ -30,6 +30,7 @@ interface HeaderProps {
 
 export const Header = ({ categories = [] }: HeaderProps) => {
   const { data: session } = authClient.useSession();
+  const isLogged = !!session?.user;
   useCartMigration();
 
   return (
@@ -38,7 +39,19 @@ export const Header = ({ categories = [] }: HeaderProps) => {
         <div className="hidden min-w-[180px] items-center gap-2 md:flex">
           <UserIcon className="text-muted-foreground h-5 w-5" />
           <span className="text-sm font-medium">
-            Olá{session?.user ? `, ${session.user.name.split(" ")[0]}` : ""}!
+            Olá,{" "}
+            <Link
+              href={
+                isLogged
+                  ? "/profile"
+                  : "/authentication?redirect=/cart/identification"
+              }
+            >
+              {isLogged
+                ? (session.user.name?.split(" ")?.[0] ?? "")
+                : "Faça Login"}
+            </Link>
+            !
           </span>
         </div>
         <div className="flex flex-1 justify-start md:justify-center md:px-0">
