@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, and, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { cartTable, shippingAddressTable } from "@/db/schema";
@@ -20,7 +20,8 @@ export const deleteShippingAddress = async (
   if (!userId) throw new Error("Unauthorized");
 
   const address = await db.query.shippingAddressTable.findFirst({
-    where: (t, { eq, and }) => and(eq(t.id, data.shippingAddressId), eq(t.userId, userId)),
+    where: (t, { eq, and }) =>
+      and(eq(t.id, data.shippingAddressId), eq(t.userId, userId)),
   });
   if (!address) throw new Error("Address not found or unauthorized");
 
@@ -36,7 +37,12 @@ export const deleteShippingAddress = async (
 
   await db
     .delete(shippingAddressTable)
-    .where(and(eq(shippingAddressTable.id, data.shippingAddressId), eq(shippingAddressTable.userId, userId)));
+    .where(
+      and(
+        eq(shippingAddressTable.id, data.shippingAddressId),
+        eq(shippingAddressTable.userId, userId),
+      ),
+    );
 
   return { success: true };
 };
