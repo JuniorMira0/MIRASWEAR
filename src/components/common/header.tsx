@@ -19,6 +19,7 @@ import { Separator } from "../ui/separator";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -87,6 +88,10 @@ export const Header = ({ categories = [] }: HeaderProps) => {
               <SheetContent>
                 <SheetHeader>
                   <SheetTitle>Menu</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Acesse sua conta, navegue pelo início, confira pedidos e
+                    categorias.
+                  </SheetDescription>
                 </SheetHeader>
                 <div className="flex flex-col gap-4 py-4">
                   <div className="px-1">
