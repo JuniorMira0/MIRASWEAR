@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -32,6 +33,15 @@ interface HeaderProps {
 export const Header = ({ categories = [] }: HeaderProps) => {
   const { data: session } = authClient.useSession();
   const isLogged = !!session?.user;
+  const pathname = usePathname();
+  const HIDE_CATEGORIES_PREFIXES = [
+    "/profile",
+    "/my-orders",
+    "/cart/identification",
+  ];
+  const hideCategories = HIDE_CATEGORIES_PREFIXES.some((p) =>
+    pathname?.startsWith(p),
+  );
   useCartMigration();
 
   return (
@@ -187,7 +197,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
           </div>
         </div>
       </div>
-      {categories.length > 0 && (
+      {categories.length > 0 && !hideCategories && (
         <nav className="bg-background hidden w-full md:block">
           <div className="mx-auto flex max-w-7xl justify-center gap-14 overflow-x-auto px-6 py-3 text-sm md:px-10">
             {categories.map((c) => (
