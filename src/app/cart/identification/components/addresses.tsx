@@ -84,7 +84,9 @@ const Addresses = ({
       if (selectedAddress === confirmId) setSelectedAddress(null);
       toast.success("Endereço excluído com sucesso");
     } catch (e) {
-      toast.error("Não foi possível excluir o endereço");
+      const msg =
+        e instanceof Error ? e.message : "Não foi possível excluir o endereço";
+      toast.error(msg);
     } finally {
       setConfirmId(null);
     }

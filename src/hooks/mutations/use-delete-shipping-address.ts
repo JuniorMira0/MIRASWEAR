@@ -10,8 +10,13 @@ export const useDeleteShippingAddress = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: getDeleteShippingAddressMutationKey(),
-    mutationFn: (id: string) =>
-      deleteShippingAddress({ shippingAddressId: id }),
+    mutationFn: async (id: string) => {
+      const res = await deleteShippingAddress({ shippingAddressId: id });
+      if (!res.success) {
+        throw new Error(res.message);
+      }
+      return res;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: getUserAddressesQueryKey(),
