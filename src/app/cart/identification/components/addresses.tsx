@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -108,6 +109,18 @@ const Addresses = ({
       state: "",
     },
   });
+
+  const { data: session } = authClient.useSession();
+  useEffect(() => {
+    const sesEmail = session?.user?.email ?? "";
+    const sesName = session?.user?.name ?? "";
+    if (sesEmail && !form.getValues("email")) {
+      form.setValue("email", sesEmail, { shouldValidate: true });
+    }
+    if (sesName && !form.getValues("fullName")) {
+      form.setValue("fullName", sesName, { shouldValidate: true });
+    }
+  }, [session, form]);
 
   const zipCodeValue = form.watch("zipCode");
   const [cepStatus, setCepStatus] = useState<
@@ -312,7 +325,12 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Digite seu email" {...field} />
+                        <Input
+                          placeholder="Digite seu email"
+                          autoComplete="email"
+                          inputMode="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -328,6 +346,7 @@ const Addresses = ({
                       <FormControl>
                         <Input
                           placeholder="Digite seu nome completo"
+                          autoComplete="name"
                           {...field}
                         />
                       </FormControl>
