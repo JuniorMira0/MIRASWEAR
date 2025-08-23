@@ -13,6 +13,7 @@ export const getUserOrders = async (userId: string) => {
               product: true,
             },
           },
+          size: true,
         },
       },
     },

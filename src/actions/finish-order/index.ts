@@ -66,6 +66,7 @@ export const finishOrder = async () => {
       cart.items.map((item) => ({
         orderId: order.id,
         productVariantId: item.productVariant.id,
+        productVariantSizeId: item.productVariantSizeId ?? null,
         quantity: item.quantity,
         priceInCents: item.productVariant.priceInCents,
       }));

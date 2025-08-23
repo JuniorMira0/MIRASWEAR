@@ -297,6 +297,10 @@ export const orderItemTable = pgTable("order_item", {
   productVariantId: uuid("product_variant_id")
     .notNull()
     .references(() => productVariantTable.id, { onDelete: "restrict" }),
+  productVariantSizeId: uuid("product_variant_size_id").references(
+    () => productVariantSizeTable.id,
+    { onDelete: "set null" },
+  ),
   quantity: integer("quantity").notNull(),
   priceInCents: integer("price_in_cents").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -310,5 +314,9 @@ export const orderItemRelations = relations(orderItemTable, ({ one }) => ({
   productVariant: one(productVariantTable, {
     fields: [orderItemTable.productVariantId],
     references: [productVariantTable.id],
+  }),
+  size: one(productVariantSizeTable, {
+    fields: [orderItemTable.productVariantSizeId],
+    references: [productVariantSizeTable.id],
   }),
 }));

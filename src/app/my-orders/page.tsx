@@ -31,6 +31,7 @@ const MyOrdersPage = async () => {
               imageUrl: item.productVariant.imageUrl,
               productName: item.productVariant.product.name,
               productVariantName: item.productVariant.name,
+              sizeLabel: item.size?.size ?? null,
               priceInCents: item.productVariant.priceInCents,
               quantity: item.quantity,
             })),
