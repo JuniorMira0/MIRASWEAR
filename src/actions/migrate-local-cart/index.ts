@@ -19,14 +19,14 @@ export interface LocalCartItem {
 
 export const migrateLocalCartToServer = async (
   localCartItems: LocalCartItem[],
-) => {
+): Promise<{ ok: true; migrated: number } | { ok: false; error: string }> => {
   try {
-    if (localCartItems.length === 0) return;
+    if (localCartItems.length === 0) return { ok: true, migrated: 0 };
 
     const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
-      return;
+      return { ok: true, migrated: 0 };
     }
 
     // Busca ou cria carrinho do usuário
@@ -50,21 +50,49 @@ export const migrateLocalCartToServer = async (
     });
     const variantMap = new Map(variants.map((v) => [v.id, v]));
 
+    // Load sizes for these variants to validate/resolve size ids
+    const sizes = await db.query.productVariantSizeTable.findMany({
+      where: (pvs, { inArray }) => inArray(pvs.productVariantId, variantIds),
+    });
+    const sizesByVariant = new Map<string, { id: string; size: string }[]>(
+      sizes.reduce((acc, s) => {
+        const list = acc.get(s.productVariantId) ?? [];
+        list.push({ id: s.id, size: s.size });
+        acc.set(s.productVariantId, list);
+        return acc;
+      }, new Map<string, { id: string; size: string }[]>()),
+    );
+
+    let migrated = 0;
+
     for (const localItem of localCartItems) {
       if (localItem.quantity <= 0) continue;
       const variant = variantMap.get(localItem.productVariantId);
       if (!variant) continue;
+
+      // Resolve a valid size id for this variant (by id or label), else null
+      const variantSizes = sizesByVariant.get(variant.id) ?? [];
+      const resolvedSizeId = (() => {
+        const byId = variantSizes.find(
+          (s) => s.id === (localItem.productVariantSizeId ?? undefined),
+        );
+        if (byId) return byId.id;
+        if (localItem.sizeLabel) {
+          const byLabel = variantSizes.find(
+            (s) => s.size?.toLowerCase() === localItem.sizeLabel?.toLowerCase(),
+          );
+          if (byLabel) return byLabel.id;
+        }
+        return null;
+      })();
 
       const existingItem = await db.query.cartItemTable.findFirst({
         where: (cartItem, { eq, and, isNull: _isNull }) =>
           and(
             eq(cartItem.cartId, cart.id),
             eq(cartItem.productVariantId, localItem.productVariantId),
-            localItem.productVariantSizeId
-              ? eq(
-                  cartItem.productVariantSizeId,
-                  localItem.productVariantSizeId,
-                )
+            resolvedSizeId
+              ? eq(cartItem.productVariantSizeId, resolvedSizeId)
               : _isNull(cartItem.productVariantSizeId),
           ),
       });
@@ -78,13 +106,15 @@ export const migrateLocalCartToServer = async (
         await db.insert(cartItemTable).values({
           cartId: cart.id,
           productVariantId: localItem.productVariantId,
-          productVariantSizeId: localItem.productVariantSizeId ?? null,
+          productVariantSizeId: resolvedSizeId,
           quantity: localItem.quantity,
         });
       }
+      migrated += localItem.quantity;
     }
+    return { ok: true, migrated };
   } catch (err) {
     console.error("migrateLocalCartToServer error:", err);
-    throw err;
+    return { ok: false, error: err instanceof Error ? err.message : "unknown" };
   }
 };

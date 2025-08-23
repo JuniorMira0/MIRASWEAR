@@ -21,7 +21,7 @@ export const useCartMigration = () => {
     if (isLoggedIn && wasLoggedOut && state.items.length > 0) {
       (async () => {
         try {
-          await migrateLocalCartToServer(
+          const result = await migrateLocalCartToServer(
             state.items.map((i) => ({
               productVariantId: i.productVariantId,
               quantity: i.quantity,
@@ -33,9 +33,14 @@ export const useCartMigration = () => {
               sizeLabel: i.sizeLabel ?? null,
             })),
           );
-          clear();
-          queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
-          toast.success("Carrinho sincronizado com sua conta!");
+          if (result.ok) {
+            clear();
+            queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
+            toast.success("Carrinho sincronizado com sua conta!");
+          } else {
+            console.error("Falha ao migrar carrinho:", result.error);
+            toast.error("Erro ao sincronizar carrinho");
+          }
         } catch (e) {
           console.error("Erro ao migrar carrinho", e);
           toast.error("Erro ao sincronizar carrinho");
