@@ -6,11 +6,11 @@ import Stripe from "stripe";
 import { db } from "@/db";
 import { orderItemTable, orderTable } from "@/db/schema";
 
+import { requireAuth } from "@/lib/auth-middleware";
 import {
   CreateCheckoutSessionSchema,
   createCheckoutSessionSchema,
 } from "./schema";
-import { requireAuth } from '@/lib/auth-middleware';
 
 export const createCheckoutSession = async (
   data: CreateCheckoutSessionSchema,
@@ -18,7 +18,7 @@ export const createCheckoutSession = async (
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Stripe secret key is not set");
   }
-  
+
   const userId = await requireAuth();
 
   if (!userId) {
@@ -38,6 +38,7 @@ export const createCheckoutSession = async (
     where: eq(orderItemTable.orderId, orderId),
     with: {
       productVariant: { with: { product: true } },
+      size: true,
     },
   });
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -51,11 +52,12 @@ export const createCheckoutSession = async (
       userId,
     },
     line_items: orderItems.map((orderItem) => {
+      const sizeLabel = orderItem.size?.size || null;
       return {
         price_data: {
           currency: "brl",
           product_data: {
-            name: `${orderItem.productVariant.product.name} - ${orderItem.productVariant.name}`,
+            name: `${orderItem.productVariant.product.name} - ${orderItem.productVariant.name}${sizeLabel ? ` · Tam: ${sizeLabel}` : ""}`,
             description: orderItem.productVariant.product.description,
             images: [orderItem.productVariant.imageUrl],
           },

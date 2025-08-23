@@ -51,8 +51,8 @@ const CartSummary = ({
         </div>
 
         {products.map((product) => (
-          <div className="flex items-center justify-between" key={product.id}>
-            <div className="flex items-center gap-4">
+          <div className="flex items-start justify-between" key={product.id}>
+            <div className="flex items-start gap-4">
               <Image
                 src={product.imageUrl}
                 alt={product.name}
@@ -60,17 +60,27 @@ const CartSummary = ({
                 height={78}
                 className="rounded-lg"
               />
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 pt-1">
                 <p className="text-sm font-semibold">{product.name}</p>
-                <p className="text-muted-foreground text-xs font-medium">
+                <p className="text-muted-foreground text-xs">
                   {product.variantName}
-                  {product.sizeLabel ? ` · Tam: ${product.sizeLabel}` : ""}
+                </p>
+                {product.sizeLabel && (
+                  <p className="text-muted-foreground text-xs">
+                    Tamanho: {product.sizeLabel}
+                  </p>
+                )}
+                <p className="text-muted-foreground text-xs">
+                  Quantidade: {product.quantity}
                 </p>
               </div>
             </div>
             <div className="flex flex-col items-end justify-center gap-2">
               <p className="text-sm font-bold">
                 {formatCentsToBRL(product.priceInCents)}
+              </p>
+              <p className="text-muted-foreground text-[11px]">
+                preço unitário
               </p>
             </div>
           </div>
