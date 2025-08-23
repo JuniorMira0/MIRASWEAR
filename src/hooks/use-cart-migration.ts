@@ -29,6 +29,8 @@ export const useCartMigration = () => {
               productVariantName: i.productVariantName,
               productVariantImageUrl: i.productVariantImageUrl,
               productVariantPriceInCents: i.productVariantPriceInCents,
+              productVariantSizeId: i.productVariantSizeId ?? null,
+              sizeLabel: i.sizeLabel ?? null,
             })),
           );
           clear();
