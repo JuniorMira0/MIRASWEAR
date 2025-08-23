@@ -1,7 +1,12 @@
 import crypto from "crypto";
 
 import { db } from ".";
-import { categoryTable, productTable, productVariantTable } from "./schema";
+import {
+  categoryTable,
+  productTable,
+  productVariantSizeTable,
+  productVariantTable,
+} from "./schema";
 
 const productImages = {
   Mochila: {
@@ -542,6 +547,7 @@ async function main() {
   try {
     // Limpar dados existentes
     console.log("🧹 Limpando dados existentes...");
+    await db.delete(productVariantSizeTable);
     await db.delete(productVariantTable);
     await db.delete(productTable);
     await db.delete(categoryTable);
@@ -565,6 +571,21 @@ async function main() {
 
       categoryMap.set(categoryData.name, categoryId);
     }
+
+    const getSizesForCategory = (categoryName: string): string[] => {
+      switch (categoryName) {
+        case "Camisetas":
+          return ["P", "M", "G", "GG"];
+        case "Jaquetas & Moletons":
+          return ["P", "M", "G", "GG"];
+        case "Bermuda & Shorts":
+          return ["P", "M", "G"];
+        case "Calças":
+          return ["36", "38", "40", "42"];
+        default:
+          return [];
+      }
+    };
 
     // Inserir produtos
     for (const productData of products) {
@@ -608,6 +629,18 @@ async function main() {
           priceInCents: variantData.price,
           slug: generateSlug(`${productData.name}-${variantData.color}`),
         });
+
+        // Tamanhos da variante (se a categoria tiver)
+        const sizes = getSizesForCategory(productData.categoryName);
+        if (sizes.length > 0) {
+          for (const size of sizes) {
+            await db.insert(productVariantSizeTable).values({
+              id: crypto.randomUUID(),
+              productVariantId: variantId,
+              size,
+            });
+          }
+        }
       }
     }
 

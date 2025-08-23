@@ -24,28 +24,29 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
 
   return (
     <>
-      <div className="px-5">
-        <div className="space-y-4">
-          <h3 className="font-medium">Quantidade</h3>
-          <div className="flex w-[100px] items-center justify-between rounded-lg border">
-            <Button size="icon" variant="ghost" onClick={handleDecrement}>
-              <MinusIcon />
-            </Button>
-            <p>{quantity}</p>
-            <Button size="icon" variant="ghost" onClick={handleIncrement}>
-              <PlusIcon />
-            </Button>
-          </div>
+      <div className="space-y-4">
+        <h3 className="font-medium">Quantidade</h3>
+        <div className="flex w-32 items-center justify-between rounded-xl border">
+          <Button size="icon" variant="ghost" onClick={handleDecrement}>
+            <MinusIcon />
+          </Button>
+          <p className="tabular-nums">{quantity}</p>
+          <Button size="icon" variant="ghost" onClick={handleIncrement}>
+            <PlusIcon />
+          </Button>
         </div>
-      </div>
-      <div className="flex flex-col space-y-4 px-5">
-        <AddToCartButton
-          productVariantId={productVariantId}
-          quantity={quantity}
-        />
-        <Button className="rounded-full" size="lg">
-          Comprar agora
-        </Button>
+
+        <div className="flex gap-3 pt-1">
+          <div className="flex-1">
+            <AddToCartButton
+              productVariantId={productVariantId}
+              quantity={quantity}
+            />
+          </div>
+          <Button className="flex-1 rounded-full" size="lg">
+            Comprar agora
+          </Button>
+        </div>
       </div>
     </>
   );

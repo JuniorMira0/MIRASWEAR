@@ -1,4 +1,4 @@
-import { or, relations } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -121,6 +121,15 @@ export const productVariantTable = pgTable("product_variant", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const productVariantSizeTable = pgTable("product_variant_size", {
+  id: uuid().primaryKey().defaultRandom(),
+  productVariantId: uuid("product_variant_id")
+    .notNull()
+    .references(() => productVariantTable.id, { onDelete: "cascade" }),
+  size: text().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const productVariantRelations = relations(
   productVariantTable,
   ({ one, many }) => ({
@@ -128,8 +137,19 @@ export const productVariantRelations = relations(
       fields: [productVariantTable.productId],
       references: [productTable.id],
     }),
-    cartItems: many(cartItemTable), 
+    sizes: many(productVariantSizeTable),
+    cartItems: many(cartItemTable),
     orderItems: many(orderItemTable),
+  }),
+);
+
+export const productVariantSizeRelations = relations(
+  productVariantSizeTable,
+  ({ one }) => ({
+    variant: one(productVariantTable, {
+      fields: [productVariantSizeTable.productVariantId],
+      references: [productVariantTable.id],
+    }),
   }),
 );
 

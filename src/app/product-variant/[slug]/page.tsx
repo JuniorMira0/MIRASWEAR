@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import Footer from "@/components/common/footer";
@@ -10,6 +9,8 @@ import {
 } from "@/data/products/get-product-variant";
 import { formatCentsToBRL } from "@/helpers/money";
 
+import ProductImageGallery from "@/app/product-variant/[slug]/components/product-image-gallery";
+import SizeSelector from "@/app/product-variant/[slug]/components/size-selector";
 import ProductActions from "./components/product-actions";
 import VariantSelector from "./components/variant-selector";
 
@@ -29,51 +30,61 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
     productVariant.product.categoryId,
     productVariant.product.id,
   );
+  const hasMultipleVariants = productVariant.product.variants.length > 1;
+  const sizes = (productVariant.sizes ?? []).map((s) => s.size);
   return (
     <>
       <Header />
-      <div className="flex flex-col space-y-6">
-        <Image
-          src={productVariant.imageUrl}
-          alt={productVariant.name}
-          sizes="100vw"
-          height={0}
-          width={0}
-          className="h-auto w-full object-cover"
-        />
-
-        <div className="px-5">
-          <VariantSelector
-            selectedVariantSlug={productVariant.slug}
-            variants={productVariant.product.variants}
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-6 lg:grid lg:grid-cols-12 lg:gap-10">
+        {/* LEFT: Gallery */}
+        <div className="lg:col-span-8">
+          <ProductImageGallery
+            imageUrl={productVariant.imageUrl}
+            alt={productVariant.name}
           />
         </div>
 
-        <div className="px-5">
-          {/* DESCRIÇÃO */}
-          <h2 className="text-lg font-semibold">
-            {productVariant.product.name}
-          </h2>
-          <h3 className="text-muted-foreground text-sm">
-            {productVariant.name}
-          </h3>
-          <h3 className="text-lg font-semibold">
-            {formatCentsToBRL(productVariant.priceInCents)}
-          </h3>
+        <div className="lg:col-span-4 lg:pr-2">
+          <div className="space-y-4">
+            <div>
+              <h1 className="text-2xl font-semibold">
+                {productVariant.product.name}
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                {productVariant.name}
+              </p>
+              <p className="mt-1 text-xl font-semibold">
+                {formatCentsToBRL(productVariant.priceInCents)}
+              </p>
+            </div>
+
+            {hasMultipleVariants && (
+              <VariantSelector
+                selectedVariantSlug={productVariant.slug}
+                variants={productVariant.product.variants}
+              />
+            )}
+
+            {sizes.length > 0 && <SizeSelector sizes={sizes} />}
+
+            <ProductActions productVariantId={productVariant.id} />
+
+            {/* Description */}
+            <div>
+              <p>{productVariant.product.description}</p>
+            </div>
+          </div>
         </div>
-
-        <ProductActions productVariantId={productVariant.id} />
-
-        <div className="px-5">
-          <p className="text-shadow-amber-600">
-            {productVariant.product.description}
-          </p>
-        </div>
-
-        <ProductList title="Talvez você goste" products={likelyProducts} />
-
-        <Footer />
       </div>
+
+      <div className="mx-auto max-w-7xl space-y-6 pb-10">
+        <ProductList
+          title="Você também pode gostar"
+          products={likelyProducts}
+        />
+      </div>
+
+      <Footer />
     </>
   );
 };
