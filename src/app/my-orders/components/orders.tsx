@@ -25,6 +25,7 @@ interface OrdersProps {
       imageUrl: string;
       productName: string;
       productVariantName: string;
+      sizeLabel?: string | null;
       priceInCents: number;
       quantity: number;
     }>;
@@ -77,7 +78,11 @@ const Orders = ({ orders }: OrdersProps) => {
                             {product.productName}
                           </p>
                           <p className="text-muted-foreground text-xs font-medium">
-                            {product.productVariantName} x {product.quantity}
+                            {product.productVariantName}
+                            {product.sizeLabel
+                              ? ` · Tam: ${product.sizeLabel}`
+                              : ""}
+                            {` x ${product.quantity}`}
                           </p>
                         </div>
                       </div>

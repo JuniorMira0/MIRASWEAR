@@ -13,30 +13,36 @@ interface CartItemProps {
   id: string;
   productName: string;
   productVariantId: string;
+  productVariantSizeId?: string | null;
   productVariantName: string;
   productVariantImageUrl: string;
   productVariantPriceInCents: number;
   quantity: number;
   isLocal?: boolean;
+  sizeLabel?: string | null;
 }
 
 const CartItem = ({
   id,
   productName,
   productVariantId,
+  productVariantSizeId,
   productVariantName,
   productVariantImageUrl,
   productVariantPriceInCents,
   quantity,
   isLocal = false,
+  sizeLabel,
 }: CartItemProps) => {
   const { removeItem, decrease, addItem } = useCartStore();
 
   const removeProductFromCartMutation = useRemoveProductFromCart(id);
   const decreaseCartProductQuantityMutation =
     useDecreaseCartProductQuantity(id);
-  const increaseCartProductQuantityMutation =
-    useIncreaseCartProduct(productVariantId);
+  const increaseCartProductQuantityMutation = useIncreaseCartProduct(
+    productVariantId,
+    productVariantSizeId ?? undefined,
+  );
 
   const handleDeleteClick = () => {
     if (isLocal) {
@@ -90,7 +96,8 @@ const CartItem = ({
         <div className="flex flex-col gap-1">
           <p className="text-sm font-semibold">{productName}</p>
           <p className="text-muted-foreground text-xs font-medium">
-            {productVariantName}
+            Cor: {productVariantName}
+            {sizeLabel ? ` · Tam: ${sizeLabel}` : ""}
           </p>
           <div className="flex w-[100px] items-center justify-between rounded-lg border p-1">
             <Button

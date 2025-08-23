@@ -24,12 +24,22 @@ export const Cart = () => {
   const { data: serverCart } = useCart();
   const { state: guestState } = useCartStore();
   const cartItems = isLogged
-    ? (serverCart?.items?.filter((i) => i) ?? [])
+    ? (serverCart?.items?.filter((i) => i) ?? []).map((i) => ({
+        id: i.id,
+        cartId: i.cartId,
+        productVariantId: i.productVariantId,
+        productVariantSizeId: i.productVariantSizeId ?? null,
+        quantity: i.quantity,
+        sizeLabel: i.size?.size ?? null,
+        productVariant: i.productVariant,
+      }))
     : guestState.items.map((i) => ({
-        id: `local-${i.productVariantId}`,
+        id: `local-${i.productVariantId}-${i.productVariantSizeId ?? ""}`,
         cartId: "local",
         productVariantId: i.productVariantId,
+        productVariantSizeId: i.productVariantSizeId ?? null,
         quantity: i.quantity,
+        sizeLabel: i.sizeLabel ?? null,
         productVariant: {
           id: i.productVariantId,
           name: i.productVariantName || "Produto",
@@ -72,6 +82,7 @@ export const Cart = () => {
                     key={item.id}
                     id={item.id}
                     productVariantId={item.productVariant.id}
+                    productVariantSizeId={item.productVariantSizeId}
                     productName={item.productVariant.product.name}
                     productVariantName={item.productVariant.name}
                     productVariantImageUrl={item.productVariant.imageUrl}
@@ -79,6 +90,7 @@ export const Cart = () => {
                       item.productVariant.priceInCents
                     }
                     quantity={item.quantity}
+                    sizeLabel={item.sizeLabel}
                     isLocal={!isLogged}
                   />
                 ))}

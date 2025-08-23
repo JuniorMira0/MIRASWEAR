@@ -220,6 +220,10 @@ export const cartItemTable = pgTable("cart_item", {
   productVariantId: uuid("product_variant_id")
     .notNull()
     .references(() => productVariantTable.id, { onDelete: "cascade" }),
+  productVariantSizeId: uuid("product_variant_size_id").references(
+    () => productVariantSizeTable.id,
+    { onDelete: "set null" },
+  ),
   quantity: integer("quantity").notNull().default(1),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -232,6 +236,10 @@ export const cartItemRelations = relations(cartItemTable, ({ one }) => ({
   productVariant: one(productVariantTable, {
     fields: [cartItemTable.productVariantId],
     references: [productVariantTable.id],
+  }),
+  size: one(productVariantSizeTable, {
+    fields: [cartItemTable.productVariantSizeId],
+    references: [productVariantSizeTable.id],
   }),
 }));
 

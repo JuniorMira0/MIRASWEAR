@@ -1,5 +1,4 @@
 import Image from "next/image";
-import React from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -12,6 +11,7 @@ interface CartSummaryProps {
     id: string;
     name: string;
     variantName: string;
+    sizeLabel?: string | null;
     quantity: number;
     priceInCents: number;
     imageUrl: string;
@@ -64,6 +64,7 @@ const CartSummary = ({
                 <p className="text-sm font-semibold">{product.name}</p>
                 <p className="text-muted-foreground text-xs font-medium">
                   {product.variantName}
+                  {product.sizeLabel ? ` · Tam: ${product.sizeLabel}` : ""}
                 </p>
               </div>
             </div>

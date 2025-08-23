@@ -20,6 +20,19 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
     throw new Error("Product variant not found");
   }
 
+  if (data.productVariantSizeId) {
+    const size = await db.query.productVariantSizeTable.findFirst({
+      where: (t, { eq, and }) =>
+        and(
+          eq(t.id, data.productVariantSizeId!),
+          eq(t.productVariantId, data.productVariantId),
+        ),
+    });
+    if (!size) {
+      throw new Error("Selected size not found for this variant");
+    }
+  }
+
   const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, userId),
   });
@@ -36,9 +49,14 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
   }
 
   const cartItem = await db.query.cartItemTable.findFirst({
-    where: (cartItem, { eq }) =>
-      eq(cartItem.cartId, cartId) &&
-      eq(cartItem.productVariantId, data.productVariantId),
+    where: (cartItem, { eq, and, isNull }) =>
+      and(
+        eq(cartItem.cartId, cartId),
+        eq(cartItem.productVariantId, data.productVariantId),
+        data.productVariantSizeId
+          ? eq(cartItem.productVariantSizeId, data.productVariantSizeId)
+          : isNull(cartItem.productVariantSizeId),
+      ),
   });
 
   if (cartItem) {
@@ -54,6 +72,7 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
   await db.insert(cartItemTable).values({
     cartId,
     productVariantId: data.productVariantId,
+    productVariantSizeId: data.productVariantSizeId ?? null,
     quantity: data.quantity,
   });
 };

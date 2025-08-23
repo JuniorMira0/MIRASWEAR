@@ -14,6 +14,7 @@ export const getCartWithItems = async (userId: string) => {
               product: true,
             },
           },
+          size: true,
         },
       },
     },

@@ -16,6 +16,8 @@ export interface CartStoreItem {
   productVariantName?: string;
   productVariantImageUrl?: string;
   productVariantPriceInCents?: number;
+  productVariantSizeId?: string | null;
+  sizeLabel?: string | null;
 }
 
 interface State {

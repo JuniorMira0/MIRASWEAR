@@ -10,7 +10,6 @@ import {
 import { formatCentsToBRL } from "@/helpers/money";
 
 import ProductImageGallery from "@/app/product-variant/[slug]/components/product-image-gallery";
-import SizeSelector from "@/app/product-variant/[slug]/components/size-selector";
 import ProductActions from "./components/product-actions";
 import VariantSelector from "./components/variant-selector";
 
@@ -31,7 +30,10 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
     productVariant.product.id,
   );
   const hasMultipleVariants = productVariant.product.variants.length > 1;
-  const sizes = (productVariant.sizes ?? []).map((s) => s.size);
+  const sizes = (productVariant.sizes ?? []).map((s) => ({
+    id: s.id,
+    size: s.size,
+  }));
   return (
     <>
       <Header />
@@ -64,10 +66,10 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
                 variants={productVariant.product.variants}
               />
             )}
-
-            {sizes.length > 0 && <SizeSelector sizes={sizes} />}
-
-            <ProductActions productVariantId={productVariant.id} />
+            <ProductActions
+              productVariantId={productVariant.id}
+              sizes={sizes}
+            />
 
             {/* Description */}
             <div>
@@ -88,5 +90,4 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
     </>
   );
 };
-
 export default ProductVariantPage;

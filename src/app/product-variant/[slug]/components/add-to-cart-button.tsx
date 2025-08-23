@@ -13,22 +13,35 @@ import { authClient } from "@/lib/auth-client";
 interface AddToCartButtonProps {
   productVariantId: string;
   quantity: number;
+  productVariantSizeId?: string | null;
+  sizeLabel?: string | null;
+  disabled?: boolean;
 }
 
 const AddToCartButton = ({
   productVariantId,
   quantity,
+  productVariantSizeId,
+  sizeLabel,
+  disabled,
 }: AddToCartButtonProps) => {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
   const { addItem: addGuestItem } = useCartStore();
 
   const { mutate, isPending } = useMutation({
-    mutationKey: ["addProductToCart", productVariantId, quantity],
+    mutationKey: [
+      "addProductToCart",
+      productVariantId,
+      quantity,
+      productVariantSizeId ?? "no-size",
+    ],
     mutationFn: () =>
       addProductToCart({
         productVariantId,
         quantity,
+        productVariantSizeId,
+        sizeLabel,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
@@ -51,11 +64,16 @@ const AddToCartButton = ({
           productVariantName: productDetails.productVariantName,
           productVariantImageUrl: productDetails.productVariantImageUrl,
           productVariantPriceInCents: productDetails.productVariantPriceInCents,
+          productVariantSizeId: productVariantSizeId ?? null,
+          sizeLabel: sizeLabel ?? null,
         });
         toast.success("Produto adicionado à sacola!");
       } catch (error) {
         console.error("Erro ao buscar dados do produto:", error);
-        addGuestItem(productVariantId, quantity);
+        addGuestItem(productVariantId, quantity, {
+          productVariantSizeId: productVariantSizeId ?? null,
+          sizeLabel: sizeLabel ?? null,
+        });
         toast.success("Produto adicionado à sacola!");
       }
     }
@@ -67,6 +85,7 @@ const AddToCartButton = ({
       size="lg"
       variant="outline"
       isLoading={isPending}
+      disabled={disabled}
       onClick={handleAddToCart}
     >
       Adicionar à sacola
