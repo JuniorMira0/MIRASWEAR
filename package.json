@@ -6,7 +6,11 @@
     "dev": "NODE_OPTIONS='--max-old-space-size=2048' next dev --port 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "node run-seed.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

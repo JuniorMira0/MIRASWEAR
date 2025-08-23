@@ -20,6 +20,33 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Banco de dados (Drizzle + Postgres)
+
+1. Configure o `.env.local` com sua URL do banco:
+
+```
+DATABASE_URL=postgres://user:password@host:5432/database
+```
+
+2. Gerar e rodar migrações:
+
+```
+npm run db:generate
+npm run db:migrate
+```
+
+3. Rodar o seed (limpa e repovoa produtos/variantes/tamanhos):
+
+```
+npm run db:seed
+```
+
+4. (Opcional) Inspecionar via Drizzle Studio:
+
+```
+npm run db:studio
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
