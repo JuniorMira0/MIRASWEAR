@@ -33,11 +33,11 @@ export default function PromoBanners() {
       <div className="grid gap-4 md:grid-cols-3 md:gap-6">
         <div className="flex flex-col gap-4 md:gap-6">
           <Tile title="Nike Therma FIT Headed" imageSrc="/banner-02-desk.png" />
-          <Tile title="Nike Therma FIT Headed" imageSrc="/banner-02-desk.png" />
+          <Tile title="Nike Therma FIT Headed" imageSrc="/banner-03-desk.png" />
         </div>
         <div className="relative h-[340px] overflow-hidden rounded-2xl border bg-white md:col-span-2 md:h-[638px]">
           <Image
-            src="/banner-03-desk.png"
+            src="/banner-04-desk.png"
             alt="Nike Therma FIT Headed"
             fill
             sizes="(max-width: 768px) 100vw, 66vw"
