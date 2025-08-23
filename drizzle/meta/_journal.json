@@ -22,6 +22,13 @@
       "when": 1755976826185,
       "tag": "0002_last_network",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755980326222,
+      "tag": "0003_flat_jetstream",
+      "breakpoints": true
     }
   ]
 }
