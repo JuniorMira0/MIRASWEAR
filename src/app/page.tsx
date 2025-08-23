@@ -1,4 +1,5 @@
 import { getCategories } from "@/actions/get-categories";
+import BrandPartners from "@/components/common/brand-partners";
 import Footer from "@/components/common/footer";
 import ProductList from "@/components/common/product-list";
 import { getProducts, getRecentProducts } from "@/data/products/get-products";
@@ -32,6 +33,8 @@ const Home = async () => {
               className="hidden w-full object-cover md:block md:h-[420px] lg:h-[520px] xl:h-[600px]"
             />
           </div>
+
+          <BrandPartners />
 
           <div className="">
             <ProductList title="Mais vendidos" products={products} />
