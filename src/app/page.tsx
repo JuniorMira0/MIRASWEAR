@@ -2,6 +2,7 @@ import { getCategories } from "@/actions/get-categories";
 import BrandPartners from "@/components/common/brand-partners";
 import Footer from "@/components/common/footer";
 import ProductList from "@/components/common/product-list";
+import PromoBanners from "@/components/common/promo-banners";
 import { getProducts, getRecentProducts } from "@/data/products/get-products";
 import Image from "next/image";
 import { Header } from "../components/common/header";
@@ -39,6 +40,8 @@ const Home = async () => {
           <div className="">
             <ProductList title="Mais vendidos" products={products} />
           </div>
+
+          <PromoBanners />
 
           <div className="flex flex-col gap-8 md:flex-row md:gap-6">
             <div className="md:w-2/3">
