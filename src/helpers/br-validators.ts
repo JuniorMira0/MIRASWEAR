@@ -33,8 +33,8 @@ export function isValidBRMobilePhone(value: string): boolean {
   if (digits.length !== 11) return false;
   const ddd = digits.slice(0, 2);
   const subscriber = digits.slice(2);
-  if (ddd[0] === '0' || ddd === '00') return false;
-  if (subscriber[0] !== '9') return false;
+  if (ddd[0] === "0" || ddd === "00") return false;
+  if (subscriber[0] !== "9") return false;
   if (/^(\d)\1+$/.test(digits)) return false;
   return true;
 }

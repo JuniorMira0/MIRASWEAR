@@ -2,13 +2,14 @@ export const formatAddress = (address: {
   recipientName: string;
   street: string;
   number: string;
-  complement: string | null;
+  complement?: string | null;
   neighborhood: string;
   city: string;
   state: string;
   zipCode: string;
 }) => {
-  return `${address.recipientName} • ${address.street}, ${address.number}
-    ${address.complement && `, ${address.complement}`}, ${address.neighborhood}
-    , ${address.city} - ${address.state} • CEP: ${address.zipCode}`;
+  const complement = address.complement?.toString().trim();
+  const complementPart = complement ? `, ${complement}` : "";
+
+  return `${address.recipientName} • ${address.street}, ${address.number}${complementPart}, ${address.neighborhood}, ${address.city} - ${address.state} • CEP: ${address.zipCode}`;
 };

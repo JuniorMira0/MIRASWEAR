@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { isValidBRMobilePhone, isValidCPF } from "@/helpers/br-validators";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -17,7 +18,6 @@ import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
-import { isValidBRMobilePhone, isValidCPF } from "@/helpers/br-validators";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Por favor, digite seu nome completo"),
@@ -26,7 +26,10 @@ const formSchema = z.object({
     .refine((v) => isValidCPF(v), "Por favor, digite um CPF válido"),
   phone: z
     .string()
-    .refine((v) => isValidBRMobilePhone(v), "Por favor, digite um número de celular válido"),
+    .refine(
+      (v) => isValidBRMobilePhone(v),
+      "Por favor, digite um número de celular válido",
+    ),
   zipCode: z.string().min(9, "Por favor, digite um CEP válido"),
   address: z.string().min(1, "Por favor, digite seu endereço"),
   number: z.string().min(1, "Por favor, digite o número"),
