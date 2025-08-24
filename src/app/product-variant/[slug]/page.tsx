@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { getCategories } from "@/actions/get-categories";
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
@@ -8,7 +9,6 @@ import {
   getProductVariantBySlug,
 } from "@/data/products/get-product-variant";
 import { formatCentsToBRL } from "@/helpers/money";
-import { getCategories } from "@/actions/get-categories";
 
 import ProductImageGallery from "@/app/product-variant/[slug]/components/product-image-gallery";
 import ProductActions from "./components/product-actions";
@@ -38,7 +38,7 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
   }));
   return (
     <>
-  <Header categories={categories} />
+      <Header categories={categories} />
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-6 lg:grid lg:grid-cols-12 lg:gap-10">
         {/* LEFT: Gallery */}
         <div className="lg:col-span-8">

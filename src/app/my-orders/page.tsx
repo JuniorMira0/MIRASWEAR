@@ -1,10 +1,10 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getCategories } from "@/actions/get-categories";
 import { Header } from "@/components/common/header";
 import { getUserOrders } from "@/data/orders/get-orders";
 import { auth } from "@/lib/auth";
-import { getCategories } from "@/actions/get-categories";
 
 import Orders from "./components/orders";
 
@@ -20,7 +20,7 @@ const MyOrdersPage = async () => {
 
   return (
     <>
-  <Header categories={categories} />
+      <Header categories={categories} />
       <div className="px-5">
         <Orders
           orders={orders.map((order) => ({

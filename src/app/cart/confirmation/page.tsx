@@ -7,10 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCartWithItems } from "@/data/cart/get-cart";
 import { auth } from "@/lib/auth";
 
+import { getCategories } from "@/actions/get-categories";
 import CartSummary from "../components/cart-summary";
 import { formatAddress } from "../helpers/address";
 import FinishOrderButton from "./components/finish-order-button";
-import { getCategories } from "@/actions/get-categories";
 
 const ConfirmationPage = async () => {
   const session = await auth.api.getSession({
@@ -34,7 +34,7 @@ const ConfirmationPage = async () => {
   }
   return (
     <div>
-  <Header categories={categories} />
+      <Header categories={categories} />
       <div className="space-y-4 px-5">
         <Card>
           <CardHeader>

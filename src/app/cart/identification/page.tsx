@@ -8,8 +8,8 @@ import {
 } from "@/data/cart/get-cart";
 import { auth } from "@/lib/auth";
 
-import Footer from "@/components/common/footer";
 import { getCategories } from "@/actions/get-categories";
+import Footer from "@/components/common/footer";
 import CartSummary from "../components/cart-summary";
 import Addresses from "./components/addresses";
 
@@ -36,7 +36,7 @@ const IdentificationPage = async () => {
 
   return (
     <div className="space-y-12">
-  <Header categories={categories} />
+      <Header categories={categories} />
       <div className="space-y-4 px-5">
         <Addresses
           shippingAddresses={shippingAddresses}

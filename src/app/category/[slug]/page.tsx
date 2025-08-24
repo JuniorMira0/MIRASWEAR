@@ -20,7 +20,7 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
   const products = await getProductsByCategory(category.id);
   return (
     <>
-  <Header categories={categories} />
+      <Header categories={categories} />
       <div className="space-y-6 px-5">
         <h2 className="text-xl font-semibold">{category.name}</h2>
         <div className="grid grid-cols-2 gap-4">

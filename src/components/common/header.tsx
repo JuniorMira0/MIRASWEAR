@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -32,6 +33,7 @@ interface HeaderProps {
 export const Header = ({ categories = [] }: HeaderProps) => {
   const { data: session } = authClient.useSession();
   const isLogged = !!session?.user;
+  const pathname = usePathname();
   useCartMigration();
 
   return (
@@ -201,6 +203,11 @@ export const Header = ({ categories = [] }: HeaderProps) => {
             ))}
           </div>
         </nav>
+      )}
+      {categories.length > 0 && pathname !== "/" && (
+        <div className="hidden md:block">
+          <Separator />
+        </div>
       )}
     </header>
   );
