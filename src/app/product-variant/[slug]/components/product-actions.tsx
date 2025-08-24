@@ -30,15 +30,16 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
   return (
     <>
       {sizes && sizes.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <h3 className="font-medium">Selecionar tamanho</h3>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 md:gap-2.5">
             {sizes.map((s) => (
               <Button
                 key={s.id}
                 type="button"
                 variant={selectedSizeId === s.id ? "default" : "outline"}
-                className="rounded-xl"
+                size="sm"
+                className="h-9 rounded-lg"
                 onClick={() => {
                   setSelectedSizeId(s.id);
                   setSelectedSizeLabel(s.size);
@@ -49,15 +50,15 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
             ))}
           </div>
           {!selectedSizeId && (
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-[11px]">
               Selecione um tamanho para continuar
             </p>
           )}
         </div>
       )}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <h3 className="font-medium">Quantidade</h3>
-        <div className="flex w-32 items-center justify-between rounded-xl border">
+        <div className="flex h-10 w-28 items-center justify-between rounded-xl border">
           <Button size="icon" variant="ghost" onClick={handleDecrement}>
             <MinusIcon />
           </Button>
@@ -67,7 +68,7 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
           </Button>
         </div>
 
-        <div className="flex gap-3 pt-0.5">
+        <div className="flex gap-2.5 pt-0.5">
           <div className="flex-1">
             <AddToCartButton
               productVariantId={productVariantId}

@@ -13,8 +13,8 @@ const ProductImageGallery = ({ imageUrl, alt }: ProductImageGalleryProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[72px_1fr]">
-      <div className="hidden max-h-[520px] flex-col gap-3 overflow-auto pr-1 md:flex [&::-webkit-scrollbar]:hidden">
+    <div className="grid grid-cols-1 items-start gap-3 md:grid-cols-[56px_1fr]">
+      <div className="hidden max-h-[440px] flex-col gap-2 overflow-auto pr-1 md:flex [&::-webkit-scrollbar]:hidden">
         {images.map((src, i) => (
           <button
             key={i}
@@ -26,20 +26,20 @@ const ProductImageGallery = ({ imageUrl, alt }: ProductImageGalleryProps) => {
             <Image
               src={src}
               alt={alt}
-              width={64}
-              height={64}
+              width={56}
+              height={56}
               className="h-full w-full object-cover"
             />
           </button>
         ))}
       </div>
 
-      <div className="bg-muted/10 relative h-[340px] w-full overflow-hidden rounded-2xl border md:h-[480px] lg:h-[520px]">
+      <div className="bg-muted/10 relative h-[300px] w-full overflow-hidden rounded-2xl border md:h-[420px] lg:h-[460px]">
         <Image
           src={images[activeIndex]}
           alt={alt}
           fill
-          className="object-contain p-4"
+          className="object-contain p-3 md:p-4"
           sizes="(max-width: 1024px) 100vw, 700px"
           priority
         />

@@ -13,7 +13,7 @@ const VariantSelector = ({
   variants,
 }: VariantSelectorProps) => {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2.5">
       {variants.map((variant) => (
         <Link
           href={`/product-variant/${variant.slug}`}
@@ -25,8 +25,8 @@ const VariantSelector = ({
           }
         >
           <Image
-            width={68}
-            height={68}
+            width={56}
+            height={56}
             src={variant.imageUrl}
             alt={variant.name}
             className="rounded-xl"
