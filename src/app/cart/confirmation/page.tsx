@@ -10,6 +10,7 @@ import { auth } from "@/lib/auth";
 import CartSummary from "../components/cart-summary";
 import { formatAddress } from "../helpers/address";
 import FinishOrderButton from "./components/finish-order-button";
+import { getCategories } from "@/actions/get-categories";
 
 const ConfirmationPage = async () => {
   const session = await auth.api.getSession({
@@ -19,6 +20,7 @@ const ConfirmationPage = async () => {
     redirect("/");
   }
   const cart = await getCartWithItems(session.user.id);
+  const categories = await getCategories();
 
   if (!cart || cart?.items.length === 0) {
     redirect("/");
@@ -32,7 +34,7 @@ const ConfirmationPage = async () => {
   }
   return (
     <div>
-      <Header />
+  <Header categories={categories} />
       <div className="space-y-4 px-5">
         <Card>
           <CardHeader>

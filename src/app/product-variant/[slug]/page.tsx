@@ -8,6 +8,7 @@ import {
   getProductVariantBySlug,
 } from "@/data/products/get-product-variant";
 import { formatCentsToBRL } from "@/helpers/money";
+import { getCategories } from "@/actions/get-categories";
 
 import ProductImageGallery from "@/app/product-variant/[slug]/components/product-image-gallery";
 import ProductActions from "./components/product-actions";
@@ -20,6 +21,7 @@ interface ProductVariantPageProps {
 const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
   const { slug } = await params;
   const productVariant = await getProductVariantBySlug(slug);
+  const categories = await getCategories();
 
   if (!productVariant) {
     return notFound();
@@ -36,7 +38,7 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
   }));
   return (
     <>
-      <Header />
+  <Header categories={categories} />
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-6 lg:grid lg:grid-cols-12 lg:gap-10">
         {/* LEFT: Gallery */}
         <div className="lg:col-span-8">

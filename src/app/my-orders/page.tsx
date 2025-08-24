@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Header } from "@/components/common/header";
 import { getUserOrders } from "@/data/orders/get-orders";
 import { auth } from "@/lib/auth";
+import { getCategories } from "@/actions/get-categories";
 
 import Orders from "./components/orders";
 
@@ -15,10 +16,11 @@ const MyOrdersPage = async () => {
     redirect("/login");
   }
   const orders = await getUserOrders(session.user.id);
+  const categories = await getCategories();
 
   return (
     <>
-      <Header />
+  <Header categories={categories} />
       <div className="px-5">
         <Orders
           orders={orders.map((order) => ({

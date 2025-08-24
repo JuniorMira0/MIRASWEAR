@@ -9,6 +9,7 @@ import {
 import { auth } from "@/lib/auth";
 
 import Footer from "@/components/common/footer";
+import { getCategories } from "@/actions/get-categories";
 import CartSummary from "../components/cart-summary";
 import Addresses from "./components/addresses";
 
@@ -20,6 +21,7 @@ const IdentificationPage = async () => {
     redirect("/authentication");
   }
   const cart = await getCartWithItems(session.user.id);
+  const categories = await getCategories();
 
   if (!cart || cart?.items.length === 0) {
     redirect("/");
@@ -34,7 +36,7 @@ const IdentificationPage = async () => {
 
   return (
     <div className="space-y-12">
-      <Header />
+  <Header categories={categories} />
       <div className="space-y-4 px-5">
         <Addresses
           shippingAddresses={shippingAddresses}
