@@ -13,8 +13,8 @@ const ProductImageGallery = ({ imageUrl, alt }: ProductImageGalleryProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div className="grid grid-cols-[80px_1fr] items-start gap-4 md:grid-cols-[92px_1fr]">
-      <div className="flex max-h-[700px] flex-col gap-3 overflow-auto pr-1 [&::-webkit-scrollbar]:hidden">
+    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[92px_1fr]">
+      <div className="hidden max-h-[700px] flex-col gap-3 overflow-auto pr-1 md:flex [&::-webkit-scrollbar]:hidden">
         {images.map((src, i) => (
           <button
             key={i}

@@ -44,6 +44,14 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
             imageUrl={productVariant.imageUrl}
             alt={productVariant.name}
           />
+          {hasMultipleVariants && (
+            <div className="mt-4 md:hidden">
+              <VariantSelector
+                selectedVariantSlug={productVariant.slug}
+                variants={productVariant.product.variants}
+              />
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-4 lg:pr-2">
@@ -61,10 +69,12 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
             </div>
 
             {hasMultipleVariants && (
-              <VariantSelector
-                selectedVariantSlug={productVariant.slug}
-                variants={productVariant.product.variants}
-              />
+              <div className="hidden md:block">
+                <VariantSelector
+                  selectedVariantSlug={productVariant.slug}
+                  variants={productVariant.product.variants}
+                />
+              </div>
             )}
             <ProductActions
               productVariantId={productVariant.id}
