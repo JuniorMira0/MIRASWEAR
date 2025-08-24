@@ -84,8 +84,8 @@ const CartItem = ({
   };
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 flex-1 items-start gap-3">
         <Image
           src={productVariantImageUrl}
           alt={productVariantName}
@@ -97,34 +97,40 @@ const CartItem = ({
           <p className="text-sm font-semibold">{productName}</p>
           <p className="text-muted-foreground text-xs font-medium">
             Cor: {productVariantName}
-            {sizeLabel ? ` · Tam: ${sizeLabel}` : ""}
           </p>
-          <div className="flex w-[92px] items-center justify-between rounded-lg border p-1">
-            <Button
-              className="h-4 w-4"
-              variant="ghost"
-              onClick={handleDecreaseQuantityClick}
-            >
-              <MinusIcon />
-            </Button>
-            <p className="text-xs font-medium">{quantity}</p>
-            <Button
-              className="h-4 w-4"
-              variant="ghost"
-              onClick={handleIncreaseQuantityClick}
-            >
-              <PlusIcon />
-            </Button>
+          {sizeLabel && (
+            <p className="text-muted-foreground text-xs font-medium">
+              Tam: {sizeLabel}
+            </p>
+          )}
+          <div className="mt-1 flex items-center gap-3">
+            <div className="flex w-[92px] items-center justify-between rounded-lg border p-1">
+              <Button
+                className="h-4 w-4"
+                variant="ghost"
+                onClick={handleDecreaseQuantityClick}
+              >
+                <MinusIcon />
+              </Button>
+              <p className="text-xs font-medium">{quantity}</p>
+              <Button
+                className="h-4 w-4"
+                variant="ghost"
+                onClick={handleIncreaseQuantityClick}
+              >
+                <PlusIcon />
+              </Button>
+            </div>
+            <p className="ml-auto text-sm font-bold">
+              {formatCentsToBRL(productVariantPriceInCents)}
+            </p>
           </div>
         </div>
       </div>
-      <div className="flex w-[68px] shrink-0 flex-col items-end justify-center gap-2 text-right">
+      <div className="shrink-0 pt-1">
         <Button variant="outline" size="icon" onClick={handleDeleteClick}>
           <TrashIcon />
         </Button>
-        <p className="text-sm font-bold">
-          {formatCentsToBRL(productVariantPriceInCents)}
-        </p>
       </div>
     </div>
   );
