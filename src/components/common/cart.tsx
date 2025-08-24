@@ -74,9 +74,9 @@ export const Cart = () => {
           <SheetTitle>Carrinho</SheetTitle>
         </SheetHeader>
         <div className="flex h-full flex-col px-5 pb-5">
-          <div className="flex h-full max-h-full flex-col overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="flex h-full flex-col gap-8">
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <ScrollArea className="flex-1">
+              <div className="flex flex-col gap-8 pb-24">
                 {cartItems.map((item) => (
                   <CartItem
                     key={item.id}
@@ -98,33 +98,37 @@ export const Cart = () => {
             </ScrollArea>
           </div>
           {cartItems.length > 0 && (
-            <div className="flex flex-col gap-4">
-              <Separator />
-              <div className="flex items-center justify-between text-xs font-medium">
-                <p>Subtotal</p>
-                <p>{formatCentsToBRL(totalPriceInCents)}</p>
+            <div className="bg-background sticky right-0 bottom-0 left-0 z-10 -mx-5 border-t px-5 pt-4 pb-5 shadow-[0_-6px_12px_rgba(0,0,0,0.06)]">
+              <div className="flex flex-col gap-4">
+                <Separator />
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <p>Subtotal</p>
+                  <p>{formatCentsToBRL(totalPriceInCents)}</p>
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <p>Entrega</p>
+                  <p>GRÁTIS</p>
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <p>Total</p>
+                  <p>{formatCentsToBRL(totalPriceInCents)}</p>
+                </div>
+                <Button className="mt-1 rounded-full" asChild>
+                  <Link
+                    href={
+                      isLogged
+                        ? "/cart/identification"
+                        : `/authentication?redirect=/cart/identification`
+                    }
+                  >
+                    {isLogged
+                      ? "Finalizar compra"
+                      : "Fazer login para continuar"}
+                  </Link>
+                </Button>
               </div>
-              <Separator />
-              <div className="flex items-center justify-between text-xs font-medium">
-                <p>Entrega</p>
-                <p>GRÁTIS</p>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between text-xs font-medium">
-                <p>Total</p>
-                <p>{formatCentsToBRL(totalPriceInCents)}</p>
-              </div>
-              <Button className="mt-5 rounded-full" asChild>
-                <Link
-                  href={
-                    isLogged
-                      ? "/cart/identification"
-                      : `/authentication?redirect=/cart/identification`
-                  }
-                >
-                  {isLogged ? "Finalizar compra" : "Fazer login para continuar"}
-                </Link>
-              </Button>
             </div>
           )}
         </div>
