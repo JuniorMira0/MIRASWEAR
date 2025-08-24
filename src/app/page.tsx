@@ -23,7 +23,7 @@ const Home = async () => {
               height={0}
               width={0}
               sizes="100vw"
-              className="h-[260px] w-full object-cover md:hidden"
+              className="h-[460px] w-full object-cover md:hidden"
             />
             <Image
               src="/banner-01-desk.png"
