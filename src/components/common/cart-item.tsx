@@ -104,33 +104,33 @@ const CartItem = ({
             </p>
           )}
           <div className="mt-1 flex items-center gap-3">
-            <div className="flex w-[92px] items-center justify-between rounded-lg border p-1">
+            <div className="flex w-[104px] items-center justify-between rounded-lg border p-1">
               <Button
-                className="h-4 w-4"
+                className="h-6 w-6 md:h-5 md:w-5"
                 variant="ghost"
                 onClick={handleDecreaseQuantityClick}
               >
-                <MinusIcon />
+                <MinusIcon className="h-4 w-4" />
               </Button>
               <p className="text-xs font-medium">{quantity}</p>
               <Button
-                className="h-4 w-4"
+                className="h-6 w-6 md:h-5 md:w-5"
                 variant="ghost"
                 onClick={handleIncreaseQuantityClick}
               >
-                <PlusIcon />
+                <PlusIcon className="h-4 w-4" />
               </Button>
             </div>
-            <p className="ml-auto text-sm font-bold">
-              {formatCentsToBRL(productVariantPriceInCents)}
-            </p>
           </div>
         </div>
       </div>
-      <div className="shrink-0 pt-1">
+      <div className="flex shrink-0 flex-col items-end gap-2 pt-1 text-right">
         <Button variant="outline" size="icon" onClick={handleDeleteClick}>
           <TrashIcon />
         </Button>
+        <p className="text-sm font-bold">
+          {formatCentsToBRL(productVariantPriceInCents)}
+        </p>
       </div>
     </div>
   );
