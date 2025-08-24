@@ -69,13 +69,13 @@ export const Cart = () => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="md:max-w-[22rem] lg:max-w-[24rem]">
         <SheetHeader>
           <SheetTitle>Carrinho</SheetTitle>
         </SheetHeader>
-        <div className="flex h-full flex-col px-5 pb-5">
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <ScrollArea className="flex-1">
+        <div className="flex h-full min-h-0 flex-col px-5 pb-5">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <ScrollArea className="h-full flex-1">
               <div className="flex flex-col gap-8 pb-24">
                 {cartItems.map((item) => (
                   <CartItem
@@ -98,24 +98,23 @@ export const Cart = () => {
             </ScrollArea>
           </div>
           {cartItems.length > 0 && (
-            <div className="bg-background sticky right-0 bottom-0 left-0 z-10 -mx-5 border-t px-5 pt-4 pb-5 shadow-[0_-6px_12px_rgba(0,0,0,0.06)]">
-              <div className="flex flex-col gap-4">
+            <div className="bg-background sticky right-0 bottom-0 left-0 z-10 -mx-5 border-t px-5 pt-3 pb-4 shadow-[0_-6px_12px_rgba(0,0,0,0.06)]">
+              <div className="flex flex-col gap-3">
                 <Separator />
-                <div className="flex items-center justify-between text-xs font-medium">
+                <div className="flex items-center justify-between text-[12px] font-medium md:text-xs">
                   <p>Subtotal</p>
                   <p>{formatCentsToBRL(totalPriceInCents)}</p>
                 </div>
-                <Separator />
-                <div className="flex items-center justify-between text-xs font-medium">
+                <div className="flex items-center justify-between text-[12px] font-medium md:text-xs">
                   <p>Entrega</p>
                   <p>GRÁTIS</p>
                 </div>
                 <Separator />
-                <div className="flex items-center justify-between text-xs font-medium">
+                <div className="flex items-center justify-between text-[12px] font-semibold md:text-xs">
                   <p>Total</p>
                   <p>{formatCentsToBRL(totalPriceInCents)}</p>
                 </div>
-                <Button className="mt-1 rounded-full" asChild>
+                <Button className="mt-2 rounded-full" asChild>
                   <Link
                     href={
                       isLogged

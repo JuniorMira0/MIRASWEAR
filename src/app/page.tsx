@@ -15,7 +15,7 @@ const Home = async () => {
     <>
       <Header categories={categories} />
       <main className="bg-background min-h-screen">
-        <div className="mx-auto max-w-7xl space-y-10 px-2 py-6 md:px-0">
+        <div className="mx-auto max-w-7xl space-y-10 px-2 py-6 md:px-11">
           <div className="overflow-hidden rounded-3xl">
             <Image
               src="/banner-01.png"
