@@ -60,19 +60,19 @@ const ProductList = ({ title, products }: ProductListProps) => {
 
   return (
     <div className="space-y-6">
-      <h3 className="px-5 font-semibold md:px-0">{title}</h3>
+      <h3 className="px-5 font-semibold md:px-11">{title}</h3>
       <div className="relative">
         <div
           ref={scrollRef}
           tabIndex={0}
           onKeyDown={onKeyDown}
           aria-label={`Lista de produtos: ${title}`}
-          className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-5 md:px-0 [&::-webkit-scrollbar]:hidden"
+          className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-5 md:gap-3 md:px-11 [&::-webkit-scrollbar]:hidden"
         >
           {products.map((product) => (
             <div
               key={product.id}
-              className="min-w-[160px] snap-start md:min-w-[200px]"
+              className="min-w-[140px] snap-start md:min-w-[168px] lg:min-w-[180px]"
               aria-label={product.name}
             >
               <ProductItem product={product} />
