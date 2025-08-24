@@ -84,22 +84,22 @@ const CartItem = ({
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <Image
           src={productVariantImageUrl}
           alt={productVariantName}
-          width={78}
-          height={78}
-          className="rounded-lg"
+          width={64}
+          height={64}
+          className="rounded-lg md:h-[78px] md:w-[78px]"
         />
-        <div className="flex flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <p className="text-sm font-semibold">{productName}</p>
           <p className="text-muted-foreground text-xs font-medium">
             Cor: {productVariantName}
             {sizeLabel ? ` · Tam: ${sizeLabel}` : ""}
           </p>
-          <div className="flex w-[100px] items-center justify-between rounded-lg border p-1">
+          <div className="flex w-[92px] items-center justify-between rounded-lg border p-1">
             <Button
               className="h-4 w-4"
               variant="ghost"
@@ -118,7 +118,7 @@ const CartItem = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-col items-end justify-center gap-2">
+      <div className="flex w-[68px] shrink-0 flex-col items-end justify-center gap-2 text-right">
         <Button variant="outline" size="icon" onClick={handleDeleteClick}>
           <TrashIcon />
         </Button>
