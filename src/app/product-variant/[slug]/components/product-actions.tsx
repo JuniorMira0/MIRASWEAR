@@ -4,6 +4,7 @@ import { MinusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import AddToCartButton from "./add-to-cart-button";
 
@@ -32,18 +33,25 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
       {sizes && sizes.length > 0 && (
         <div className="space-y-2.5">
           <h3 className="font-medium">Selecionar tamanho</h3>
-          <div className="grid grid-cols-3 gap-2 md:gap-2.5">
+          <div className="grid grid-cols-4 gap-2 md:grid-cols-6 md:gap-2.5">
             {sizes.map((s) => (
               <Button
                 key={s.id}
                 type="button"
-                variant={selectedSizeId === s.id ? "default" : "outline"}
+                variant="outline"
                 size="sm"
-                className="h-9 rounded-lg"
+                className={cn(
+                  "h-8 w-10 rounded-md px-0 text-sm md:h-9 md:w-12",
+                  selectedSizeId === s.id
+                    ? "ring-primary border-primary font-semibold ring-2"
+                    : "opacity-90",
+                )}
                 onClick={() => {
                   setSelectedSizeId(s.id);
                   setSelectedSizeLabel(s.size);
                 }}
+                aria-pressed={selectedSizeId === s.id}
+                aria-label={`Selecionar tamanho ${s.size}`}
               >
                 {s.size}
               </Button>
