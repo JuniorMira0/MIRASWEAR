@@ -39,9 +39,9 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
   return (
     <>
       <Header categories={categories} />
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-6 lg:grid lg:grid-cols-12 lg:gap-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 lg:grid lg:grid-cols-12 lg:gap-8">
         {/* LEFT: Gallery */}
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-7">
           <ProductImageGallery
             imageUrl={productVariant.imageUrl}
             alt={productVariant.name}
@@ -56,7 +56,7 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
           )}
         </div>
 
-        <div className="lg:col-span-4 lg:pr-2">
+        <div className="lg:col-span-5 lg:pr-2">
           <div className="space-y-4">
             <div>
               <h1 className="text-2xl font-semibold">

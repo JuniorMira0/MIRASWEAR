@@ -191,7 +191,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
       </div>
       {categories.length > 0 && (
         <nav className="bg-background hidden w-full md:block">
-          <div className="mx-auto flex max-w-7xl justify-center gap-20 overflow-x-auto px-6 py-3 text-sm md:px-10">
+          <div className="mx-auto flex max-w-7xl justify-center gap-20 overflow-x-auto px-6 pt-0 pb-3 text-sm md:px-10">
             {categories.map((c) => (
               <Link
                 key={c.id}

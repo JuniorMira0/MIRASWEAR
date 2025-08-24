@@ -55,7 +55,7 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
           )}
         </div>
       )}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <h3 className="font-medium">Quantidade</h3>
         <div className="flex w-32 items-center justify-between rounded-xl border">
           <Button size="icon" variant="ghost" onClick={handleDecrement}>
@@ -67,7 +67,7 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
           </Button>
         </div>
 
-        <div className="flex gap-3 pt-1">
+        <div className="flex gap-3 pt-0.5">
           <div className="flex-1">
             <AddToCartButton
               productVariantId={productVariantId}
