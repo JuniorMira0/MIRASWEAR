@@ -33,6 +33,20 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
     }
   }
 
+  const stockItem = await db.query.inventoryItemTable.findFirst({
+    where: (t, { and, eq, isNull }) =>
+      and(
+        eq(t.productVariantId, data.productVariantId),
+        data.productVariantSizeId
+          ? eq(t.productVariantSizeId, data.productVariantSizeId)
+          : isNull(t.productVariantSizeId),
+      ),
+  });
+  const availableQty = stockItem?.quantity ?? 0;
+  if (availableQty <= 0) {
+    throw new Error("Produto esgotado");
+  }
+
   const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, userId),
   });
@@ -60,13 +74,21 @@ export const addProductToCart = async (data: AddProductToCartSchema) => {
   });
 
   if (cartItem) {
+    const newQty = cartItem.quantity + data.quantity;
+    if (newQty > availableQty) {
+      throw new Error("Quantidade indisponível em estoque");
+    }
     await db
       .update(cartItemTable)
       .set({
-        quantity: cartItem.quantity + data.quantity,
+        quantity: newQty,
       })
       .where(eq(cartItemTable.id, cartItem.id));
     return;
+  }
+
+  if (data.quantity > availableQty) {
+    throw new Error("Quantidade indisponível em estoque");
   }
 
   await db.insert(cartItemTable).values({

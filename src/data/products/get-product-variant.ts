@@ -6,7 +6,12 @@ export const getProductVariantBySlug = async (slug: string) => {
   return await db.query.productVariantTable.findFirst({
     where: eq(productVariantTable.slug, slug),
     with: {
-      sizes: true,
+      sizes: {
+        with: {
+          inventoryItems: true,
+        },
+      },
+      inventoryItems: true,
       product: {
         with: {
           variants: true,

@@ -35,7 +35,12 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
   const sizes = (productVariant.sizes ?? []).map((s) => ({
     id: s.id,
     size: s.size,
+    stock: (s.inventoryItems ?? []).reduce((acc, it) => acc + it.quantity, 0),
   }));
+  const variantStock = (productVariant.inventoryItems ?? []).reduce(
+    (acc, it) => acc + it.quantity,
+    0,
+  );
   return (
     <>
       <Header categories={categories} />
@@ -81,6 +86,7 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
             <ProductActions
               productVariantId={productVariant.id}
               sizes={sizes}
+              variantStock={variantStock}
             />
 
             {/* Description */}

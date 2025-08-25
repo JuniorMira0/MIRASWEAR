@@ -10,10 +10,15 @@ import AddToCartButton from "./add-to-cart-button";
 
 interface ProductActionsProps {
   productVariantId: string;
-  sizes?: { id: string; size: string }[];
+  sizes?: { id: string; size: string; stock?: number }[];
+  variantStock?: number;
 }
 
-const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
+const ProductActions = ({
+  productVariantId,
+  sizes,
+  variantStock,
+}: ProductActionsProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
   const [selectedSizeLabel, setSelectedSizeLabel] = useState<string | null>(
@@ -47,16 +52,23 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
                     : "opacity-90",
                 )}
                 onClick={() => {
+                  if ((s.stock ?? 0) <= 0) return;
                   setSelectedSizeId(s.id);
                   setSelectedSizeLabel(s.size);
                 }}
                 aria-pressed={selectedSizeId === s.id}
                 aria-label={`Selecionar tamanho ${s.size}`}
+                disabled={(s.stock ?? 0) <= 0}
               >
                 {s.size}
               </Button>
             ))}
           </div>
+          {sizes.some((s) => (s.stock ?? 0) <= 0) && (
+            <p className="text-muted-foreground text-xs">
+              Tamanhos esgotados ficam desabilitados
+            </p>
+          )}
           {!selectedSizeId && (
             <p className="text-muted-foreground text-[11px]">
               Selecione um tamanho para continuar
@@ -83,13 +95,19 @@ const ProductActions = ({ productVariantId, sizes }: ProductActionsProps) => {
               quantity={quantity}
               productVariantSizeId={selectedSizeId}
               sizeLabel={selectedSizeLabel}
-              disabled={!!sizes?.length && !selectedSizeId}
+              disabled={
+                (!!sizes?.length && !selectedSizeId) ||
+                (!sizes?.length && (variantStock ?? 0) <= 0)
+              }
             />
           </div>
           <Button
             className="flex-1 rounded-full"
             size="lg"
-            disabled={!!sizes?.length && !selectedSizeId}
+            disabled={
+              (!!sizes?.length && !selectedSizeId) ||
+              (!sizes?.length && (variantStock ?? 0) <= 0)
+            }
           >
             Comprar agora
           </Button>
