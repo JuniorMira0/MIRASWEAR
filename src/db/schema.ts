@@ -140,15 +140,45 @@ export const productVariantRelations = relations(
     sizes: many(productVariantSizeTable),
     cartItems: many(cartItemTable),
     orderItems: many(orderItemTable),
+    inventoryItems: many(inventoryItemTable),
   }),
 );
 
 export const productVariantSizeRelations = relations(
   productVariantSizeTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     variant: one(productVariantTable, {
       fields: [productVariantSizeTable.productVariantId],
       references: [productVariantTable.id],
+    }),
+    inventoryItems: many(inventoryItemTable),
+  }),
+);
+
+export const inventoryItemTable = pgTable("inventory_item", {
+  id: uuid().primaryKey().defaultRandom(),
+  productVariantId: uuid("product_variant_id")
+    .notNull()
+    .references(() => productVariantTable.id, { onDelete: "cascade" }),
+  productVariantSizeId: uuid("product_variant_size_id").references(
+    () => productVariantSizeTable.id,
+    { onDelete: "set null" },
+  ),
+  quantity: integer("quantity").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const inventoryItemRelations = relations(
+  inventoryItemTable,
+  ({ one }) => ({
+    variant: one(productVariantTable, {
+      fields: [inventoryItemTable.productVariantId],
+      references: [productVariantTable.id],
+    }),
+    size: one(productVariantSizeTable, {
+      fields: [inventoryItemTable.productVariantSizeId],
+      references: [productVariantSizeTable.id],
     }),
   }),
 );
