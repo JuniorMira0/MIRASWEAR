@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { db } from ".";
 import {
   categoryTable,
+  inventoryItemTable,
   productTable,
   productVariantSizeTable,
   productVariantTable,
@@ -547,6 +548,7 @@ async function main() {
   try {
     // Limpar dados existentes
     console.log("🧹 Limpando dados existentes...");
+    await db.delete(inventoryItemTable);
     await db.delete(productVariantSizeTable);
     await db.delete(productVariantTable);
     await db.delete(productTable);
@@ -633,13 +635,33 @@ async function main() {
         // Tamanhos da variante (se a categoria tiver)
         const sizes = getSizesForCategory(productData.categoryName);
         if (sizes.length > 0) {
+          const createdSizeIds: string[] = [];
           for (const size of sizes) {
+            const id = crypto.randomUUID();
             await db.insert(productVariantSizeTable).values({
-              id: crypto.randomUUID(),
+              id,
               productVariantId: variantId,
               size,
             });
+            createdSizeIds.push(id);
           }
+          // Seed stock per size (random 0-10)
+          for (const sizeId of createdSizeIds) {
+            await db.insert(inventoryItemTable).values({
+              id: crypto.randomUUID(),
+              productVariantId: variantId,
+              productVariantSizeId: sizeId,
+              quantity: Math.floor(Math.random() * 11),
+            });
+          }
+        } else {
+          // Seed stock at variant level (no sizes)
+          await db.insert(inventoryItemTable).values({
+            id: crypto.randomUUID(),
+            productVariantId: variantId,
+            productVariantSizeId: null,
+            quantity: Math.floor(Math.random() * 11),
+          });
         }
       }
     }
