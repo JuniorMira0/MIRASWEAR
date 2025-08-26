@@ -22,7 +22,7 @@ export const Cart = () => {
   const { data: session } = authClient.useSession();
   const isLogged = !!session?.user;
   const { data: serverCart } = useCart();
-  const { state: guestState } = useCartStore();
+  const { state: guestState, cartOpen, setCartOpen } = useCartStore();
   const cartItems = isLogged
     ? (serverCart?.items?.filter((i) => i) ?? []).map((i) => ({
         id: i.id,
@@ -54,7 +54,7 @@ export const Cart = () => {
   );
   const totalItems = cartItems.reduce((acc, i) => acc + i.quantity, 0);
   return (
-    <Sheet>
+    <Sheet open={cartOpen} onOpenChange={setCartOpen}>
       <SheetTrigger asChild>
         <Button
           variant="outline"

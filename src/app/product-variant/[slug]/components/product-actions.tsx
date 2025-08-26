@@ -67,6 +67,7 @@ const ProductActions = ({
                   if ((s.stock ?? 0) <= 0) return;
                   setSelectedSizeId(s.id);
                   setSelectedSizeLabel(s.size);
+                  setQuantity(1);
                 }}
                 aria-pressed={selectedSizeId === s.id}
                 aria-label={`Selecionar tamanho ${s.size}`}
