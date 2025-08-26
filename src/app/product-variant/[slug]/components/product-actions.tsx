@@ -103,29 +103,18 @@ const ProductActions = ({
             </span>
           )}
 
-        <div className="flex gap-2.5 pt-0.5">
-          <div className="flex-1">
-            <AddToCartButton
-              productVariantId={productVariantId}
-              quantity={quantity}
-              productVariantSizeId={selectedSizeId}
-              sizeLabel={selectedSizeLabel}
-              disabled={
-                (!!sizes?.length && !selectedSizeId) ||
-                (!sizes?.length && (variantStock ?? 0) <= 0)
-              }
-            />
-          </div>
-          <Button
-            className="flex-1 rounded-full"
-            size="lg"
+        <div className="pt-0.5">
+          <AddToCartButton
+            productVariantId={productVariantId}
+            quantity={quantity}
+            productVariantSizeId={selectedSizeId}
+            sizeLabel={selectedSizeLabel}
             disabled={
               (!!sizes?.length && !selectedSizeId) ||
               (!sizes?.length && (variantStock ?? 0) <= 0)
             }
-          >
-            Comprar agora
-          </Button>
+            buttonText="Compre"
+          />
         </div>
       </div>
     </>

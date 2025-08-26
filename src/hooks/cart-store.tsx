@@ -6,6 +6,7 @@ import {
   useEffect,
   useReducer,
   useRef,
+  useState,
 } from "react";
 
 // Tipos
@@ -96,6 +97,8 @@ const CartStoreContext = createContext<{
   decrease: (id: string) => void;
   clear: () => void;
   getTotalItems: () => number;
+  cartOpen: boolean;
+  setCartOpen: (open: boolean) => void;
 } | null>(null);
 
 export const CartStoreProvider = ({
@@ -105,6 +108,7 @@ export const CartStoreProvider = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, { isLoaded: false, items: [] });
   const firstLoad = useRef(true);
+  const [cartOpen, setCartOpen] = useState(false);
 
   // Load from localStorage once
   useEffect(() => {
@@ -164,7 +168,16 @@ export const CartStoreProvider = ({
 
   return (
     <CartStoreContext.Provider
-      value={{ state, addItem, removeItem, decrease, clear, getTotalItems }}
+      value={{
+        state,
+        addItem,
+        removeItem,
+        decrease,
+        clear,
+        getTotalItems,
+        cartOpen,
+        setCartOpen,
+      }}
     >
       {children}
     </CartStoreContext.Provider>

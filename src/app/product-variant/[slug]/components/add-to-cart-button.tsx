@@ -16,6 +16,7 @@ interface AddToCartButtonProps {
   productVariantSizeId?: string | null;
   sizeLabel?: string | null;
   disabled?: boolean;
+  buttonText: string;
 }
 
 const AddToCartButton = ({
@@ -24,10 +25,11 @@ const AddToCartButton = ({
   productVariantSizeId,
   sizeLabel,
   disabled,
+  buttonText,
 }: AddToCartButtonProps) => {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
-  const { addItem: addGuestItem } = useCartStore();
+  const { addItem: addGuestItem, setCartOpen } = useCartStore();
 
   const { mutate, isPending } = useMutation({
     mutationKey: [
@@ -46,6 +48,7 @@ const AddToCartButton = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
       toast.success("Produto adicionado à sacola!");
+      setCartOpen(true);
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error);
@@ -89,7 +92,7 @@ const AddToCartButton = ({
       disabled={disabled}
       onClick={handleAddToCart}
     >
-      Adicionar à sacola
+      {buttonText}
     </LoadingButton>
   );
 };
