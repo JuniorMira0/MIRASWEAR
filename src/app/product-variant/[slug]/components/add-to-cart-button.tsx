@@ -10,13 +10,17 @@ import { useCartStore } from "@/hooks/cart-store";
 import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
 import { authClient } from "@/lib/auth-client";
 
-interface AddToCartButtonProps {
+import { VariantProps } from "class-variance-authority";
+
+interface AddToCartButtonProps
+  extends VariantProps<typeof import("@/components/ui/button").buttonVariants> {
   productVariantId: string;
   quantity: number;
   productVariantSizeId?: string | null;
   sizeLabel?: string | null;
   disabled?: boolean;
   buttonText: string;
+  className?: string;
 }
 
 const AddToCartButton = ({
@@ -26,6 +30,9 @@ const AddToCartButton = ({
   sizeLabel,
   disabled,
   buttonText,
+  variant = "default",
+  size = "lg",
+  className,
 }: AddToCartButtonProps) => {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
@@ -85,9 +92,9 @@ const AddToCartButton = ({
 
   return (
     <LoadingButton
-      className="rounded-full"
-      size="lg"
-      variant="outline"
+      className={className}
+      size={size}
+      variant={variant}
       isLoading={isPending}
       disabled={disabled}
       onClick={handleAddToCart}

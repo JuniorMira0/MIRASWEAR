@@ -114,6 +114,9 @@ const ProductActions = ({
               (!sizes?.length && (variantStock ?? 0) <= 0)
             }
             buttonText="Compre"
+            variant="default"
+            size="lg"
+            className="w-full"
           />
         </div>
       </div>
