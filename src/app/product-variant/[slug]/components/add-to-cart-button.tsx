@@ -48,11 +48,8 @@ const AddToCartButton = ({
       toast.success("Produto adicionado à sacola!");
     },
     onError: (error) => {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erro ao adicionar produto à sacola";
-      toast.error(message);
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message || "Erro ao adicionar produto à sacola");
       console.error(error);
     },
   });
