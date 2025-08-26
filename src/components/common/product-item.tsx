@@ -7,26 +7,41 @@ import { cn } from "@/lib/utils";
 
 interface ProductItemProps {
   product: typeof productTable.$inferSelect & {
-    variants: (typeof productVariantTable.$inferSelect)[];
+    variants: (typeof productVariantTable.$inferSelect & {
+      inventoryItems?: { quantity: number }[];
+    })[];
   };
   textContainerClassName?: string;
 }
 
 const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
   const firstVariant = product.variants[0];
+  const allOutOfStock = product.variants.every((v) => {
+    if (!v.inventoryItems || v.inventoryItems.length === 0) return true;
+    return (
+      v.inventoryItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0) <= 0
+    );
+  });
   return (
     <Link
       href={`/product-variant/${firstVariant.slug}`}
       className="flex flex-col gap-4"
     >
-      <Image
-        src={firstVariant.imageUrl}
-        alt={firstVariant.name}
-        sizes="100vw"
-        height={0}
-        width={0}
-        className="h-auto w-full rounded-xl"
-      />
+      <div className="relative">
+        <Image
+          src={firstVariant.imageUrl}
+          alt={firstVariant.name}
+          sizes="100vw"
+          height={0}
+          width={0}
+          className="h-auto w-full rounded-xl"
+        />
+        {allOutOfStock && (
+          <span className="bg-destructive absolute top-2 right-2 z-10 rounded px-2 py-1 text-xs font-bold text-white shadow">
+            Esgotado
+          </span>
+        )}
+      </div>
       <div
         className={cn(
           "flex max-w-[160px] flex-col gap-1 md:max-w-[180px]",

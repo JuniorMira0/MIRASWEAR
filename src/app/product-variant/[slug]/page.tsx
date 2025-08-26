@@ -50,6 +50,11 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
           <ProductImageGallery
             imageUrl={productVariant.imageUrl}
             alt={productVariant.name}
+            showOutOfStock={
+              sizes.length > 0
+                ? sizes.every((s) => (s.stock ?? 0) <= 0)
+                : (variantStock ?? 0) <= 0
+            }
           />
           {hasMultipleVariants && (
             <div className="mt-4 md:hidden">

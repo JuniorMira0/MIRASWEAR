@@ -45,8 +45,18 @@ const ProductActions = ({
     });
   };
 
+  const allOutOfStock =
+    sizes && sizes.length > 0
+      ? sizes.every((s) => (s.stock ?? 0) <= 0)
+      : (variantStock ?? 0) <= 0;
+
   return (
     <>
+      {allOutOfStock && (
+        <div className="text-destructive mb-4 text-center text-sm font-semibold">
+          Produto esgotado
+        </div>
+      )}
       {sizes && sizes.length > 0 && (
         <div className="space-y-2.5">
           <h3 className="font-medium">Selecionar tamanho</h3>
@@ -111,6 +121,7 @@ const ProductActions = ({
             productVariantSizeId={selectedSizeId}
             sizeLabel={selectedSizeLabel}
             disabled={
+              allOutOfStock ||
               (!!sizes?.length && !selectedSizeId) ||
               (!sizes?.length && (variantStock ?? 0) <= 0)
             }

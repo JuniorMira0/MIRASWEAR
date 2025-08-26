@@ -6,9 +6,14 @@ import { useState } from "react";
 interface ProductImageGalleryProps {
   imageUrl: string;
   alt: string;
+  showOutOfStock?: boolean;
 }
 
-const ProductImageGallery = ({ imageUrl, alt }: ProductImageGalleryProps) => {
+const ProductImageGallery = ({
+  imageUrl,
+  alt,
+  showOutOfStock,
+}: ProductImageGalleryProps) => {
   const images = [imageUrl, imageUrl, imageUrl, imageUrl, imageUrl];
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -43,6 +48,11 @@ const ProductImageGallery = ({ imageUrl, alt }: ProductImageGalleryProps) => {
           sizes="(max-width: 1024px) 100vw, 700px"
           priority
         />
+        {showOutOfStock && (
+          <span className="bg-destructive absolute top-3 right-3 z-10 rounded px-3 py-1 text-xs font-bold text-white shadow">
+            Esgotado
+          </span>
+        )}
       </div>
     </div>
   );
