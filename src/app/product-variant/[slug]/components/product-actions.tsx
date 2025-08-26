@@ -1,6 +1,6 @@
 "use client";
 
-import { MinusIcon, PlusIcon } from "lucide-react";
+import { Info, MinusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,6 @@ const ProductActions = ({
               </Button>
             ))}
           </div>
-          {sizes.some((s) => (s.stock ?? 0) <= 0)}
           {!selectedSizeId && (
             <p className="text-muted-foreground text-[11px]">
               Selecione um tamanho para continuar
@@ -95,20 +94,13 @@ const ProductActions = ({
             <PlusIcon />
           </Button>
         </div>
-        {(sizes?.length ? !!selectedSizeId : true) && (
-          <p className="text-muted-foreground text-[11px]">
-            Disponíveis: {availableStock}
-          </p>
-        )}
         {(sizes?.length ? !!selectedSizeId : true) &&
           availableStock > 0 &&
           availableStock <= 3 && (
-            <div className="flex items-center gap-2 text-xs text-amber-700">
-              <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-amber-500" />
-              <span className="font-medium">
-                Últimas unidades! Não deixe pra depois
-              </span>
-            </div>
+            <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+              <Info size={14} aria-label="informação" />
+              Últimas unidades! Não deixe pra depois
+            </span>
           )}
 
         <div className="flex gap-2.5 pt-0.5">
