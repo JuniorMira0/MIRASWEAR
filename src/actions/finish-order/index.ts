@@ -39,6 +39,7 @@ export const finishOrder = async () => {
     0,
   );
   let orderId: string | undefined;
+  const isStrict = process.env.INVENTORY_STRICT === "true";
   await db.transaction(async (tx) => {
     if (!cart.shippingAddress) {
       throw new Error("Shipping address not found");
@@ -78,14 +79,20 @@ export const finishOrder = async () => {
               : isNull(t.productVariantSizeId),
           ),
       });
-      const available = stock?.quantity ?? 0;
-      if (available < item.quantity) {
-        throw new Error("Estoque insuficiente para concluir o pedido");
+      if (!stock) {
+        if (isStrict) {
+          throw new Error("Produto sem controle de estoque configurado");
+        }
+      } else {
+        const available = stock.quantity ?? 0;
+        if (available < item.quantity) {
+          throw new Error("Estoque insuficiente para concluir o pedido");
+        }
+        await tx
+          .update(inventoryItemTable)
+          .set({ quantity: available - item.quantity })
+          .where(eq(inventoryItemTable.id, stock.id));
       }
-      await tx
-        .update(inventoryItemTable)
-        .set({ quantity: available - item.quantity })
-        .where(eq(inventoryItemTable.id, stock!.id));
 
       orderItemsPayload.push({
         orderId: order.id,
