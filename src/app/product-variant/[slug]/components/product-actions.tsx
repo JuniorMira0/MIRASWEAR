@@ -50,6 +50,15 @@ const ProductActions = ({
       ? sizes.every((s) => (s.stock ?? 0) <= 0)
       : (variantStock ?? 0) <= 0;
 
+  const sortedSizes = sizes
+    ? [...sizes].sort((a, b) => {
+        const aOut = (a.stock ?? 0) <= 0;
+        const bOut = (b.stock ?? 0) <= 0;
+        if (aOut === bOut) return 0;
+        return aOut ? 1 : -1;
+      })
+    : [];
+
   return (
     <>
       {allOutOfStock && (
@@ -61,7 +70,7 @@ const ProductActions = ({
         <div className="space-y-2.5">
           <h3 className="font-medium">Selecionar tamanho</h3>
           <div className="grid grid-cols-4 gap-2 md:grid-cols-6 md:gap-2.5">
-            {sizes.map((s) => (
+            {sortedSizes.map((s) => (
               <Button
                 key={s.id}
                 type="button"

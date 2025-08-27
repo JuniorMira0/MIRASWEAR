@@ -14,7 +14,11 @@ export const getProductVariantBySlug = async (slug: string) => {
       inventoryItems: true,
       product: {
         with: {
-          variants: true,
+          variants: {
+            with: {
+              inventoryItems: true,
+            },
+          },
         },
       },
     },
@@ -31,7 +35,11 @@ export const getLikelyProducts = async (
       ne(productTable.id, excludeProductId),
     ),
     with: {
-      variants: true,
+      variants: {
+        with: {
+          inventoryItems: true,
+        },
+      },
     },
   });
 };

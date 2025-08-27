@@ -5,16 +5,23 @@ import { productVariantTable } from "@/db/schema";
 
 interface VariantSelectorProps {
   selectedVariantSlug: string;
-  variants: (typeof productVariantTable.$inferSelect)[];
+  variants: (typeof productVariantTable.$inferSelect & { stock?: number })[];
 }
 
 const VariantSelector = ({
   selectedVariantSlug,
   variants,
 }: VariantSelectorProps) => {
+  const sortedVariants = [...variants].sort((a, b) => {
+    const aOut = (a.stock ?? 0) <= 0;
+    const bOut = (b.stock ?? 0) <= 0;
+    if (aOut === bOut) return 0;
+    return aOut ? 1 : -1;
+  });
+
   return (
     <div className="flex items-center gap-2.5">
-      {variants.map((variant) => (
+      {sortedVariants.map((variant) => (
         <Link
           href={`/product-variant/${variant.slug}`}
           key={variant.id}

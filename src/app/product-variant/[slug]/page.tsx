@@ -60,7 +60,13 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
             <div className="mt-4 md:hidden">
               <VariantSelector
                 selectedVariantSlug={productVariant.slug}
-                variants={productVariant.product.variants}
+                variants={productVariant.product.variants.map((v) => ({
+                  ...v,
+                  stock: (v.inventoryItems ?? []).reduce(
+                    (acc, it) => acc + (it.quantity ?? 0),
+                    0,
+                  ),
+                }))}
               />
             </div>
           )}
@@ -84,7 +90,13 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
               <div className="hidden md:block">
                 <VariantSelector
                   selectedVariantSlug={productVariant.slug}
-                  variants={productVariant.product.variants}
+                  variants={productVariant.product.variants.map((v) => ({
+                    ...v,
+                    stock: (v.inventoryItems ?? []).reduce(
+                      (acc, it) => acc + (it.quantity ?? 0),
+                      0,
+                    ),
+                  }))}
                 />
               </div>
             )}

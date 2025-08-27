@@ -9,7 +9,9 @@ import ProductItem from "./product-item";
 interface ProductListProps {
   title: string;
   products: (typeof productTable.$inferSelect & {
-    variants: (typeof productVariantTable.$inferSelect)[];
+    variants: (typeof productVariantTable.$inferSelect & {
+      inventoryItems?: { quantity: number }[];
+    })[];
   })[];
 }
 
@@ -58,6 +60,31 @@ const ProductList = ({ title, products }: ProductListProps) => {
     }
   };
 
+  const sortedProducts = [...products].sort((a, b) => {
+    const isAOut = a.variants.every((v) => {
+      if (!v.inventoryItems || v.inventoryItems.length === 0) return true;
+      return (
+        v.inventoryItems.reduce(
+          (sum: number, item: { quantity: number }) =>
+            sum + (item.quantity ?? 0),
+          0,
+        ) <= 0
+      );
+    });
+    const isBOut = b.variants.every((v) => {
+      if (!v.inventoryItems || v.inventoryItems.length === 0) return true;
+      return (
+        v.inventoryItems.reduce(
+          (sum: number, item: { quantity: number }) =>
+            sum + (item.quantity ?? 0),
+          0,
+        ) <= 0
+      );
+    });
+    if (isAOut === isBOut) return 0;
+    return isAOut ? 1 : -1;
+  });
+
   return (
     <div className="space-y-6">
       <h3 className="px-5 font-semibold md:px-11">{title}</h3>
@@ -69,7 +96,7 @@ const ProductList = ({ title, products }: ProductListProps) => {
           aria-label={`Lista de produtos: ${title}`}
           className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-5 md:gap-3 md:px-11 [&::-webkit-scrollbar]:hidden"
         >
-          {products.map((product) => (
+          {sortedProducts.map((product) => (
             <div
               key={product.id}
               className="min-w-[140px] snap-start md:min-w-[168px] lg:min-w-[180px]"

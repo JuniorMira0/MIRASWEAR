@@ -9,6 +9,7 @@ interface ProductItemProps {
   product: typeof productTable.$inferSelect & {
     variants: (typeof productVariantTable.$inferSelect & {
       inventoryItems?: { quantity: number }[];
+      stock?: number;
     })[];
   };
   textContainerClassName?: string;
@@ -17,10 +18,16 @@ interface ProductItemProps {
 const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
   const firstVariant = product.variants[0];
   const allOutOfStock = product.variants.every((v) => {
-    if (!v.inventoryItems || v.inventoryItems.length === 0) return true;
-    return (
-      v.inventoryItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0) <= 0
-    );
+    if (typeof v.stock === "number") {
+      return v.stock <= 0;
+    }
+    if (Array.isArray(v.inventoryItems)) {
+      return (
+        v.inventoryItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0) <=
+        0
+      );
+    }
+    return false;
   });
   return (
     <Link
