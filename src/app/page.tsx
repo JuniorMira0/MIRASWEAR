@@ -1,3 +1,4 @@
+"use server";
 import { getCategories } from "@/actions/get-categories";
 import BrandPartners from "@/components/common/brand-partners";
 import Footer from "@/components/common/footer";
@@ -7,7 +8,7 @@ import { getProducts, getRecentProducts } from "@/data/products/get-products";
 import Image from "next/image";
 import { Header } from "../components/common/header";
 
-const Home = async () => {
+export default async function Home() {
   const products = await getProducts();
   const newlyAddedProducts = await getRecentProducts();
   const categories = await getCategories();
@@ -63,6 +64,4 @@ const Home = async () => {
       </main>
     </>
   );
-};
-
-export default Home;
+}
