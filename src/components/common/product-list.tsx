@@ -47,7 +47,10 @@ const ProductList = ({ title, products, isLoading }: ProductListProps) => {
 
   useEffect(() => {
     if (!isLoading) {
-      update();
+      const timeout = setTimeout(() => {
+        update();
+      }, 50);
+      return () => clearTimeout(timeout);
     }
   }, [isLoading, products, update]);
 
