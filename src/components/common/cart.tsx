@@ -6,7 +6,7 @@ import { useCartStore } from "@/hooks/cart-store";
 import { useCart } from "@/hooks/queries/use-cart";
 import { authClient } from "@/lib/auth-client";
 import { ShoppingBasketIcon } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 import {
@@ -23,6 +23,7 @@ export const Cart = () => {
   const isLogged = !!session?.user;
   const { data: serverCart } = useCart();
   const { state: guestState, cartOpen, setCartOpen } = useCartStore();
+  const router = useRouter();
   const cartItems = isLogged
     ? (serverCart?.items?.filter((i) => i) ?? []).map((i) => ({
         id: i.id,
@@ -114,18 +115,20 @@ export const Cart = () => {
                   <p>Total</p>
                   <p>{formatCentsToBRL(totalPriceInCents)}</p>
                 </div>
-                <Button className="mt-2 rounded-full" asChild>
-                  <Link
-                    href={
-                      isLogged
-                        ? "/cart/identification"
-                        : `/authentication?redirect=/cart/identification`
+                <Button
+                  className="mt-2 rounded-full"
+                  onClick={() => {
+                    setCartOpen(false);
+                    if (isLogged) {
+                      router.push("/cart/identification");
+                    } else {
+                      router.push(
+                        "/authentication?redirect=/cart/identification",
+                      );
                     }
-                  >
-                    {isLogged
-                      ? "Finalizar compra"
-                      : "Fazer login para continuar"}
-                  </Link>
+                  }}
+                >
+                  {isLogged ? "Finalizar compra" : "Fazer login para continuar"}
                 </Button>
               </div>
             </div>
@@ -135,5 +138,3 @@ export const Cart = () => {
     </Sheet>
   );
 };
-
-// SERVER ACTION
