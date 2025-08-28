@@ -45,6 +45,12 @@ const ProductList = ({ title, products, isLoading }: ProductListProps) => {
     };
   }, [update]);
 
+  useEffect(() => {
+    if (!isLoading) {
+      update();
+    }
+  }, [isLoading, update]);
+
   const scrollByAmount = (dir: 1 | -1) => {
     const el = scrollRef.current;
     if (!el) return;
