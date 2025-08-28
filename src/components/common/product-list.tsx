@@ -49,7 +49,7 @@ const ProductList = ({ title, products, isLoading }: ProductListProps) => {
     if (!isLoading) {
       update();
     }
-  }, [isLoading, update]);
+  }, [isLoading, products, update]);
 
   const scrollByAmount = (dir: 1 | -1) => {
     const el = scrollRef.current;
