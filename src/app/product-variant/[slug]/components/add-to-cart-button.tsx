@@ -55,7 +55,6 @@ const AddToCartButton = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
       toast.success("Produto adicionado à sacola!");
-      setCartOpen(true);
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error);
@@ -65,6 +64,7 @@ const AddToCartButton = ({
   });
 
   const handleAddToCart = async () => {
+    setCartOpen(true);
     if (session?.user) {
       mutate();
     } else {
@@ -78,6 +78,7 @@ const AddToCartButton = ({
           productVariantSizeId: productVariantSizeId ?? null,
           sizeLabel: sizeLabel ?? null,
         });
+        setCartOpen(true);
         toast.success("Produto adicionado à sacola!");
       } catch (error) {
         console.error("Erro ao buscar dados do produto:", error);
@@ -85,6 +86,7 @@ const AddToCartButton = ({
           productVariantSizeId: productVariantSizeId ?? null,
           sizeLabel: sizeLabel ?? null,
         });
+        setCartOpen(true);
         toast.success("Produto adicionado à sacola!");
       }
     }
