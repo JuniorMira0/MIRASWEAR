@@ -13,11 +13,12 @@ interface ProductListProps {
       inventoryItems?: { quantity: number }[];
     })[];
   })[];
+  isLoading?: boolean;
 }
 
 const SCROLL_AMOUNT = 600;
 
-const ProductList = ({ title, products }: ProductListProps) => {
+const ProductList = ({ title, products, isLoading }: ProductListProps) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
@@ -89,23 +90,29 @@ const ProductList = ({ title, products }: ProductListProps) => {
     <div className="space-y-6">
       <h3 className="px-5 font-semibold md:px-11">{title}</h3>
       <div className="relative">
-        <div
-          ref={scrollRef}
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-          aria-label={`Lista de produtos: ${title}`}
-          className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-5 md:gap-3 md:px-11 [&::-webkit-scrollbar]:hidden"
-        >
-          {sortedProducts.map((product) => (
-            <div
-              key={product.id}
-              className="min-w-[140px] snap-start md:min-w-[168px] lg:min-w-[180px]"
-              aria-label={product.name}
-            >
-              <ProductItem product={product} />
-            </div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-muted-foreground flex items-center justify-center py-10">
+            Carregando...
+          </div>
+        ) : (
+          <div
+            ref={scrollRef}
+            tabIndex={0}
+            onKeyDown={onKeyDown}
+            aria-label={`Lista de produtos: ${title}`}
+            className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-5 md:gap-3 md:px-11 [&::-webkit-scrollbar]:hidden"
+          >
+            {sortedProducts.map((product) => (
+              <div
+                key={product.id}
+                className="min-w-[140px] snap-start md:min-w-[168px] lg:min-w-[180px]"
+                aria-label={product.name}
+              >
+                <ProductItem product={product} />
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="from-background pointer-events-none absolute inset-y-0 left-0 hidden w-8 bg-gradient-to-r to-transparent md:block" />
         <div className="from-background pointer-events-none absolute inset-y-0 right-0 hidden w-8 bg-gradient-to-l to-transparent md:block" />
