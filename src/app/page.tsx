@@ -12,6 +12,14 @@ export default async function Home() {
   const products = await getProducts();
   const newlyAddedProducts = await getRecentProducts();
   const categories = await getCategories();
+  // Log produtos e estoque para depuração
+  console.log("Produtos:", products.map(p => ({
+    name: p.name,
+    variants: p.variants.map(v => ({
+      color: v.color,
+      estoque: v.inventoryItems?.reduce((sum, item) => sum + (item.quantity ?? 0), 0)
+    }))
+  })));
   return (
     <>
       <Header categories={categories} />
