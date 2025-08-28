@@ -41,13 +41,16 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, isLoaded: true, items: action.payload };
     case "ADD": {
       const existing = state.items.find(
-        (i) => i.productVariantId === action.payload.item.productVariantId,
+        (i) =>
+          i.productVariantId === action.payload.item.productVariantId &&
+          i.productVariantSizeId === action.payload.item.productVariantSizeId,
       );
       if (existing) {
         return {
           ...state,
           items: state.items.map((i) =>
-            i.productVariantId === existing.productVariantId
+            i.productVariantId === existing.productVariantId &&
+            i.productVariantSizeId === existing.productVariantSizeId
               ? {
                   ...i,
                   quantity:
