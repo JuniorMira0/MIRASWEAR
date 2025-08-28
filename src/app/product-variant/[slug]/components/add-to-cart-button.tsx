@@ -70,10 +70,6 @@ const AddToCartButton = ({
     } else {
       try {
         const productDetails = await getProductVariantDetails(productVariantId);
-        console.log("addGuestItem", {
-          productVariantSizeId,
-          sizeLabel,
-        });
         addGuestItem(productVariantId, quantity, {
           productName: productDetails.productName,
           productVariantName: productDetails.productVariantName,
@@ -85,11 +81,6 @@ const AddToCartButton = ({
         setCartOpen(true);
         toast.success("Produto adicionado à sacola!");
       } catch (error) {
-        console.error("Erro ao buscar dados do produto:", error);
-        console.log("addGuestItem fallback", {
-          productVariantSizeId,
-          sizeLabel,
-        });
         addGuestItem(productVariantId, quantity, {
           productVariantSizeId: productVariantSizeId ?? null,
           sizeLabel: sizeLabel ?? null,

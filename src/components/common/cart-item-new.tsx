@@ -19,6 +19,7 @@ interface CartItemProps {
   quantity: number;
   isLocal?: boolean;
   sizeLabel?: string | null;
+  maxStock?: number;
 }
 
 const CartItem = ({
@@ -31,6 +32,7 @@ const CartItem = ({
   quantity,
   isLocal = false,
   sizeLabel,
+  maxStock = Infinity,
 }: CartItemProps) => {
   const { removeItem, decrease, addItem } = useCartStore();
 
@@ -72,6 +74,7 @@ const CartItem = ({
   };
 
   const handleIncreaseQuantityClick = () => {
+    if (quantity >= maxStock) return;
     if (isLocal) {
       addItem(productVariantId, 1);
     } else {
@@ -87,7 +90,7 @@ const CartItem = ({
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="relative flex items-center justify-between">
       <div className="flex items-center gap-4">
         <Image
           src={productVariantImageUrl}
@@ -98,6 +101,11 @@ const CartItem = ({
         />
         <div className="flex flex-col gap-1">
           <p className="text-sm font-semibold">{productName}</p>
+          {quantity > maxStock && (
+            <span className="absolute top-0 left-0 z-10 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
+              Fora de estoque
+            </span>
+          )}
           <p className="text-muted-foreground text-xs font-medium">
             {productVariantName}
             {sizeLabel && <span className="ml-2">Tam: {sizeLabel}</span>}
@@ -115,6 +123,7 @@ const CartItem = ({
               className="h-4 w-4"
               variant="ghost"
               onClick={handleIncreaseQuantityClick}
+              disabled={quantity >= maxStock}
             >
               <PlusIcon />
             </Button>
