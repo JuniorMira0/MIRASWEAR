@@ -5,12 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 interface ProductListClientProps {
   title: string;
   type?: "best" | "new";
+  initialProducts?: any[];
 }
 
-export default function ProductListClient({
-  title,
-  type = "best",
-}: ProductListClientProps) {
+export default function ProductListClient(props: ProductListClientProps) {
+  const { title, type = "best", initialProducts = [] } = props;
+
   const { data, isLoading } = useQuery({
     queryKey: ["products-home"],
     queryFn: async () => {
@@ -19,13 +19,17 @@ export default function ProductListClient({
       return res.json();
     },
     refetchInterval: 5000,
+    initialData: {
+      products: initialProducts,
+      newlyAddedProducts: initialProducts,
+    },
   });
 
   let products = [];
   if (type === "best") {
-    products = data?.products ?? [];
+    products = data?.products ?? initialProducts;
   } else if (type === "new") {
-    products = data?.newlyAddedProducts ?? [];
+    products = data?.newlyAddedProducts ?? initialProducts;
   }
 
   return (
