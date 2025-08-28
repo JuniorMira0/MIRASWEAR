@@ -47,6 +47,8 @@ const ProductList = ({ title, products, isLoading }: ProductListProps) => {
 
   useEffect(() => {
     if (!isLoading) {
+      const el = scrollRef.current;
+      if (el) el.scrollLeft = 0;
       const timeout = setTimeout(() => {
         update();
       }, 50);
