@@ -8,6 +8,7 @@ import {
   inventoryItemTable,
   orderItemTable,
   orderTable,
+  reservationTable,
 } from "@/db/schema";
 import { requireAuth } from "@/lib/auth-middleware";
 
@@ -39,6 +40,7 @@ export const finishOrder = async () => {
     0,
   );
   let orderId: string | undefined;
+  let reservationExpiresAt: Date | undefined;
   const isStrict = process.env.INVENTORY_STRICT === "true";
   await db.transaction(async (tx) => {
     if (!cart.shippingAddress) {
@@ -121,15 +123,7 @@ export const finishOrder = async () => {
     }
 
     for (const chk of stockChecks) {
-      const { item, stockRow } = chk;
-      if (stockRow) {
-        const available = stockRow.quantity ?? 0;
-        await tx
-          .update(inventoryItemTable)
-          .set({ quantity: available - item.quantity })
-          .where(eq(inventoryItemTable.id, stockRow.id));
-      }
-
+      const { item } = chk;
       orderItemsPayload.push({
         orderId: order.id,
         productVariantId: item.productVariant.id,
@@ -140,9 +134,21 @@ export const finishOrder = async () => {
     }
 
     await tx.insert(orderItemTable).values(orderItemsPayload);
+
+    const reserveMinutes = Number(process.env.RESERVATION_MINUTES) || 15;
+    const expiresAt = new Date(Date.now() + reserveMinutes * 60 * 1000);
+    const reservationsPayload = orderItemsPayload.map((oi) => ({
+      orderId: oi.orderId,
+      productVariantId: oi.productVariantId,
+      productVariantSizeId: oi.productVariantSizeId ?? null,
+      quantity: oi.quantity,
+      expiresAt,
+    }));
+    await tx.insert(reservationTable).values(reservationsPayload);
+    reservationExpiresAt = expiresAt;
   });
   if (!orderId) {
     throw new Error("Failed to create order");
   }
-  return { orderId };
+  return { orderId, expiresAt: reservationExpiresAt?.toISOString() };
 };

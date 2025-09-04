@@ -5,10 +5,30 @@ import { loadStripe } from "@stripe/stripe-js";
 import { createCheckoutSession } from "@/actions/create-checkout-session";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const FinishOrderButton = () => {
   const finishOrderMutation = useFinishOrder();
+  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    const raw = (window as any).__RESERVATION_EXPIRES_AT;
+    if (raw) setExpiresAt(new Date(raw));
+  }, []);
+
+  useEffect(() => {
+    if (!expiresAt) return;
+    const id = setInterval(() => {
+      const diff = Math.max(
+        0,
+        Math.floor((expiresAt.getTime() - Date.now()) / 1000),
+      );
+      setTimeLeft(diff);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [expiresAt]);
   const handleFinishOrder = async () => {
     if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
       throw new Error("Stripe publishable key is not set");
@@ -17,6 +37,13 @@ const FinishOrderButton = () => {
     try {
       const res = await finishOrderMutation.mutateAsync();
       orderId = res.orderId;
+      if (res.expiresAt) {
+        try {
+          const d = new Date(res.expiresAt);
+          setExpiresAt(d);
+          (window as any).__RESERVATION_EXPIRES_AT = res.expiresAt;
+        } catch {}
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         try {
@@ -32,8 +59,7 @@ const FinishOrderButton = () => {
             toast.error(`Estoque insuficiente: ${list}`);
             return;
           }
-        } catch (_) {
-        }
+        } catch (_) {}
       }
       throw err;
     }
@@ -52,14 +78,20 @@ const FinishOrderButton = () => {
   };
   return (
     <>
-      <LoadingButton
-        className="w-full rounded-full"
-        size="lg"
-        onClick={handleFinishOrder}
-        isLoading={finishOrderMutation.isPending}
-      >
-        Finalizar compra
-      </LoadingButton>
+      {timeLeft !== null && timeLeft <= 0 ? (
+        <div className="text-destructive text-sm font-medium">
+          Reserva expirada
+        </div>
+      ) : (
+        <LoadingButton
+          className="w-full rounded-full"
+          size="lg"
+          onClick={handleFinishOrder}
+          isLoading={finishOrderMutation.isPending}
+        >
+          Finalizar compra{timeLeft ? ` · ${timeLeft}s` : ""}
+        </LoadingButton>
+      )}
     </>
   );
 };
