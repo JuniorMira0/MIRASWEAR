@@ -5,7 +5,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import { createCheckoutSession } from "@/actions/create-checkout-session";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
-import { useRouter } from "next/navigation";
+import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -14,7 +15,7 @@ const FinishOrderButton = () => {
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [removedItems, setRemovedItems] = useState<Array<any> | null>(null);
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const raw = (window as any).__RESERVATION_EXPIRES_AT;
@@ -42,15 +43,8 @@ const FinishOrderButton = () => {
       if ((res as any).removedItems) {
         const items = (res as any).removedItems as Array<any>;
         setRemovedItems(items);
-        const list = items
-          .map(
-            (it) =>
-              `${it.variantName ?? it.productVariantId} (disponível: ${it.available}, pedido: ${it.requested})`,
-          )
-          .join("; ");
-        toast.error(`Itens removidos do carrinho: ${list}`);
-        // refresh cart UI
-        router.refresh();
+        toast.error("Esse carrinho tem itens fora de estoque");
+        queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
         return;
       }
 
@@ -144,9 +138,25 @@ const FinishOrderButton = () => {
           onClick={handleFinishOrder}
           isLoading={finishOrderMutation.isPending}
         >
-          Finalizar compra{timeLeft ? ` · ${timeLeft}s` : ""}
+          Finalizar compra
         </LoadingButton>
       )}
+
+      {removedItems && removedItems.length > 0 ? (
+        <div className="border-muted mt-4 rounded-md border p-3">
+          <div className="mb-2 text-sm font-medium">Itens indisponíveis</div>
+          <ul className="space-y-1 text-sm">
+            {removedItems.map((it: any) => (
+              <li
+                key={`${it.productVariantId}-${it.productVariantSizeId ?? "none"}`}
+              >
+                {it.variantName ?? it.productVariantId} - disponível:{" "}
+                {it.available} - pedido: {it.requested}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </>
   );
 };
