@@ -69,6 +69,12 @@ export const finishOrder = async () => {
     }
     orderId = order.id;
     const orderItemsPayload: Array<typeof orderItemTable.$inferInsert> = [];
+
+    const stockChecks: Array<{
+      item: (typeof cart.items)[number];
+      stockRow: typeof inventoryItemTable.$inferSelect | undefined;
+    }> = [];
+
     for (const item of cart.items) {
       const stock = await tx.query.inventoryItemTable.findFirst({
         where: (t, { and, eq, isNull }) =>
@@ -79,19 +85,49 @@ export const finishOrder = async () => {
               : isNull(t.productVariantSizeId),
           ),
       });
-      if (!stock) {
+      stockChecks.push({ item, stockRow: stock });
+    }
+
+    const insufficient: Array<{
+      productVariantId: string;
+      variantName?: string | null;
+      requested: number;
+      available: number;
+    }> = [];
+
+    for (const chk of stockChecks) {
+      const { item, stockRow } = chk;
+      if (!stockRow) {
         if (isStrict) {
           throw new Error("Produto sem controle de estoque configurado");
         }
-      } else {
-        const available = stock.quantity ?? 0;
-        if (available < item.quantity) {
-          throw new Error("Estoque insuficiente para concluir o pedido");
-        }
+        continue;
+      }
+      const available = stockRow.quantity ?? 0;
+      if (available < item.quantity) {
+        insufficient.push({
+          productVariantId: item.productVariant.id,
+          variantName: item.productVariant.name ?? null,
+          requested: item.quantity,
+          available,
+        });
+      }
+    }
+
+    if (insufficient.length > 0) {
+      throw new Error(
+        JSON.stringify({ code: "INSUFFICIENT_STOCK", items: insufficient }),
+      );
+    }
+
+    for (const chk of stockChecks) {
+      const { item, stockRow } = chk;
+      if (stockRow) {
+        const available = stockRow.quantity ?? 0;
         await tx
           .update(inventoryItemTable)
           .set({ quantity: available - item.quantity })
-          .where(eq(inventoryItemTable.id, stock.id));
+          .where(eq(inventoryItemTable.id, stockRow.id));
       }
 
       orderItemsPayload.push({
@@ -102,6 +138,7 @@ export const finishOrder = async () => {
         priceInCents: item.productVariant.priceInCents,
       });
     }
+
     await tx.insert(orderItemTable).values(orderItemsPayload);
   });
   if (!orderId) {
