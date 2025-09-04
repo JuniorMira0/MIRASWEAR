@@ -5,6 +5,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { createCheckoutSession } from "@/actions/create-checkout-session";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -12,6 +13,8 @@ const FinishOrderButton = () => {
   const finishOrderMutation = useFinishOrder();
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [removedItems, setRemovedItems] = useState<Array<any> | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const raw = (window as any).__RESERVATION_EXPIRES_AT;
@@ -36,6 +39,21 @@ const FinishOrderButton = () => {
     let orderId: string | undefined;
     try {
       const res = await finishOrderMutation.mutateAsync();
+      if ((res as any).removedItems) {
+        const items = (res as any).removedItems as Array<any>;
+        setRemovedItems(items);
+        const list = items
+          .map(
+            (it) =>
+              `${it.variantName ?? it.productVariantId} (disponível: ${it.available}, pedido: ${it.requested})`,
+          )
+          .join("; ");
+        toast.error(`Itens removidos do carrinho: ${list}`);
+        // refresh cart UI
+        router.refresh();
+        return;
+      }
+
       orderId = res.orderId;
       if (res.expiresAt) {
         try {
@@ -66,8 +84,7 @@ const FinishOrderButton = () => {
             toast.error(`Estoque insuficiente: ${list}`);
             return;
           }
-        } catch (_) {
-        }
+        } catch (_) {}
 
         toast.error(message);
         return;
@@ -76,18 +93,43 @@ const FinishOrderButton = () => {
       toast.error("Erro ao finalizar o pedido");
       return;
     }
-    const checkoutSession = await createCheckoutSession({
-      orderId,
-    });
-    const stripe = await loadStripe(
-      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-    );
-    if (!stripe) {
-      throw new Error("Failed to load Stripe");
+    try {
+      if (!orderId) {
+        toast.error("Erro interno: ordem não criada");
+        return;
+      }
+      const checkoutSession = await createCheckoutSession({ orderId });
+      const stripe = await loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      );
+      if (!stripe) {
+        toast.error("Falha ao carregar o Stripe. Tente novamente mais tarde.");
+        return;
+      }
+      await stripe.redirectToCheckout({ sessionId: checkoutSession.id });
+    } catch (err: unknown) {
+      let message: string | undefined;
+      if (err instanceof Error) message = err.message;
+      else if (typeof err === "string") message = err;
+      else if (err && typeof err === "object" && "message" in err) {
+        message = (err as any).message;
+      }
+
+      if (message) {
+        try {
+          const payload = JSON.parse(message);
+          if (payload?.code === "STRIPE_ERROR") {
+            toast.error(payload.message || "Erro no Stripe");
+            return;
+          }
+        } catch (_) {}
+        toast.error(message);
+        return;
+      }
+
+      toast.error("Erro ao criar sessão de pagamento");
+      return;
     }
-    await stripe.redirectToCheckout({
-      sessionId: checkoutSession.id,
-    });
   };
   return (
     <>

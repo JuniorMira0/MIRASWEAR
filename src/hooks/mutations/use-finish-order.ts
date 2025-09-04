@@ -11,7 +11,11 @@ export const useFinishOrder = () => {
   return useMutation({
     mutationKey: getUseFinishOrderMutationKey(),
     mutationFn: async () => {
-      return await finishOrder();
+      const res = await finishOrder();
+      if (res && typeof res === "object" && "error" in res) {
+        throw new Error(JSON.stringify((res as any).error));
+      }
+      return res;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
