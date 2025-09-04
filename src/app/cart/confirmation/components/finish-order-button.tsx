@@ -45,9 +45,16 @@ const FinishOrderButton = () => {
         } catch {}
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
+      let message: string | undefined;
+      if (err instanceof Error) message = err.message;
+      else if (typeof err === "string") message = err;
+      else if (err && typeof err === "object" && "message" in err) {
+        message = (err as any).message;
+      }
+
+      if (message) {
         try {
-          const payload = JSON.parse(err.message);
+          const payload = JSON.parse(message);
           if (payload?.code === "INSUFFICIENT_STOCK") {
             const items: Array<any> = payload.items ?? [];
             const list = items
@@ -59,9 +66,15 @@ const FinishOrderButton = () => {
             toast.error(`Estoque insuficiente: ${list}`);
             return;
           }
-        } catch (_) {}
+        } catch (_) {
+        }
+
+        toast.error(message);
+        return;
       }
-      throw err;
+
+      toast.error("Erro ao finalizar o pedido");
+      return;
     }
     const checkoutSession = await createCheckoutSession({
       orderId,
