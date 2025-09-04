@@ -350,3 +350,35 @@ export const orderItemRelations = relations(orderItemTable, ({ one }) => ({
     references: [productVariantSizeTable.id],
   }),
 }));
+
+export const reservationTable = pgTable("reservation", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid("order_id").references(() => orderTable.id, {
+    onDelete: "cascade",
+  }),
+  productVariantId: uuid("product_variant_id")
+    .notNull()
+    .references(() => productVariantTable.id, { onDelete: "cascade" }),
+  productVariantSizeId: uuid("product_variant_size_id").references(
+    () => productVariantSizeTable.id,
+    { onDelete: "set null" },
+  ),
+  quantity: integer("quantity").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const reservationRelations = relations(reservationTable, ({ one }) => ({
+  order: one(orderTable, {
+    fields: [reservationTable.orderId],
+    references: [orderTable.id],
+  }),
+  productVariant: one(productVariantTable, {
+    fields: [reservationTable.productVariantId],
+    references: [productVariantTable.id],
+  }),
+  size: one(productVariantSizeTable, {
+    fields: [reservationTable.productVariantSizeId],
+    references: [productVariantSizeTable.id],
+  }),
+}));
