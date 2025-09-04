@@ -8,6 +8,7 @@ import { getCartWithItems } from "@/data/cart/get-cart";
 import { auth } from "@/lib/auth";
 
 import { getCategories } from "@/actions/get-categories";
+import CheckoutSteps from "@/components/common/checkout-steps";
 import { formatCentsToBRL } from "@/helpers/money";
 import CartSummary from "../components/cart-summary";
 import { formatAddress } from "../helpers/address";
@@ -36,26 +37,12 @@ const ConfirmationPage = async () => {
   return (
     <div>
       <Header categories={categories} />
+      <CheckoutSteps current={2} />
       <div className="px-5">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
             <div className="lg:col-span-8">
               <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Identificação</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <Card>
-                      <CardContent>
-                        <p className="text-sm">
-                          {formatAddress(cart.shippingAddress)}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </CardContent>
-                </Card>
-
                 <Card>
                   <CardHeader>
                     <CardTitle>Sacola</CardTitle>
@@ -102,6 +89,21 @@ const ConfirmationPage = async () => {
                         Continuar comprando
                       </a>
                     </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Identificação</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <Card>
+                      <CardContent>
+                        <p className="text-sm">
+                          {formatAddress(cart.shippingAddress)}
+                        </p>
+                      </CardContent>
+                    </Card>
                   </CardContent>
                 </Card>
               </div>

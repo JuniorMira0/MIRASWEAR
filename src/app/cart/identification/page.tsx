@@ -9,6 +9,7 @@ import {
 import { auth } from "@/lib/auth";
 
 import { getCategories } from "@/actions/get-categories";
+import CheckoutSteps from "@/components/common/checkout-steps";
 import Footer from "@/components/common/footer";
 import CartSummary from "../components/cart-summary";
 import Addresses from "./components/addresses";
@@ -37,6 +38,7 @@ const IdentificationPage = async () => {
   return (
     <div>
       <Header categories={categories} />
+      <CheckoutSteps current={2} />
       <div className="px-5">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
