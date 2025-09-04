@@ -35,26 +35,39 @@ const IdentificationPage = async () => {
   );
 
   return (
-    <div className="space-y-12">
+    <div>
       <Header categories={categories} />
-      <div className="space-y-4 px-5">
-        <Addresses
-          shippingAddresses={shippingAddresses}
-          defaultShippingAddressId={cart.shippingAddress?.id || null}
-        />
-        <CartSummary
-          subtotalInCents={cartTotalInCents}
-          totalInCents={cartTotalInCents}
-          products={cart.items.map((item) => ({
-            id: item.productVariant.id,
-            name: item.productVariant.product.name,
-            variantName: item.productVariant.name,
-            sizeLabel: item.size?.size ?? null,
-            quantity: item.quantity,
-            priceInCents: item.productVariant.priceInCents,
-            imageUrl: item.productVariant.imageUrl,
-          }))}
-        />
+      <div className="px-5">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+            <div className="lg:col-span-8">
+              <div className="space-y-4">
+                <Addresses
+                  shippingAddresses={shippingAddresses}
+                  defaultShippingAddressId={cart.shippingAddress?.id || null}
+                />
+              </div>
+            </div>
+
+            <aside className="lg:col-span-4">
+              <div className="sticky top-24">
+                <CartSummary
+                  subtotalInCents={cartTotalInCents}
+                  totalInCents={cartTotalInCents}
+                  products={cart.items.map((item) => ({
+                    id: item.productVariant.id,
+                    name: item.productVariant.product.name,
+                    variantName: item.productVariant.name,
+                    sizeLabel: item.size?.size ?? null,
+                    quantity: item.quantity,
+                    priceInCents: item.productVariant.priceInCents,
+                    imageUrl: item.productVariant.imageUrl,
+                  }))}
+                />
+              </div>
+            </aside>
+          </div>
+        </div>
       </div>
       <Footer />
     </div>

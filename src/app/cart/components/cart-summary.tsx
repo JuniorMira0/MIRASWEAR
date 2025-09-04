@@ -22,7 +22,8 @@ const CartSummary = ({
   subtotalInCents,
   totalInCents,
   products,
-}: CartSummaryProps) => {
+  showProducts = true,
+}: CartSummaryProps & { showProducts?: boolean }) => {
   return (
     <Card>
       <CardHeader>
@@ -50,41 +51,42 @@ const CartSummary = ({
           <Separator />
         </div>
 
-        {products.map((product) => (
-          <div className="flex items-start justify-between" key={product.id}>
-            <div className="flex items-start gap-4">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                width={78}
-                height={78}
-                className="rounded-lg"
-              />
-              <div className="flex flex-col gap-1 pt-1">
-                <p className="text-sm font-semibold">{product.name}</p>
-                <p className="text-muted-foreground text-xs">
-                  {product.variantName}
-                </p>
-                {product.sizeLabel && (
+        {showProducts !== false &&
+          products.map((product) => (
+            <div className="flex items-start justify-between" key={product.id}>
+              <div className="flex items-start gap-4">
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  width={78}
+                  height={78}
+                  className="rounded-lg"
+                />
+                <div className="flex flex-col gap-1 pt-1">
+                  <p className="text-sm font-semibold">{product.name}</p>
                   <p className="text-muted-foreground text-xs">
-                    Tamanho: {product.sizeLabel}
+                    {product.variantName}
                   </p>
-                )}
-                <p className="text-muted-foreground text-xs">
-                  Quantidade: {product.quantity}
+                  {product.sizeLabel && (
+                    <p className="text-muted-foreground text-xs">
+                      Tamanho: {product.sizeLabel}
+                    </p>
+                  )}
+                  <p className="text-muted-foreground text-xs">
+                    Quantidade: {product.quantity}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end justify-center gap-2">
+                <p className="text-sm font-bold">
+                  {formatCentsToBRL(product.priceInCents)}
+                </p>
+                <p className="text-muted-foreground text-[11px]">
+                  preço unitário
                 </p>
               </div>
             </div>
-            <div className="flex flex-col items-end justify-center gap-2">
-              <p className="text-sm font-bold">
-                {formatCentsToBRL(product.priceInCents)}
-              </p>
-              <p className="text-muted-foreground text-[11px]">
-                preço unitário
-              </p>
-            </div>
-          </div>
-        ))}
+          ))}
       </CardContent>
     </Card>
   );
