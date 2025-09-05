@@ -6,7 +6,6 @@ import z from "zod";
 
 import { checkCpfExists } from "@/actions/check-cpf";
 import { updateUser } from "@/actions/update-user";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -24,10 +23,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { isValidBRMobilePhone, isValidCPF } from "@/helpers/br-validators";
 import { useSetCpf } from "@/hooks/mutations/use-set-cpf";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const formSchema = z
@@ -83,6 +84,8 @@ const SignUpForm = () => {
 
   const setCpfMutation = useSetCpf();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const maskCPF = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
     return digits
@@ -107,6 +110,7 @@ const SignUpForm = () => {
   };
 
   async function onSubmit(values: FormValues) {
+    setIsSubmitting(true);
     const cleanedCpf = values.cpf.replace(/\D/g, "");
     const cleanedPhone = values.phone.replace(/\D/g, "");
 
@@ -171,6 +175,8 @@ const SignUpForm = () => {
         });
       }
       toast.error(error?.error?.message || String(error));
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -314,7 +320,9 @@ const SignUpForm = () => {
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit">Criar conta</Button>
+              <LoadingButton type="submit" isLoading={isSubmitting} loadingText="Criando conta...">
+                Criar conta
+              </LoadingButton>
             </CardFooter>
           </form>
         </Form>

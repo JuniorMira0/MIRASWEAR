@@ -3,7 +3,7 @@
 import { updateUser } from "@/actions/update-user";
 import { Button } from "@/components/ui/button";
 import { isValidBRMobilePhone } from "@/helpers/br-validators";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type ProfileInitial = {
@@ -18,11 +18,17 @@ type ProfileInitial = {
 
 const ProfileForm = ({ initial }: { initial?: ProfileInitial }) => {
   const [name, setName] = useState(initial?.name ?? "");
-  const [email] = useState(initial?.email ?? "");
-  const [cpf] = useState(initial?.cpf ?? "");
+  const email = initial?.email ?? "";
+  const cpf = initial?.cpf ?? "";
   const [phone, setPhone] = useState(initial?.phone ?? "");
   const [gender, setGender] = useState(initial?.gender ?? "");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setName(initial?.name ?? "");
+    setPhone(initial?.phone ?? "");
+    setGender(initial?.gender ?? "");
+  }, [initial]);
 
   const handleSave = async () => {
     setSaving(true);
