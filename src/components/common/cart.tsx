@@ -89,7 +89,6 @@ export const Cart = () => {
                       className="mx-auto"
                     />
                     <h3 className="mt-4 text-lg font-semibold">Seu carrinho está vazio</h3>
-                    <p className="mt-2 text-sm text-gray-600">Adicione produtos ao carrinho para finalizar sua compra.</p>
                     <div className="mt-4">
                       <Button
                         className="rounded-full"
