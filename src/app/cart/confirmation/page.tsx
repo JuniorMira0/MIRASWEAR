@@ -66,7 +66,7 @@ const ConfirmationPage = async () => {
 
             <aside className="lg:col-span-4">
               <div className="sticky top-24">
-                <CartSummary
+                 <CartSummary
                   subtotalInCents={cartTotalInCents}
                   totalInCents={cartTotalInCents}
                   products={cart.items.map((item) => ({
@@ -78,13 +78,9 @@ const ConfirmationPage = async () => {
                     priceInCents: item.productVariant.priceInCents,
                     imageUrl: item.productVariant.imageUrl,
                   }))}
-                  showProducts={false}
                 />
                 <div className="mt-6">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Sacola</CardTitle>
-                    </CardHeader>
                     <CardContent className="space-y-6">
                       {cart.items.map((item) => (
                         <div
@@ -119,14 +115,7 @@ const ConfirmationPage = async () => {
                           </div>
                         </div>
                       ))}
-                      <div className="text-sm text-amber-700">
-                        Apenas algumas restantes. Compre logo.
-                      </div>
-                      <div>
-                        <a href="/" className="text-primary text-sm">
-                          Continuar comprando
-                        </a>
-                      </div>
+                      
                     </CardContent>
                   </Card>
                 </div>
