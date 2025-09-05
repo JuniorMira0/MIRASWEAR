@@ -1,3 +1,4 @@
+import Footer from "@/components/common/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { CartStoreProvider } from "@/hooks/cart-store";
 import ReactQueryProvider from "@/providers/react-query";
@@ -37,6 +38,7 @@ export default function RootLayout({
           </CartStoreProvider>
         </ReactQueryProvider>
         <Toaster position="top-center" />
+  <Footer />
       </body>
     </html>
   );

@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
 
 import { getCategories } from "@/actions/get-categories";
-import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
 import {
-  getLikelyProducts,
-  getProductVariantBySlug,
+    getLikelyProducts,
+    getProductVariantBySlug,
 } from "@/data/products/get-product-variant";
 import { formatCentsToBRL } from "@/helpers/money";
 
@@ -120,8 +119,6 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
           products={likelyProducts}
         />
       </div>
-
-      <Footer />
     </>
   );
 };
