@@ -73,9 +73,11 @@ const ProfileForm = ({ initial }: { initial?: ProfileInitial }) => {
         <div>
           <label className="block text-sm font-medium">CPF</label>
           <input
-            className="mt-1 w-full rounded-md border px-3 py-2 bg-gray-50"
+            className="mt-1 w-full rounded-md border px-3 py-2 bg-gray-50 cursor-not-allowed"
             value={cpf ?? ""}
             readOnly
+            aria-readonly
+            title="CPF não pode ser alterado"
           />
         </div>
 
