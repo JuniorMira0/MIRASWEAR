@@ -6,6 +6,7 @@ import { useCartStore } from "@/hooks/cart-store";
 import { useCart } from "@/hooks/queries/use-cart";
 import { authClient } from "@/lib/auth-client";
 import { ShoppingBasketIcon } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
@@ -78,23 +79,48 @@ export const Cart = () => {
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <ScrollArea className="h-full flex-1">
               <div className="flex flex-col gap-8 pb-24">
-                {cartItems.map((item) => (
-                  <CartItem
-                    key={item.id}
-                    id={item.id}
-                    productVariantId={item.productVariant.id}
-                    productVariantSizeId={item.productVariantSizeId}
-                    productName={item.productVariant.product.name}
-                    productVariantName={item.productVariant.name}
-                    productVariantImageUrl={item.productVariant.imageUrl}
-                    productVariantPriceInCents={
-                      item.productVariant.priceInCents
-                    }
-                    quantity={item.quantity}
-                    sizeLabel={item.sizeLabel}
-                    isLocal={!isLogged}
-                  />
-                ))}
+                {cartItems.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Image
+                      src="/empty-cart.png"
+                      alt="Carrinho vazio"
+                      width={160}
+                      height={160}
+                      className="mx-auto"
+                    />
+                    <h3 className="mt-4 text-lg font-semibold">Seu carrinho está vazio</h3>
+                    <p className="mt-2 text-sm text-gray-600">Adicione produtos ao carrinho para finalizar sua compra.</p>
+                    <div className="mt-4">
+                      <Button
+                        className="rounded-full"
+                        onClick={() => {
+                          setCartOpen(false);
+                          router.push("/");
+                        }}
+                      >
+                        Continuar comprando
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  cartItems.map((item) => (
+                    <CartItem
+                      key={item.id}
+                      id={item.id}
+                      productVariantId={item.productVariant.id}
+                      productVariantSizeId={item.productVariantSizeId}
+                      productName={item.productVariant.product.name}
+                      productVariantName={item.productVariant.name}
+                      productVariantImageUrl={item.productVariant.imageUrl}
+                      productVariantPriceInCents={
+                        item.productVariant.priceInCents
+                      }
+                      quantity={item.quantity}
+                      sizeLabel={item.sizeLabel}
+                      isLocal={!isLogged}
+                    />
+                  ))
+                )}
               </div>
             </ScrollArea>
           </div>
