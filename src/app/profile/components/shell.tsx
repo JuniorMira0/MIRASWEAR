@@ -6,7 +6,17 @@ import Addresses from "./addresses";
 import Nav from "./nav";
 import ProfileForm from "./profile-form";
 
-const ProfileShell = ({ user }: { user?: { name?: string; email?: string } }) => {
+type ProfileUser = {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  cpf?: string | null;
+  phone?: string | null;
+  birthDate?: string | null;
+  gender?: string | null;
+} | undefined;
+
+const ProfileShell = ({ user }: { user?: ProfileUser | null }) => {
   const [tab, setTab] = useState<string>("orders");
 
   return (
@@ -15,6 +25,7 @@ const ProfileShell = ({ user }: { user?: { name?: string; email?: string } }) =>
         <div className="md:col-span-3">
           <Nav value={tab} onChange={setTab} />
         </div>
+
         <div className="md:col-span-9">
           {tab === "orders" && (
             <div>
@@ -28,7 +39,7 @@ const ProfileShell = ({ user }: { user?: { name?: string; email?: string } }) =>
             </div>
           )}
 
-          {tab === "profile" && <ProfileForm initial={user} />}
+          {tab === "profile" && <ProfileForm initial={user ?? undefined} />}
 
           {tab === "addresses" && <Addresses />}
         </div>
