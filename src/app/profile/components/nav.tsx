@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { LogOutIcon } from 'lucide-react';
+import { useState } from "react";
 
 interface NavProps {
   value?: string;
@@ -41,10 +41,12 @@ const Nav = ({ value = "orders", onChange }: NavProps) => {
       <div className="mt-4">
         <button
           onClick={() => authClient.signOut()}
-          className="w-full text-left rounded-md px-4 py-3 text-red-600 hover:bg-muted/50"
+          className="w-full rounded-md px-4 py-3 hover:bg-muted/50"
         >
-          <LogOutIcon className="h-4 w-4" />
-          Sair
+          <div className="flex items-center gap-3 text-red-600">
+            <LogOutIcon className="h-5 w-5" />
+            <span className="text-base font-medium">Sair</span>
+          </div>
         </button>
       </div>
     </div>
