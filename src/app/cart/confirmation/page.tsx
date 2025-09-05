@@ -9,7 +9,6 @@ import { auth } from "@/lib/auth";
 
 import { getCategories } from "@/actions/get-categories";
 import CheckoutSteps from "@/components/common/checkout-steps";
-import { formatCentsToBRL } from "@/helpers/money";
 import CartSummary from "../components/cart-summary";
 import { formatAddress } from "../helpers/address";
 import FinishOrderButton from "./components/finish-order-button";
@@ -79,7 +78,6 @@ const ConfirmationPage = async () => {
                     imageUrl: item.productVariant.imageUrl,
                   }))}
                 />
-                
               </div>
             </aside>
           </div>
