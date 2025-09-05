@@ -8,20 +8,20 @@ import z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
@@ -84,23 +84,22 @@ const SignInForm = ({ redirect }: { redirect?: string }) => {
   };
   return (
     <>
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Entrar</CardTitle>
-          <CardDescription>Faça login para continuar.</CardDescription>
+      <Card className="w-full shadow-xl rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-lg p-6">
+        <CardHeader className="pb-2 text-center">
+          <CardTitle className="text-2xl font-bold text-gray-800 tracking-tight">Bem-vindo de volta</CardTitle>
+          <CardDescription className="text-gray-500">Faça login para continuar</CardDescription>
         </CardHeader>
-
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <CardContent className="grid gap-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <CardContent className="grid gap-4">
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-gray-700">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite seu email" {...field} />
+                      <Input placeholder="Digite seu email" {...field} className="bg-gray-50 border-gray-300 focus:border-primary focus:ring-primary" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -111,12 +110,13 @@ const SignInForm = ({ redirect }: { redirect?: string }) => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Senha</FormLabel>
+                    <FormLabel className="text-gray-700">Senha</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Digite sua senha"
                         type="password"
                         {...field}
+                        className="bg-gray-50 border-gray-300 focus:border-primary focus:ring-primary"
                       />
                     </FormControl>
                     <FormMessage />
@@ -124,17 +124,15 @@ const SignInForm = ({ redirect }: { redirect?: string }) => {
                 )}
               />
             </CardContent>
-            <CardFooter className="flex flex-col gap-2">
-              <Button type="submit" className="w-full">
-                Entrar
-              </Button>
+            <CardFooter className="flex flex-col gap-3 pt-2">
+              <Button type="submit" className="w-full font-semibold text-base py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition">Entrar</Button>
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-100"
                 onClick={handleSignInWithGoogle}
                 type="button"
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4">
+                <svg viewBox="0 0 24 24" className="h-5 w-5">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     fill="#4285F4"

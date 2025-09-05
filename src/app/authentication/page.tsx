@@ -12,20 +12,21 @@ export function Authentication({
   return (
     <>
       <Header />
-
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <Tabs defaultValue="sign-in">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="sign-in">Entrar</TabsTrigger>
-            <TabsTrigger value="sign-up">Criar conta</TabsTrigger>
-          </TabsList>
-          <TabsContent value="sign-in">
-            <SignInForm redirect={searchParams?.redirect} />
-          </TabsContent>
-          <TabsContent value="sign-up">
-            <SignUpForm />
-          </TabsContent>
-        </Tabs>
+      <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 py-8">
+        <div className="w-full max-w-md flex flex-col gap-6">
+          <Tabs defaultValue="sign-in">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="sign-in">Entrar</TabsTrigger>
+              <TabsTrigger value="sign-up">Criar conta</TabsTrigger>
+            </TabsList>
+            <TabsContent value="sign-in">
+              <SignInForm redirect={searchParams?.redirect} />
+            </TabsContent>
+            <TabsContent value="sign-up">
+              <SignUpForm />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </>
   );
