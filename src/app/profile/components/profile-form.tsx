@@ -3,6 +3,7 @@
 import { updateUser } from "@/actions/update-user";
 import { Button } from "@/components/ui/button";
 import { isValidBRMobilePhone } from "@/helpers/br-validators";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +25,8 @@ const ProfileForm = ({ initial }: { initial?: ProfileInitial }) => {
   const [gender, setGender] = useState(initial?.gender ?? "");
   const [saving, setSaving] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
     setName(initial?.name ?? "");
     setPhone(initial?.phone ?? "");
@@ -42,6 +45,9 @@ const ProfileForm = ({ initial }: { initial?: ProfileInitial }) => {
 
       // Only allow updating name, phone and gender from profile form
       await updateUser({ name, phone, gender });
+      try {
+        router.refresh();
+      } catch {}
       toast.success("Dados atualizados com sucesso");
     } catch (e) {
       toast.error("Erro ao salvar dados");
