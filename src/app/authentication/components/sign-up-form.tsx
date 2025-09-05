@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
+import { checkCpfExists } from "@/actions/check-cpf";
+import { updateUser } from "@/actions/update-user";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,25 +24,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { isValidBRMobilePhone, isValidCPF } from "@/helpers/br-validators";
+import { useSetCpf } from "@/hooks/mutations/use-set-cpf";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const formSchema = z
   .object({
+    cpf: z.string().min(11, "CPF é obrigatório"),
+    phone: z.string().min(10, "Telefone é obrigatório"),
+    birthDate: z.string().min(4, "Data de nascimento é obrigatória"),
+    gender: z.enum(["female", "male", "other"]),
     name: z
-      .string("Por favor, insira um nome válido.")
+  .string()
       .trim()
       .min(1, "O nome é obrigatório."),
     email: z
-      .string("Por favor, insira um e-mail válido.")
-      .email("Formato de e-mail inválido. Use o formato: exemplo@email.com"),
+  .string()
+  .email("Formato de e-mail inválido. Use o formato: exemplo@email.com"),
     password: z
-      .string("Por favor, insira uma senha válida.")
-      .min(8, "A senha deve ter pelo menos 8 caracteres."),
+  .string()
+  .min(8, "A senha deve ter pelo menos 8 caracteres."),
     passwordConfirmation: z
-      .string("Por favor, confirme sua senha.")
-      .min(8, "A confirmação de senha deve ter pelo menos 8 caracteres."),
+  .string()
+  .min(8, "A confirmação de senha deve ter pelo menos 8 caracteres."),
   })
   .refine(
     (data) => {
@@ -59,33 +67,72 @@ const SignUpForm = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      passwordConfirmation: "",
+  cpf: "",
+  phone: "",
+  birthDate: "",
+  gender: "other",
+  name: "",
+  email: "",
+  password: "",
+  passwordConfirmation: "",
     },
   });
 
+  const setCpfMutation = useSetCpf();
+
   async function onSubmit(values: FormValues) {
-    await authClient.signUp.email({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/");
-        },
-        onError: (error) => {
-          if (error.error.code === "USER_ALREADY_EXISTS") {
-            toast.error("E-mail já cadastrado.");
-            return form.setError("email", {
-              message: "E-mail já cadastrado.",
-            });
-          }
-          toast.error(error.error.message);
-        },
-      },
-    });
+    // validate CPF if present
+    if (!values.cpf) {
+      form.setError("cpf", { message: "CPF é obrigatório." });
+      return;
+    }
+    if (!isValidCPF(values.cpf)) {
+      form.setError("cpf", { message: "CPF inválido." });
+      return;
+    }
+
+    // validate phone
+    if (!isValidBRMobilePhone(values.phone)) {
+      form.setError("phone", { message: "Telefone inválido." });
+      return;
+    }
+
+    const exists = await checkCpfExists(values.cpf);
+    if (exists) {
+      form.setError("cpf", { message: "CPF já cadastrado." });
+      return;
+    }
+
+    try {
+      await authClient.signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+
+      try {
+        await updateUser({ phone: values.phone, birthDate: values.birthDate, gender: values.gender });
+      } catch (e) {
+        console.error("Falha ao salvar dados adicionais:", e);
+      }
+
+      try {
+        await setCpfMutation.mutateAsync(values.cpf || "");
+      } catch (e) {
+        console.error(e);
+        toast.error("Conta criada, mas não foi possível registrar CPF: " + (e instanceof Error ? e.message : ""));
+      }
+
+      router.push("/");
+    } catch (error: any) {
+      if (error?.error?.code === "USER_ALREADY_EXISTS") {
+        toast.error("E-mail já cadastrado.");
+        return form.setError("email", {
+          message: "E-mail já cadastrado.",
+        });
+      }
+      toast.error(error?.error?.message || String(error));
+    }
   }
 
   return (
@@ -107,6 +154,19 @@ const SignUpForm = () => {
                     <FormLabel>Nome</FormLabel>
                     <FormControl>
                       <Input placeholder="Digite seu nome" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="cpf"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CPF</FormLabel>
+                    <FormControl>
+                      <Input placeholder="000.000.000-00" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -13,6 +13,10 @@ export const userTable = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  cpf: text("cpf").notNull().unique(),
+  phone: text("phone").notNull(),
+  birthDate: timestamp("birth_date"),
+  gender: text("gender"),
   emailVerified: boolean("email_verified")
     .$defaultFn(() => false)
     .notNull(),
