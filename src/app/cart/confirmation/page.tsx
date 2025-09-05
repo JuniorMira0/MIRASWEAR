@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCartWithItems } from "@/data/cart/get-cart";
@@ -83,9 +82,7 @@ const ConfirmationPage = async () => {
           </div>
         </div>
       </div>
-      <div className="mt-12">
-        <Footer />
-      </div>
+      
     </div>
   );
 };

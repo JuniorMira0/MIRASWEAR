@@ -10,7 +10,6 @@ import { auth } from "@/lib/auth";
 
 import { getCategories } from "@/actions/get-categories";
 import CheckoutSteps from "@/components/common/checkout-steps";
-import Footer from "@/components/common/footer";
 import CartSummary from "../components/cart-summary";
 import Addresses from "./components/addresses";
 
@@ -72,7 +71,7 @@ const IdentificationPage = async () => {
         </div>
       </div>
       <div className="mt-12">
-        <Footer />
+      
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import { getCategories } from "@/actions/get-categories";
 import BrandPartners from "@/components/common/brand-partners";
-import Footer from "@/components/common/footer";
 import ProductListClient from "@/components/common/product-list-client";
 import PromoBanners from "@/components/common/promo-banners";
 import { getProducts } from "@/data/products/get-products";
@@ -67,7 +66,7 @@ export default async function Home() {
             </div>
           </div>
         </div>
-        <Footer />
+        
       </main>
     </>
   );
