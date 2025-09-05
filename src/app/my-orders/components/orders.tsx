@@ -73,8 +73,8 @@ const Orders = ({ orders }: OrdersProps) => {
                     </div>
 
                     <div className="text-right">
-                      <AccordionTrigger asChild>
-                        <button className="text-sm text-primary">Detalhes do Pedido</button>
+                      <AccordionTrigger className="text-sm text-primary">
+                        Detalhes do Pedido
                       </AccordionTrigger>
                     </div>
                   </div>
