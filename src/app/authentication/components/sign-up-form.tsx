@@ -32,33 +32,34 @@ import { toast } from "sonner";
 
 const formSchema = z
   .object({
-    cpf: z.string().min(11, "CPF é obrigatório"),
-    phone: z.string().min(10, "Telefone é obrigatório"),
-    birthDate: z.string().min(4, "Data de nascimento é obrigatória"),
+    cpf: z
+      .string()
+      .min(11, "CPF é obrigatório")
+      .refine((v) => isValidCPF(v.replace(/\D/g, "")), {
+        message: "CPF inválido",
+      }),
+    phone: z
+      .string()
+      .min(10, "Telefone é obrigatório")
+      .refine((v) => isValidBRMobilePhone(v.replace(/\D/g, "")), {
+        message: "Telefone inválido",
+      }),
+    birthDate: z
+      .string()
+      .min(8, "Data de nascimento é obrigatória")
+      .refine((v) => /^(\d{2}\/\d{2}\/\d{4})$/.test(v), {
+        message: "Data deve ter o formato DD/MM/AAAA",
+      }),
     gender: z.enum(["female", "male", "other"]),
-    name: z
-  .string()
-      .trim()
-      .min(1, "O nome é obrigatório."),
-    email: z
-  .string()
-  .email("Formato de e-mail inválido. Use o formato: exemplo@email.com"),
-    password: z
-  .string()
-  .min(8, "A senha deve ter pelo menos 8 caracteres."),
-    passwordConfirmation: z
-  .string()
-  .min(8, "A confirmação de senha deve ter pelo menos 8 caracteres."),
+    name: z.string().trim().min(1, "O nome é obrigatório."),
+    email: z.string().email("Formato de e-mail inválido. Use o formato: exemplo@email.com"),
+    password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
+    passwordConfirmation: z.string().min(8, "A confirmação de senha deve ter pelo menos 8 caracteres."),
   })
-  .refine(
-    (data) => {
-      return data.password === data.passwordConfirmation;
-    },
-    {
-      message: "As senhas não coincidem. Verifique se digitou corretamente.",
-      path: ["passwordConfirmation"],
-    },
-  );
+  .refine((data) => data.password === data.passwordConfirmation, {
+    message: "As senhas não coincidem. Verifique se digitou corretamente.",
+    path: ["passwordConfirmation"],
+  });
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -80,24 +81,37 @@ const SignUpForm = () => {
 
   const setCpfMutation = useSetCpf();
 
+  const maskCPF = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+    return digits
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+  };
+
+  const maskPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
+
   async function onSubmit(values: FormValues) {
-    // validate CPF if present
-    if (!values.cpf) {
-      form.setError("cpf", { message: "CPF é obrigatório." });
-      return;
-    }
-    if (!isValidCPF(values.cpf)) {
+    const cleanedCpf = values.cpf.replace(/\D/g, "");
+    const cleanedPhone = values.phone.replace(/\D/g, "");
+
+    if (!cleanedCpf || !isValidCPF(cleanedCpf)) {
       form.setError("cpf", { message: "CPF inválido." });
       return;
     }
 
-    // validate phone
-    if (!isValidBRMobilePhone(values.phone)) {
+    if (!isValidBRMobilePhone(cleanedPhone)) {
       form.setError("phone", { message: "Telefone inválido." });
       return;
     }
 
-    const exists = await checkCpfExists(values.cpf);
+    const exists = await checkCpfExists(cleanedCpf);
     if (exists) {
       form.setError("cpf", { message: "CPF já cadastrado." });
       return;
@@ -110,14 +124,31 @@ const SignUpForm = () => {
         password: values.password,
       });
 
+      // ensure user is signed in so server actions can run
       try {
-        await updateUser({ phone: values.phone, birthDate: values.birthDate, gender: values.gender });
+        await authClient.signIn.email({ email: values.email, password: values.password });
+      } catch (err) {
+        console.error("Falha ao autenticar após cadastro:", err);
+      }
+
+      const birthIso = (() => {
+        try {
+          const parts = values.birthDate.split("/");
+          if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+          return values.birthDate;
+        } catch {
+          return values.birthDate;
+        }
+      })();
+
+      try {
+        await updateUser({ phone: cleanedPhone, birthDate: birthIso, gender: values.gender });
       } catch (e) {
         console.error("Falha ao salvar dados adicionais:", e);
       }
 
       try {
-        await setCpfMutation.mutateAsync(values.cpf || "");
+        await setCpfMutation.mutateAsync(cleanedCpf || "");
       } catch (e) {
         console.error(e);
         toast.error("Conta criada, mas não foi possível registrar CPF: " + (e instanceof Error ? e.message : ""));
@@ -166,7 +197,11 @@ const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>CPF</FormLabel>
                     <FormControl>
-                      <Input placeholder="000.000.000-00" {...field} />
+                      <Input
+                        placeholder="000.000.000-00"
+                        value={field.value}
+                        onChange={(e) => field.onChange(maskCPF(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -192,16 +227,58 @@ const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Senha</FormLabel>
                     <FormControl>
+                      <Input placeholder="Digite sua senha" type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone</FormLabel>
+                    <FormControl>
                       <Input
-                        placeholder="Digite sua senha"
-                        type="password"
-                        {...field}
+                        placeholder="(00) 9 0000-0000"
+                        value={field.value}
+                        onChange={(e) => field.onChange(maskPhone(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="birthDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data de nascimento</FormLabel>
+                    <FormControl>
+                      <Input placeholder="DD/MM/AAAA" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gênero</FormLabel>
+                    <FormControl>
+                      <Input placeholder="female | male | other" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="passwordConfirmation"

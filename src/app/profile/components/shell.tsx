@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import Orders from "@/app/my-orders/components/orders";
+import { useEffect, useState } from "react";
 import Addresses from "./addresses";
 import Nav from "./nav";
 import ProfileForm from "./profile-form";
@@ -18,6 +18,36 @@ type ProfileUser = {
 
 const ProfileShell = ({ user }: { user?: ProfileUser | null }) => {
   const [tab, setTab] = useState<string>("orders");
+  const [orders, setOrders] = useState<any[] | null>(null);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoadingOrders(true);
+      try {
+        const res = await fetch("/api/my-orders");
+        if (!res.ok) {
+          if (mounted) setOrders([]);
+          return;
+        }
+        const data = await res.json();
+        if (mounted) setOrders(data);
+      } catch (err) {
+        if (mounted) setOrders([]);
+      } finally {
+        if (mounted) setLoadingOrders(false);
+      }
+    };
+
+    if (tab === "orders" && orders === null) {
+      load();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [tab]);
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-8">
@@ -33,9 +63,32 @@ const ProfileShell = ({ user }: { user?: ProfileUser | null }) => {
               <p className="mb-4 text-sm text-muted-foreground">
                 Veja seus pedidos e acompanhe o status.
               </p>
-              <Link href="/my-orders" className="text-primary">
-                Ir para Meus Pedidos
-              </Link>
+              <div>
+                {loadingOrders && <p>Carregando pedidos...</p>}
+                {!loadingOrders && orders && orders.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Você ainda não tem pedidos.</p>
+                )}
+                {!loadingOrders && orders && orders.length > 0 && (
+                  <Orders
+                    orders={orders.map((order) => ({
+                      id: order.id,
+                      totalPriceInCents: order.totalPriceInCents,
+                      status: order.status,
+                      createdAt: new Date(order.createdAt),
+                      items: order.items.map((item: any) => ({
+                        id: item.id,
+                        imageUrl: item.imageUrl,
+                        productName: item.productName,
+                        productVariantName: item.productVariantName,
+                        sizeLabel: item.sizeLabel,
+                        priceInCents: item.priceInCents,
+                        quantity: item.quantity,
+                      })),
+                    }))}
+                  />
+                )}
+                {/* orders are loaded automatically when tab is active */}
+              </div>
             </div>
           )}
 
