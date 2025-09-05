@@ -35,6 +35,11 @@ export default function CancelClient({
   return (
     <main className="bg-background flex min-h-screen items-center justify-center px-4 py-12">
       <div className="border-muted bg-card w-full max-w-xl rounded-2xl border p-8 text-center">
+        <img
+          src="/illustration2.png"
+          alt="Cancelado"
+          className="mx-auto mb-4 h-40 w-40 object-contain"
+        />
         <h1 className="mb-4 text-2xl font-semibold">Pedido não finalizado</h1>
         <p className="text-muted-foreground mb-6 text-sm">
           Seu pedido não foi finalizado. Sua reserva ficará disponível por um
