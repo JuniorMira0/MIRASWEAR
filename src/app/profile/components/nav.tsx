@@ -37,19 +37,19 @@ const Nav = ({ value = "orders", onChange }: NavProps) => {
       <div className="space-y-2">
         <button
           onClick={() => select("orders")}
-          className={`w-full text-left rounded-md px-4 py-3 ${active === "orders" ? "bg-muted" : "hover:bg-muted/50"}`}
+          className={`w-full text-left rounded-md px-4 py-3 hover:cursor-pointer ${active === "orders" ? "bg-muted" : "hover:bg-muted/50"}`}
         >
           Meus pedidos
         </button>
         <button
           onClick={() => select("profile")}
-          className={`w-full text-left rounded-md px-4 py-3 ${active === "profile" ? "bg-muted" : "hover:bg-muted/50"}`}
+          className={`w-full text-left rounded-md px-4 py-3 hover:cursor-pointer ${active === "profile" ? "bg-muted" : "hover:bg-muted/50"}`}
         >
           Meus dados
         </button>
         <button
           onClick={() => select("addresses")}
-          className={`w-full text-left rounded-md px-4 py-3 ${active === "addresses" ? "bg-muted" : "hover:bg-muted/50"}`}
+          className={`w-full text-left rounded-md px-4 py-3 hover:cursor-pointer ${active === "addresses" ? "bg-muted" : "hover:bg-muted/50"}`}
         >
           Meus endereços
         </button>
