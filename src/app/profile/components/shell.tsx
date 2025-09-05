@@ -87,7 +87,6 @@ const ProfileShell = ({ user }: { user?: ProfileUser | null }) => {
                     }))}
                   />
                 )}
-                {/* orders are loaded automatically when tab is active */}
               </div>
             </div>
           )}
