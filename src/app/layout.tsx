@@ -29,10 +29,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <ReactQueryProvider>
-          <CartStoreProvider>{children}</CartStoreProvider>
+          <CartStoreProvider>
+            <main className="flex-1">{children}</main>
+          </CartStoreProvider>
         </ReactQueryProvider>
         <Toaster position="top-center" />
       </body>
