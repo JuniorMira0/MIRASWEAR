@@ -2,18 +2,23 @@ import { getCategories } from "@/actions/get-categories";
 import { Header } from "@/components/common/header";
 import { db } from "@/db";
 import { userTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth-middleware";
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import ProfileShell from "./components/shell";
 
 const ProfilePage = async () => {
   const categories = await getCategories();
 
-  const session = await auth.api.getSession({ headers: await headers() });
-  const userId = session?.user?.id ?? null;
-
   let user = null;
+  let userId: string | null = null;
+
+  try {
+    userId = await requireAuth();
+  } catch (err) {
+    redirect(`/authentication?redirect=/profile`);
+  }
+
   if (userId) {
     const [row] = await db.select().from(userTable).where(eq(userTable.id, userId));
     if (row) {

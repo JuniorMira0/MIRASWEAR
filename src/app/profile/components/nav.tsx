@@ -57,7 +57,7 @@ const Nav = ({ value = "orders", onChange }: NavProps) => {
       <div className="mt-4">
         <button
           onClick={handleSignOut}
-          className="w-full rounded-md px-4 py-3 hover:bg-muted/50 disabled:opacity-60"
+          className="w-full rounded-md px-4 py-3 hover:bg-muted/50 disabled:opacity-60 hover:cursor-pointer disabled:cursor-not-allowed"
           disabled={signingOut}
         >
           <div className="flex items-center gap-3 text-red-600">

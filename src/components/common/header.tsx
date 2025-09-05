@@ -47,7 +47,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
               href={
                 isLogged
                   ? "/profile"
-                  : "/authentication?redirect=/cart/identification"
+                  : "/authentication"
               }
             >
               {isLogged
