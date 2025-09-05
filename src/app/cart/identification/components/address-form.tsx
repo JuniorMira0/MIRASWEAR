@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { isValidBRMobilePhone, isValidCPF } from "@/helpers/br-validators";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -20,16 +19,6 @@ import { toast } from "sonner";
 import z from "zod";
 
 const formSchema = z.object({
-  fullName: z.string().min(1, "Por favor, digite seu nome completo"),
-  cpf: z
-    .string()
-    .refine((v) => isValidCPF(v), "Por favor, digite um CPF válido"),
-  phone: z
-    .string()
-    .refine(
-      (v) => isValidBRMobilePhone(v),
-      "Por favor, digite um número de celular válido",
-    ),
   zipCode: z.string().min(9, "Por favor, digite um CEP válido"),
   address: z.string().min(1, "Por favor, digite seu endereço"),
   number: z.string().min(1, "Por favor, digite o número"),
@@ -50,10 +39,7 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: "",
-      cpf: "",
-      phone: "",
-      zipCode: "",
+  zipCode: "",
       address: "",
       number: "",
       complement: "",
@@ -64,11 +50,8 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
   });
 
   const { data: session } = authClient.useSession();
+  // no personal fields here; address-only form
   useEffect(() => {
-    const sesName = session?.user?.name ?? "";
-    if (sesName && !form.getValues("fullName")) {
-      form.setValue("fullName", sesName, { shouldValidate: true });
-    }
   }, [session, form]);
 
   // CEP auto lookup
@@ -127,59 +110,6 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
         className="mt-4 space-y-4"
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="fullName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome completo</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Digite seu nome completo"
-                    autoComplete="name"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="cpf"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF</FormLabel>
-                <FormControl>
-                  <PatternFormat
-                    format="###.###.###-##"
-                    placeholder="000.000.000-00"
-                    customInput={Input}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Celular</FormLabel>
-                <FormControl>
-                  <PatternFormat
-                    format="(##) #####-####"
-                    placeholder="(11) 99999-9999"
-                    customInput={Input}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="zipCode"

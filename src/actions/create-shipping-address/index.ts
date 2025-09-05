@@ -7,8 +7,8 @@ import { requireAuth } from "@/lib/auth-middleware";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
-  CreateShippingAddressSchema,
-  createShippingAddressSchema,
+    CreateShippingAddressSchema,
+    createShippingAddressSchema,
 } from "./schema";
 
 export const createShippingAddress = async (
@@ -23,20 +23,20 @@ export const createShippingAddress = async (
   }
 
   const [user] = await db
-    .select({ email: userTable.email })
+    .select({ email: userTable.email, name: userTable.name, cpf: userTable.cpf, phone: userTable.phone })
     .from(userTable)
     .where(eq(userTable.id, userId))
     .limit(1);
 
-  if (!user?.email) {
-    throw new Error("User email not found");
+  if (!user?.email || !user?.name) {
+    throw new Error("User profile incomplete");
   }
 
   const [shippingAddress] = await db
     .insert(shippingAddressTable)
     .values({
-      userId: userId,
-      recipientName: data.fullName,
+  userId: userId,
+  recipientName: user.name,
       street: data.address,
       number: data.number,
       complement: data.complement || null,
@@ -45,9 +45,9 @@ export const createShippingAddress = async (
       neighborhood: data.neighborhood,
       zipCode: data.zipCode,
       country: "Brasil",
-      phone: data.phone,
-      email: user.email,
-      cpfOrCnpj: data.cpf,
+  phone: user.phone || "",
+  email: user.email,
+  cpfOrCnpj: user.cpf || "",
     })
     .returning();
 
