@@ -110,27 +110,36 @@ const SignUpForm = () => {
   };
 
   async function onSubmit(values: FormValues) {
-    setIsSubmitting(true);
-    const cleanedCpf = values.cpf.replace(/\D/g, "");
+  if (isSubmitting) return;
+  setIsSubmitting(false);
+
+  const cleanedCpf = values.cpf.replace(/\D/g, "");
     const cleanedPhone = values.phone.replace(/\D/g, "");
 
     if (!cleanedCpf || !isValidCPF(cleanedCpf)) {
       form.setError("cpf", { message: "CPF inválido." });
-      return;
+  form.setFocus("cpf");
+  setIsSubmitting(false);
+  return;
     }
 
     if (!isValidBRMobilePhone(cleanedPhone)) {
       form.setError("phone", { message: "Telefone inválido." });
-      return;
+  form.setFocus("phone");
+  setIsSubmitting(false);
+  return;
     }
 
     const exists = await checkCpfExists(cleanedCpf);
     if (exists) {
       form.setError("cpf", { message: "CPF já cadastrado." });
-      return;
+  form.setFocus("cpf");
+  setIsSubmitting(false);
+  return;
     }
+  setIsSubmitting(true);
 
-    try {
+  try {
       await authClient.signUp.email({
         name: values.name,
         email: values.email,
@@ -167,12 +176,15 @@ const SignUpForm = () => {
       }
 
       router.push("/");
-    } catch (error: any) {
+  } catch (error: any) {
       if (error?.error?.code === "USER_ALREADY_EXISTS") {
         toast.error("E-mail já cadastrado.");
-        return form.setError("email", {
+        form.setError("email", {
           message: "E-mail já cadastrado.",
         });
+        form.setFocus("email");
+  setIsSubmitting(false);
+  return;
       }
       toast.error(error?.error?.message || String(error));
     } finally {
