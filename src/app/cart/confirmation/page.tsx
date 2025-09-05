@@ -79,46 +79,7 @@ const ConfirmationPage = async () => {
                     imageUrl: item.productVariant.imageUrl,
                   }))}
                 />
-                <div className="mt-6">
-                  <Card>
-                    <CardContent className="space-y-6">
-                      {cart.items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between"
-                        >
-                          <div className="flex items-start gap-4">
-                            <img
-                              src={item.productVariant.imageUrl}
-                              alt={item.productVariant.product.name}
-                              className="h-20 w-20 rounded-lg object-cover"
-                            />
-                            <div className="flex flex-col gap-1">
-                              <p className="text-sm font-semibold">
-                                {item.productVariant.product.name}
-                              </p>
-                              <p className="text-muted-foreground text-xs">
-                                {item.productVariant.name}
-                              </p>
-                              {item.size?.size && (
-                                <p className="text-muted-foreground text-xs">
-                                  Tamanho: {item.size.size}
-                                </p>
-                              )}
-                              <p className="text-muted-foreground text-xs">
-                                Quantidade: {item.quantity}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-sm font-bold">
-                            {formatCentsToBRL(item.productVariant.priceInCents)}
-                          </div>
-                        </div>
-                      ))}
-                      
-                    </CardContent>
-                  </Card>
-                </div>
+                
               </div>
             </aside>
           </div>
