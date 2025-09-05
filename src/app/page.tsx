@@ -19,18 +19,20 @@ export default async function Home() {
             <Image
               src="/banner-01.png"
               alt="Leve uma vida com estilo"
-              height={0}
-              width={0}
+              width={1200}
+              height={600}
               sizes="100vw"
               className="h-[460px] w-full object-cover md:hidden"
+              priority
             />
             <Image
               src="/banner-01-desk.png"
               alt="Leve uma vida com estilo"
-              height={0}
-              width={0}
+              width={1800}
+              height={700}
               sizes="100vw"
               className="hidden w-full object-cover md:block md:h-[420px] lg:h-[520px] xl:h-[600px]"
+              priority
             />
           </div>
 
@@ -58,8 +60,8 @@ export default async function Home() {
               <Image
                 src="/banner-02.png"
                 alt="Leve uma vida com estilo"
-                height={0}
-                width={0}
+                width={1200}
+                height={700}
                 sizes="100vw"
                 className="h-[180px] w-full object-cover md:h-[420px] lg:h-[520px] xl:h-[600px]"
               />

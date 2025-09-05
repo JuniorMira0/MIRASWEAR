@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function CancelClient({
@@ -35,9 +36,11 @@ export default function CancelClient({
   return (
     <main className="bg-background flex min-h-screen items-center justify-center px-4 py-12">
       <div className="border-muted bg-card w-full max-w-xl rounded-2xl border p-8 text-center">
-        <img
+        <Image
           src="/illustration2.png"
           alt="Cancelado"
+          width={160}
+          height={160}
           className="mx-auto mb-4 h-40 w-40 object-contain"
         />
         <h1 className="mb-4 text-2xl font-semibold">Pedido não finalizado</h1>
