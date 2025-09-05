@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import z from "zod";
 
 import { checkCpfExists } from "@/actions/check-cpf";
@@ -50,7 +50,9 @@ const formSchema = z
       .refine((v) => /^(\d{2}\/\d{2}\/\d{4})$/.test(v), {
         message: "Data deve ter o formato DD/MM/AAAA",
       }),
-    gender: z.enum(["female", "male", "other"]),
+    gender: z
+      .union([z.enum(["female", "male", "other"]), z.literal("")])
+      .refine((v) => v !== "", { message: "Selecione um gênero" }),
     name: z.string().trim().min(1, "O nome é obrigatório."),
     email: z.string().email("Formato de e-mail inválido. Use o formato: exemplo@email.com"),
     password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
@@ -66,12 +68,12 @@ type FormValues = z.infer<typeof formSchema>;
 const SignUpForm = () => {
   const router = useRouter();
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
     defaultValues: {
   cpf: "",
   phone: "",
   birthDate: "",
-  gender: "other",
+  gender: "",
   name: "",
   email: "",
   password: "",
@@ -95,6 +97,13 @@ const SignUpForm = () => {
     if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
     if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
+
+  const maskBirthDate = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 8);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
   };
 
   async function onSubmit(values: FormValues) {
@@ -124,7 +133,6 @@ const SignUpForm = () => {
         password: values.password,
       });
 
-      // ensure user is signed in so server actions can run
       try {
         await authClient.signIn.email({ email: values.email, password: values.password });
       } catch (err) {
@@ -222,19 +230,6 @@ const SignUpForm = () => {
               />
               <FormField
                 control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Digite sua senha" type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
@@ -258,7 +253,11 @@ const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Data de nascimento</FormLabel>
                     <FormControl>
-                      <Input placeholder="DD/MM/AAAA" {...field} />
+                      <Input
+                        placeholder="DD/MM/AAAA"
+                        value={field.value}
+                        onChange={(e) => field.onChange(maskBirthDate(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -272,13 +271,30 @@ const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Gênero</FormLabel>
                     <FormControl>
-                      <Input placeholder="female | male | other" {...field} />
+                      <select className="mt-1 w-full rounded-md border px-3 py-2" {...field}>
+                        <option value="">Selecione</option>
+                        <option value="female">Feminino</option>
+                        <option value="male">Masculino</option>
+                        <option value="other">Outro</option>
+                      </select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Digite sua senha" type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="passwordConfirmation"
