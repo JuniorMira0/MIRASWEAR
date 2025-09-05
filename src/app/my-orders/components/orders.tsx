@@ -39,83 +39,104 @@ const Orders = ({ orders }: OrdersProps) => {
         <Card key={order.id}>
           <CardContent>
             <Accordion type="single" collapsible key={order.id}>
-              <AccordionItem value="item-1">
-                <AccordionTrigger>
-                  <div className="flex flex-col gap-1">
-                    {order.status === "paid" && <Badge>Pago</Badge>}
-                    {order.status === "pending" && (
-                      <Badge variant="outline">Pagamento pendente</Badge>
-                    )}
-                    {order.status === "canceled" && (
-                      <Badge variant="destructive">Cancelado</Badge>
-                    )}
-                    <p>
-                      Pedido feito em{" "}
-                      {new Date(order.createdAt).toLocaleDateString("pt-BR")} às{" "}
-                      {new Date(order.createdAt).toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+              <AccordionItem value={order.id}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="grid w-full grid-cols-5 items-center gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Número do Pedido</p>
+                      <p className="font-medium">#{order.id}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <div>
+                        {order.status === "paid" && <Badge>Pago</Badge>}
+                        {order.status === "pending" && (
+                          <Badge variant="outline">Pagamento pendente</Badge>
+                        )}
+                        {order.status === "canceled" && (
+                          <Badge variant="destructive">Cancelado</Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-muted-foreground">Data</p>
+                      <p className="font-medium">
+                        {new Date(order.createdAt).toLocaleDateString("pt-BR")}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-muted-foreground">Pagamento</p>
+                      <p className="font-medium">Cartão</p>
+                    </div>
+
+                    <div className="text-right">
+                      <AccordionTrigger asChild>
+                        <button className="text-sm text-primary">Detalhes do Pedido</button>
+                      </AccordionTrigger>
+                    </div>
                   </div>
-                </AccordionTrigger>
+                </div>
+
                 <AccordionContent>
-                  {order.items.map((product) => (
-                    <div
-                      className="flex items-center justify-between"
-                      key={product.id}
-                    >
-                      <div className="flex items-center gap-4">
-                        <Image
-                          src={product.imageUrl}
-                          alt={product.productName}
-                          width={78}
-                          height={78}
-                          className="rounded-lg"
-                        />
-                        <div className="flex flex-col gap-1">
-                          <p className="text-sm font-semibold">
-                            {product.productName}
-                          </p>
-                          <p className="text-muted-foreground text-xs font-medium">
-                            {product.productVariantName}
-                            {product.sizeLabel
-                              ? ` · Tam: ${product.sizeLabel}`
-                              : ""}
-                            {` x ${product.quantity}`}
+                  <div className="mt-4 space-y-4">
+                    {order.items.map((product) => (
+                      <div
+                        className="flex items-center justify-between"
+                        key={product.id}
+                      >
+                        <div className="flex items-center gap-4">
+                          <Image
+                            src={product.imageUrl}
+                            alt={product.productName}
+                            width={78}
+                            height={78}
+                            className="rounded-lg"
+                          />
+                          <div className="flex flex-col gap-1">
+                            <p className="text-sm font-semibold">
+                              {product.productName}
+                            </p>
+                            <p className="text-muted-foreground text-xs font-medium">
+                              {product.productVariantName}
+                              {product.sizeLabel ? ` · ${product.sizeLabel}` : ""}
+                              {` x ${product.quantity}`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end justify-center gap-2">
+                          <p className="text-sm font-bold">
+                            {formatCentsToBRL(
+                              product.priceInCents * product.quantity,
+                            )}
                           </p>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end justify-center gap-2">
-                        <p className="text-sm font-bold">
-                          {formatCentsToBRL(
-                            product.priceInCents * product.quantity,
-                          )}
+                    ))}
+
+                    <div className="py-5">
+                      <Separator />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <p className="text-sm">Subtotal</p>
+                        <p className="text-muted-foreground text-sm font-medium">
+                          {formatCentsToBRL(order.totalPriceInCents)}
                         </p>
                       </div>
-                    </div>
-                  ))}
-                  <div className="py-5">
-                    <Separator />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <p className="text-sm">Subtotal</p>
-                      <p className="text-muted-foreground text-sm font-medium">
-                        {formatCentsToBRL(order.totalPriceInCents)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-sm">Frete</p>
-                      <p className="text-muted-foreground text-sm font-medium">
-                        GRÁTIS
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-sm">Total</p>
-                      <p className="text-sm font-semibold">
-                        {formatCentsToBRL(order.totalPriceInCents)}
-                      </p>
+                      <div className="flex justify-between">
+                        <p className="text-sm">Transporte e Manuseio</p>
+                        <p className="text-muted-foreground text-sm font-medium">Grátis</p>
+                      </div>
+                      <div className="flex justify-between">
+                        <p className="text-sm">Total</p>
+                        <p className="text-sm font-semibold">
+                          {formatCentsToBRL(order.totalPriceInCents)}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </AccordionContent>
