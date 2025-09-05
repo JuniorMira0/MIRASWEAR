@@ -30,10 +30,7 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
     return false;
   });
   return (
-    <Link
-      href={`/product-variant/${firstVariant.slug}`}
-      className="flex flex-col gap-4"
-    >
+    <Link href={`/product-variant/${firstVariant.slug}`} className="flex flex-col gap-4">
       <div className="relative">
         <Image
           src={firstVariant.imageUrl}
@@ -41,7 +38,7 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
           sizes="100vw"
           height={0}
           width={0}
-          className="h-auto w-full rounded-xl"
+          className="h-[170px] w-full object-cover rounded-xl md:h-auto"
         />
         {allOutOfStock && (
           <span className="bg-destructive absolute top-2 right-2 z-10 rounded px-2 py-1 text-xs font-bold text-white shadow">
@@ -51,9 +48,10 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
       </div>
       <div
         className={cn(
-          "flex max-w-[160px] flex-col gap-1 md:max-w-[180px]",
+          "flex w-full max-w-[160px] flex-col gap-1 md:max-w-[180px]",
           textContainerClassName,
         )}
+        style={{ minWidth: 0 }}
       >
         <p className="truncate text-sm font-medium">{product.name}</p>
         <p className="text-muted-foreground truncate text-xs font-medium">
