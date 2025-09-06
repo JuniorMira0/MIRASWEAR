@@ -86,7 +86,7 @@ export const Cart = () => {
                       alt="Carrinho vazio"
                       width={160}
                       height={160}
-                      className="mx-auto"
+                      className="mx-auto h-40 w-40"
                     />
                     <h3 className="mt-4 text-lg font-semibold">Seu carrinho está vazio</h3>
                     <div className="mt-4">
