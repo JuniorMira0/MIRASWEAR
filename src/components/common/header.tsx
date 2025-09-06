@@ -151,6 +151,16 @@ export const Header = ({ categories = [] }: HeaderProps) => {
                         Início
                       </Link>
                     </Button>
+                    <Button
+                      variant="ghost"
+                      className="justify-start gap-3"
+                      asChild
+                    >
+                      <Link href={session?.user ? "/profile" : "/authentication?redirect=/profile"}>
+                        <UserIcon className="h-4 w-4" />
+                        Perfil
+                      </Link>
+                    </Button>
                     {session?.user && (
                       <Button
                         variant="ghost"
