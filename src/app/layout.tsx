@@ -2,6 +2,7 @@ import Footer from "@/components/common/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { CartStoreProvider } from "@/hooks/cart-store";
 import ReactQueryProvider from "@/providers/react-query";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 
 import type { Metadata } from "next";
@@ -34,7 +35,7 @@ export default function RootLayout({
       >
         <ReactQueryProvider>
           <CartStoreProvider>
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">{children}<SpeedInsights /></main>
           </CartStoreProvider>
         </ReactQueryProvider>
         <Toaster position="top-center" />
