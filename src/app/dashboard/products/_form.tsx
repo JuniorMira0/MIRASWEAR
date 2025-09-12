@@ -7,7 +7,7 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { useEffect, useState } from "react";
 
 type VariantSize = { size: string; quantity: number };
-type Variant = { name: string; slug?: string; color?: string; priceInCents: number; imageUrl?: string; sizes?: VariantSize[] };
+type Variant = { name: string; slug?: string; color?: string; priceInCents: number; imageUrl?: string; sizes?: VariantSize[]; stock?: number };
 
 type Props = {
   initial?: {
@@ -31,6 +31,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
   const [creatingCategory, setCreatingCategory] = useState(false);
 
   const [variants, setVariants] = useState<Variant[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     // suggest slug from name
@@ -45,7 +46,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
     }
   }, [name]);
 
-  const addVariant = () => setVariants((s) => [...s, { name: "", priceInCents: 0, sizes: [] }]);
+  const addVariant = () => setVariants((s) => [...s, { name: "", priceInCents: 0, sizes: [], stock: 0 }]);
   const removeVariant = (idx: number) => setVariants((s) => s.filter((_, i) => i !== idx));
   const updateVariant = (idx: number, v: Variant) => setVariants((s) => s.map((it, i) => (i === idx ? v : it)));
 
@@ -58,12 +59,12 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
         body: JSON.stringify({ name: createCategoryName, slug: createCategoryName.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').trim() }),
         headers: { 'Content-Type': 'application/json' },
       });
-      if (!res.ok) throw new Error('Falha ao criar categoria');
+  if (!res.ok) throw new Error('Falha ao criar categoria');
       const json = await res.json();
       setCategoryId(json.id);
     } catch (err) {
-      console.error(err);
-      alert('Erro ao criar categoria');
+      console.error('createCategory error', err);
+      setErrors((s) => [...s, 'Erro ao criar categoria — ver console para detalhes']);
     } finally {
       setCreatingCategory(false);
     }
@@ -75,6 +76,33 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
         e.preventDefault();
         if (submitting) return;
         setSubmitting(true);
+        // client-side validation
+        const nextErrors: string[] = [];
+        if (!name.trim()) nextErrors.push('Nome do produto é obrigatório');
+        if (!slug.trim()) nextErrors.push('Slug do produto é obrigatório');
+        if (!variants || variants.length === 0) nextErrors.push('Adicione ao menos uma variante');
+
+        variants.forEach((v, vi) => {
+          if (!v.name || !v.name.trim()) nextErrors.push(`Variante #${vi + 1}: nome é obrigatório`);
+          if (v.priceInCents == null || Number.isNaN(v.priceInCents) || v.priceInCents < 0) nextErrors.push(`Variante "${v.name || vi + 1}": preço inválido`);
+          if (v.sizes && v.sizes.length > 0) {
+            v.sizes.forEach((s, si) => {
+              if (!s.size || !s.size.trim()) nextErrors.push(`Variante "${v.name || vi + 1}" tamanho #${si + 1}: tamanho é obrigatório`);
+              if (s.quantity == null || Number.isNaN(s.quantity) || s.quantity < 0) nextErrors.push(`Variante "${v.name || vi + 1}" tamanho "${s.size}": quantidade inválida`);
+            });
+          } else {
+            if (v.stock == null || Number.isNaN(v.stock) || v.stock < 0) nextErrors.push(`Variante "${v.name || vi + 1}": informe estoque ou adicione tamanhos`);
+          }
+        });
+
+        if (nextErrors.length > 0) {
+          setErrors(nextErrors);
+          console.error('Form validation errors:', nextErrors);
+          setSubmitting(false);
+          return;
+        }
+
+        setErrors([]);
 
         const fd = new FormData(e.currentTarget as HTMLFormElement);
         fd.set('variantsJson', JSON.stringify(variants));
@@ -82,8 +110,8 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
         try {
           await onSubmit(fd);
         } catch (err) {
-          console.error(err);
-          alert('Erro ao salvar produto');
+          console.error('submit error', err);
+          setErrors((s) => [...s, 'Erro ao salvar produto — ver console para detalhes']);
         } finally {
           setSubmitting(false);
         }
@@ -124,25 +152,35 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
       <div>
         <h3 className="font-semibold">Variantes</h3>
         <div className="space-y-3">
+          {errors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+              <strong>Erros:</strong>
+              <ul className="mt-2 list-disc list-inside">
+                {errors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {variants.map((v, idx) => (
             <div key={idx} className="p-3 border rounded">
               <div className="flex justify-between items-center">
                 <div>
-                  <label>Nome variante</label>
-                  <input value={v.name} onChange={(e) => updateVariant(idx, { ...v, name: e.target.value })} className="input" />
+                  <Label>Nome variante</Label>
+                  <Input value={v.name} onChange={(e) => updateVariant(idx, { ...v, name: e.target.value })} />
                 </div>
                 <div>
-                  <label>Cor</label>
-                  <input value={v.color ?? ''} onChange={(e) => updateVariant(idx, { ...v, color: e.target.value })} className="input" />
+                  <Label>Cor</Label>
+                  <Input value={v.color ?? ''} onChange={(e) => updateVariant(idx, { ...v, color: e.target.value })} />
                 </div>
                 <div>
-                  <label>Preço (centavos)</label>
-                  <input type="number" value={v.priceInCents} onChange={(e) => updateVariant(idx, { ...v, priceInCents: Number(e.target.value) })} className="input" />
+                  <Label>Preço (centavos)</Label>
+                  <Input type="number" value={String(v.priceInCents ?? 0)} onChange={(e) => updateVariant(idx, { ...v, priceInCents: Number(e.target.value) })} />
                 </div>
               </div>
               <div className="mt-2">
-                <label>Imagem (URL)</label>
-                <input value={v.imageUrl ?? ''} onChange={(e) => updateVariant(idx, { ...v, imageUrl: e.target.value })} className="input" />
+                <Label>Imagem (URL)</Label>
+                <Input value={v.imageUrl ?? ''} onChange={(e) => updateVariant(idx, { ...v, imageUrl: e.target.value })} />
               </div>
 
               <div className="mt-2">
@@ -168,6 +206,11 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                     const next = [...(v.sizes || []), { size: '', quantity: 0 }];
                     updateVariant(idx, { ...v, sizes: next });
                   }}>Adicionar tamanho</Button>
+                  <div className="mt-2">
+                    <Label>Estoque (se não usar tamanhos)</Label>
+                    <Input type="number" value={String(v.stock ?? 0)} onChange={(e) => updateVariant(idx, { ...v, stock: Number(e.target.value) })} />
+                    <p className="text-sm text-muted-foreground mt-1">Informe estoque por variante somente se não estiver usando tamanhos</p>
+                  </div>
                 </div>
               </div>
 
