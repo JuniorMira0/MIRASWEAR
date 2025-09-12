@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { useEffect, useState } from "react";
 
 type VariantSize = { size: string; quantity: number };
@@ -89,18 +93,18 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
       <input name="id" type="hidden" defaultValue={initial.id ?? ""} />
 
       <div>
-        <label className="block">Nome</label>
-        <input name="name" value={name} onChange={(e) => setName(e.target.value)} className="input" />
+        <Label>Nome</Label>
+        <Input name="name" value={name} onChange={(e) => setName(e.target.value)} aria-label="Nome do produto" />
       </div>
 
       <div>
-        <label className="block">Slug (sugerido)</label>
-        <input name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} className="input" />
+        <Label>Slug (sugerido)</Label>
+        <Input name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} aria-label="Slug do produto" />
       </div>
 
       <div>
-        <label className="block">Descrição</label>
-        <textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} className="textarea" />
+        <Label>Descrição</Label>
+        <textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} className="textarea" aria-label="Descrição do produto" />
       </div>
 
       <div>
@@ -111,9 +115,9 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
-        <div className="mt-2">
-          <input placeholder="Criar nova categoria" value={createCategoryName} onChange={(e) => setCreateCategoryName(e.target.value)} className="input inline" />
-          <button type="button" disabled={creatingCategory} onClick={onCreateCategory} className="btn">Criar</button>
+        <div className="mt-2 flex gap-2">
+          <Input placeholder="Criar nova categoria" value={createCategoryName} onChange={(e) => setCreateCategoryName(e.target.value)} aria-label="Nome nova categoria" />
+          <Button type="button" disabled={creatingCategory} onClick={onCreateCategory}>{creatingCategory ? 'Criando...' : 'Criar'}</Button>
         </div>
       </div>
 
@@ -145,35 +149,35 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                 <label>Tamanhos</label>
                 <div className="space-y-2">
                   {(v.sizes || []).map((s, si) => (
-                    <div key={si} className="flex gap-2">
-                      <input placeholder="Tamanho" value={s.size} onChange={(e) => {
-                        const next = (v.sizes || []).map((it, i) => i === si ? { ...it, size: e.target.value } : it);
-                        updateVariant(idx, { ...v, sizes: next });
-                      }} className="input" />
-                      <input placeholder="Quantidade" type="number" value={s.quantity} onChange={(e) => {
-                        const next = (v.sizes || []).map((it, i) => i === si ? { ...it, quantity: Number(e.target.value) } : it);
-                        updateVariant(idx, { ...v, sizes: next });
-                      }} className="input" />
-                      <button type="button" onClick={() => {
-                        const next = (v.sizes || []).filter((_, i) => i !== si);
-                        updateVariant(idx, { ...v, sizes: next });
-                      }} className="btn">Remover</button>
-                    </div>
+                      <div key={si} className="flex gap-2">
+                        <Input placeholder="Tamanho" value={s.size} onChange={(e) => {
+                          const next = (v.sizes || []).map((it, i) => i === si ? { ...it, size: e.target.value } : it);
+                          updateVariant(idx, { ...v, sizes: next });
+                        }} />
+                        <Input placeholder="Quantidade" type="number" value={s.quantity} onChange={(e) => {
+                          const next = (v.sizes || []).map((it, i) => i === si ? { ...it, quantity: Number(e.target.value) } : it);
+                          updateVariant(idx, { ...v, sizes: next });
+                        }} />
+                        <Button type="button" variant="destructive" onClick={() => {
+                          const next = (v.sizes || []).filter((_, i) => i !== si);
+                          updateVariant(idx, { ...v, sizes: next });
+                        }}>Remover</Button>
+                      </div>
                   ))}
-                  <button type="button" onClick={() => {
+                  <Button type="button" onClick={() => {
                     const next = [...(v.sizes || []), { size: '', quantity: 0 }];
                     updateVariant(idx, { ...v, sizes: next });
-                  }} className="btn">Adicionar tamanho</button>
+                  }}>Adicionar tamanho</Button>
                 </div>
               </div>
 
               <div className="mt-2">
-                <button type="button" onClick={() => removeVariant(idx)} className="btn btn-danger">Remover variante</button>
+                <Button type="button" variant="destructive" onClick={() => removeVariant(idx)}>Remover variante</Button>
               </div>
             </div>
           ))}
           <div>
-            <button type="button" onClick={addVariant} className="btn">Adicionar variante</button>
+            <Button type="button" onClick={addVariant}>Adicionar variante</Button>
           </div>
         </div>
       </div>
@@ -181,7 +185,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
       <input type="hidden" name="variantsJson" value={JSON.stringify(variants)} />
 
       <div>
-        <button className="btn" type="submit" disabled={submitting}>{submitting ? 'Salvando...' : 'Salvar'}</button>
+        <LoadingButton isLoading={submitting} type="submit">Salvar</LoadingButton>
       </div>
     </form>
   );
