@@ -4,6 +4,7 @@ import { authClient } from "@/lib/auth-client";
 import { LogOutIcon } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from 'sonner';
 
 interface NavProps {
   value?: string;
@@ -14,6 +15,8 @@ const Nav = ({ value = "orders", onChange }: NavProps) => {
   const [active, setActive] = useState<string>(value);
   const [signingOut, setSigningOut] = useState(false);
   const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const isAdmin = Boolean((session?.user as any)?.isAdmin);
 
   const select = (v: string) => {
     setActive(v);
@@ -26,7 +29,7 @@ const Nav = ({ value = "orders", onChange }: NavProps) => {
       await authClient.signOut();
       router.push("/");
     } catch (err) {
-      console.error("Sign out error:", err);
+      toast.error("Erro ao sair");
     } finally {
       setSigningOut(false);
     }
@@ -47,6 +50,14 @@ const Nav = ({ value = "orders", onChange }: NavProps) => {
         >
           Meus dados
         </button>
+        {isAdmin && (
+          <button
+            onClick={() => router.push('/dashboard')}
+            className={`w-full text-left rounded-md px-4 py-3 hover:cursor-pointer ${active === "dashboard" ? "bg-muted" : "hover:bg-muted/50"}`}
+          >
+            Dashboard
+          </button>
+        )}
         <button
           onClick={() => select("addresses")}
           className={`w-full text-left rounded-md px-4 py-3 hover:cursor-pointer ${active === "addresses" ? "bg-muted" : "hover:bg-muted/50"}`}
