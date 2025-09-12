@@ -12,3 +12,24 @@ export const requireAuth = async (): Promise<string> => {
 
   return session.user.id;
 };
+
+export const requireAdmin = async (): Promise<{ id: string; email: string } | null> => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return null;
+  }
+
+  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const userEmail = session.user.email?.toLowerCase();
+
+  if (!userEmail) return null;
+
+  if (adminEmails.includes(userEmail)) {
+    return { id: session.user.id, email: session.user.email };
+  }
+
+  return null;
+};
