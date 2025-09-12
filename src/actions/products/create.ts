@@ -10,6 +10,15 @@ import {
 import { requireAdmin } from "@/lib/auth-middleware";
 import { z } from "zod";
 
+function sanitizeSlug(input: string) {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 const VariantSizeSchema = z.object({
   size: z.string().min(1),
   quantity: z.number().int().min(0),
@@ -45,20 +54,39 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
     }
   }
 
+  const baseProductSlug = sanitizeSlug(data.slug);
+  let productSlug = baseProductSlug;
+  let attempt = 1;
+  while (true) {
+    const existing = await db.query.productTable.findFirst({ where: (t, { eq }) => eq(t.slug, productSlug) });
+    if (!existing) break;
+    productSlug = `${baseProductSlug}-${attempt++}`;
+  }
+
   const insertData: Record<string, any> = {
     name: data.name,
-    slug: data.slug,
+    slug: productSlug,
     description: data.description ?? "",
   };
   if (data.categoryId) insertData.categoryId = data.categoryId;
 
   const [createdProduct] = await db.insert(productTable).values(insertData as any).returning();
 
+  // ensure variant slugs are unique within this product
+  const usedVariantSlugs = new Set<string>();
   for (const v of data.variants) {
+    const baseVariantSlug = sanitizeSlug(v.slug ?? v.name);
+    let variantSlug = baseVariantSlug;
+    let vAttempt = 1;
+    while (usedVariantSlugs.has(variantSlug)) {
+      variantSlug = `${baseVariantSlug}-${vAttempt++}`;
+    }
+    usedVariantSlugs.add(variantSlug);
+
     const variantInsert: Record<string, any> = {
       productId: createdProduct.id,
       name: v.name,
-      slug: v.slug ?? v.name.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").trim(),
+      slug: variantSlug,
       color: v.color ?? "",
       priceInCents: v.priceInCents,
       imageUrl: v.imageUrl ?? "",
