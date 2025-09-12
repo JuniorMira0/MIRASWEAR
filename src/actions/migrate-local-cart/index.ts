@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { cartItemTable, cartTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
@@ -66,7 +67,7 @@ export const migrateLocalCartToServer = async (
       );
     } catch (e) {
       sizeTableSupported = false;
-      console.warn(
+      logger.warn(
         "product_variant_size table not available; migrating without sizes",
       );
     }
@@ -113,7 +114,7 @@ export const migrateLocalCartToServer = async (
           });
           cartItemSizeSupported = true;
         } catch (e) {
-          console.warn(
+          logger.warn(
             "cart_item.product_variant_size_id not available; migrating without size dimension",
           );
           cartItemSizeSupported = false;
@@ -144,7 +145,7 @@ export const migrateLocalCartToServer = async (
               quantity: localItem.quantity,
             });
           } catch (e) {
-            console.warn(
+            logger.warn(
               "Insert with size failed; retrying without size column",
             );
             cartItemSizeSupported = false;
@@ -166,7 +167,7 @@ export const migrateLocalCartToServer = async (
     }
     return { ok: true, migrated };
   } catch (err) {
-    console.error("migrateLocalCartToServer error:", err);
+    logger.error("migrateLocalCartToServer error:", err);
     return { ok: false, error: err instanceof Error ? err.message : "unknown" };
   }
 };

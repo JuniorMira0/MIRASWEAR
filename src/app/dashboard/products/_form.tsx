@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type VariantSize = { size: string; quantity: number };
 type Variant = { name: string; slug?: string; color?: string; priceInCents: number; imageUrl?: string; sizes?: VariantSize[]; stock?: number };
@@ -63,8 +64,9 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
       const json = await res.json();
       setCategoryId(json.id);
     } catch (err) {
-      console.error('createCategory error', err);
-      setErrors((s) => [...s, 'Erro ao criar categoria — ver console para detalhes']);
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Erro ao criar categoria: ${msg}`);
+      setErrors((s) => [...s, 'Erro ao criar categoria']);
     } finally {
       setCreatingCategory(false);
     }
@@ -101,7 +103,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
 
         if (nextErrors.length > 0) {
           setErrors(nextErrors);
-          console.error('Form validation errors:', nextErrors);
+          toast.error('Corrija os erros do formulário e tente novamente');
           setSubmitting(false);
           return;
         }
@@ -121,7 +123,8 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
             throw re;
           }
 
-          console.error('submit error', err);
+          const serverMsg = (err as any)?.message ?? String(err);
+          toast.error(`Erro ao salvar produto: ${serverMsg}`);
           setErrors((s) => [...s, 'Erro ao salvar produto — ver console para detalhes']);
         } finally {
           setSubmitting(false);

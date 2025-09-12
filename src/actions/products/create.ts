@@ -8,6 +8,7 @@ import {
   productVariantTable
 } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-middleware";
+import { logger } from "@/lib/logger";
 import { z } from "zod";
 
 function sanitizeSlug(input: string) {
@@ -46,7 +47,7 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
   try {
     CreateProductSchema.parse(data);
   } catch (err) {
-    console.error("createProduct validation failed:", err, { data });
+    logger.error("createProduct validation failed:", err, { data });
     throw err;
   }
 
@@ -56,7 +57,7 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
     const catId = data.categoryId as string;
     const cat = await db.query.categoryTable.findFirst({ where: (t, { eq }) => eq(t.id, catId) });
     if (!cat) {
-      console.error("createProduct: category not found", { categoryId: catId, data });
+      logger.error("createProduct: category not found", { categoryId: catId, data });
       throw new Error("Categoria não encontrada");
     }
   }
@@ -81,7 +82,7 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
 
       const [prod] = await tx.insert(productTable).values(insertData as any).returning();
       if (!prod) {
-        console.error("createProduct: failed to insert product", { insertData });
+        logger.error("createProduct: failed to insert product", { insertData });
         throw new Error("Failed to create product");
       }
 
@@ -111,7 +112,7 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
 
         const [createdVariant] = await tx.insert(productVariantTable).values(variantInsert as any).returning();
         if (!createdVariant) {
-          console.error("createProduct: failed to insert variant", { variantInsert });
+          logger.error("createProduct: failed to insert variant", { variantInsert });
           throw new Error("Failed to create product variant");
         }
 
@@ -123,7 +124,7 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
             } as any).returning();
 
             if (!createdSize) {
-              console.error("createProduct: failed to insert variant size", { productVariantId: createdVariant.id, size: s.size });
+              logger.error("createProduct: failed to insert variant size", { productVariantId: createdVariant.id, size: s.size });
               throw new Error("Failed to create variant size");
             }
 
@@ -148,7 +149,7 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
 
     return createdProduct;
   } catch (err: unknown) {
-    console.error("createProduct failed (final catch):", err, {
+    logger.error("createProduct failed (final catch):", err, {
       product: { name: data.name, slug: data.slug },
       variants: data.variants,
       stack: err instanceof Error ? err.stack : undefined,

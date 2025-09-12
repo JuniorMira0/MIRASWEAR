@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { shippingAddressTable } from "@/db/schema";
 import { requireAuth } from '@/lib/auth-middleware';
+import { logger } from '@/lib/logger';
 
 export async function getUserAddresses() {
   const userId = await requireAuth();
@@ -22,7 +23,7 @@ export async function getUserAddresses() {
 
     return addresses;
   } catch (error) {
-    console.error("Erro ao buscar endereços:", error);
+    logger.error("Erro ao buscar endereços:", error);
     throw new Error("Erro ao buscar endereços");
   }
 }
