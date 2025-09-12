@@ -1,3 +1,4 @@
+import { deleteProduct } from "@/actions/products/delete";
 import { db } from "@/db";
 import { productTable } from "@/db/schema";
 import Link from "next/link";
@@ -17,9 +18,22 @@ export default async function ProductsPage() {
 
       <div className="space-y-4">
         {products.map((p) => (
-          <div key={String(p.id)} className="p-4 border rounded">
-            <h2 className="font-medium">{p.name}</h2>
-            <p className="text-sm text-muted-foreground">{p.slug}</p>
+          <div key={String(p.id)} className="p-4 border rounded flex items-center justify-between">
+            <div>
+              <h2 className="font-medium">{p.name}</h2>
+              <p className="text-sm text-muted-foreground">{p.slug}</p>
+            </div>
+            <div className="space-x-2">
+              <Link href={`/dashboard/products/${p.id}/edit`} className="btn">Editar</Link>
+              <form action={async (formData: FormData) => {
+                'use server'
+                const id = String(formData.get('id'));
+                await deleteProduct(id);
+              }}>
+                <input type="hidden" name="id" value={p.id} />
+                <button type="submit" className="btn btn-danger">Remover</button>
+              </form>
+            </div>
           </div>
         ))}
       </div>

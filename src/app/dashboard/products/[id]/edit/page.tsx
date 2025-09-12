@@ -1,0 +1,30 @@
+import { updateProduct } from "@/actions/products/update";
+import ProductForm from "@/app/dashboard/products/_form";
+import { db } from "@/db";
+import { redirect } from "next/navigation";
+
+type Props = { params: { id: string } };
+
+export default async function EditProductPage({ params }: Props) {
+  const prod = await db.query.productTable.findFirst({ where: (t, { eq }) => eq(t.id, params.id) });
+  if (!prod) return <div>Produto não encontrado</div>;
+
+  const onSubmit = async (formData: FormData) => {
+    'use server'
+    const id = formData.get('id') as string;
+    const name = formData.get('name') as string;
+    const slug = formData.get('slug') as string;
+    const description = formData.get('description') as string;
+    const categoryId = (formData.get('categoryId') as string) || undefined;
+
+    await updateProduct({ id, name, slug, description, categoryId });
+    redirect('/dashboard/products');
+  };
+
+  return (
+    <main className="p-8">
+      <h1 className="text-2xl font-semibold mb-4">Editar produto</h1>
+  <ProductForm {...( { initial: { id: prod.id, name: prod.name, slug: prod.slug, description: prod.description, categoryId: prod.categoryId }, onSubmit } as any)} />
+    </main>
+  );
+}
