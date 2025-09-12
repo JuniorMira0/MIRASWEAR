@@ -1,5 +1,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { db } from "@/db";
+import { userTable } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const requireAuth = async (): Promise<string> => {
   const session = await auth.api.getSession({
@@ -22,13 +25,15 @@ export const requireAdmin = async (): Promise<{ id: string; email: string } | nu
     return null;
   }
 
-  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
-  const userEmail = session.user.email?.toLowerCase();
+  const userId = session.user.id;
 
-  if (!userEmail) return null;
+  const rows = await db.select().from(userTable).where(eq(userTable.id, userId)).limit(1);
+  const user = rows[0];
 
-  if (adminEmails.includes(userEmail)) {
-    return { id: session.user.id, email: session.user.email };
+  if (!user) return null;
+
+  if (user.isAdmin) {
+    return { id: user.id, email: user.email };
   }
 
   return null;
