@@ -88,10 +88,14 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
       // ensure variant slugs are unique within this product
       const usedVariantSlugs = new Set<string>();
       for (const v of data.variants) {
-        const baseVariantSlug = sanitizeSlug(v.slug ?? v.name);
+        const colorPart = (v.color || "").toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").trim();
+        const baseVariantSlugCandidate = colorPart ? `${productSlug}-${colorPart}` : `${productSlug}-${v.name}`;
+        const baseVariantSlug = sanitizeSlug(baseVariantSlugCandidate);
         let variantSlug = baseVariantSlug;
         let vAttempt = 1;
-        while (usedVariantSlugs.has(variantSlug)) {
+        while (true) {
+          const exists = await tx.query.productVariantTable.findFirst({ where: (t, { eq }) => eq(t.slug, variantSlug) });
+          if (!exists && !usedVariantSlugs.has(variantSlug)) break;
           variantSlug = `${baseVariantSlug}-${vAttempt++}`;
         }
         usedVariantSlugs.add(variantSlug);

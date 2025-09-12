@@ -78,13 +78,17 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
         setSubmitting(true);
         // client-side validation
         const nextErrors: string[] = [];
-        if (!name.trim()) nextErrors.push('Nome do produto é obrigatório');
-        if (!slug.trim()) nextErrors.push('Slug do produto é obrigatório');
-        if (!variants || variants.length === 0) nextErrors.push('Adicione ao menos uma variante');
+  if (!name.trim()) nextErrors.push('Nome do produto é obrigatório');
+  if (!slug.trim()) nextErrors.push('Slug do produto é obrigatório');
+  if (!description || !description.trim()) nextErrors.push('Descrição do produto é obrigatória');
+  if (!categoryId || !categoryId.trim()) nextErrors.push('Categoria é obrigatória');
+  if (!variants || variants.length === 0) nextErrors.push('Adicione ao menos uma variante');
 
         variants.forEach((v, vi) => {
           if (!v.name || !v.name.trim()) nextErrors.push(`Variante #${vi + 1}: nome é obrigatório`);
+          if (!v.color || !v.color.trim()) nextErrors.push(`Variante "${v.name || vi + 1}": cor é obrigatória`);
           if (v.priceInCents == null || Number.isNaN(v.priceInCents) || v.priceInCents < 0) nextErrors.push(`Variante "${v.name || vi + 1}": preço inválido`);
+          if (!v.imageUrl || !v.imageUrl.trim()) nextErrors.push(`Variante "${v.name || vi + 1}": imagem (URL) é obrigatória`);
           if (v.sizes && v.sizes.length > 0) {
             v.sizes.forEach((s, si) => {
               if (!s.size || !s.size.trim()) nextErrors.push(`Variante "${v.name || vi + 1}" tamanho #${si + 1}: tamanho é obrigatório`);
@@ -109,7 +113,14 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
 
         try {
           await onSubmit(fd);
-        } catch (err) {
+        } catch (err: unknown) {
+          try {
+            const maybeMsg = (err as any)?.message ?? String(err);
+            if (maybeMsg === 'NEXT_REDIRECT') throw err;
+          } catch (re) {
+            throw re;
+          }
+
           console.error('submit error', err);
           setErrors((s) => [...s, 'Erro ao salvar produto — ver console para detalhes']);
         } finally {
@@ -121,17 +132,17 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
       <input name="id" type="hidden" defaultValue={initial.id ?? ""} />
 
       <div>
-        <Label>Nome</Label>
+        <Label>Nome <span className="text-red-500">*</span></Label>
         <Input name="name" value={name} onChange={(e) => setName(e.target.value)} aria-label="Nome do produto" />
       </div>
 
       <div>
-        <Label>Slug (sugerido)</Label>
+        <Label>Slug (sugerido) <span className="text-red-500">*</span></Label>
         <Input name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} aria-label="Slug do produto" />
       </div>
 
       <div>
-        <Label>Descrição</Label>
+        <Label>Descrição <span className="text-red-500">*</span></Label>
         <textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} className="textarea" aria-label="Descrição do produto" />
       </div>
 
@@ -170,7 +181,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                   <Input value={v.name} onChange={(e) => updateVariant(idx, { ...v, name: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Cor</Label>
+                  <Label>Cor <span className="text-red-500">*</span></Label>
                   <Input value={v.color ?? ''} onChange={(e) => updateVariant(idx, { ...v, color: e.target.value })} />
                 </div>
                 <div>
@@ -179,7 +190,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                 </div>
               </div>
               <div className="mt-2">
-                <Label>Imagem (URL)</Label>
+                <Label>Imagem (URL) <span className="text-red-500">*</span></Label>
                 <Input value={v.imageUrl ?? ''} onChange={(e) => updateVariant(idx, { ...v, imageUrl: e.target.value })} />
               </div>
 
