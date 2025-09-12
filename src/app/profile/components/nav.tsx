@@ -16,7 +16,20 @@ const Nav = ({ value = "orders", onChange }: NavProps) => {
   const [signingOut, setSigningOut] = useState(false);
   const router = useRouter();
   const { data: session } = authClient.useSession();
-  const isAdmin = Boolean((session?.user as any)?.isAdmin);
+  const [isAdmin, setIsAdmin] = useState<boolean>(Boolean((session?.user as any)?.isAdmin));
+
+  useState(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/me');
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.ok && json.user) setIsAdmin(Boolean(json.user.isAdmin));
+      } catch (e) {
+        // ignore
+      }
+    })();
+  });
 
   const select = (v: string) => {
     setActive(v);
