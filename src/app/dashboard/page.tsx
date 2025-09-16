@@ -1,3 +1,5 @@
+import BackButton from '@/components/common/back-button';
+import { Header } from '@/components/common/header';
 import { requireAdmin } from "@/lib/auth-middleware";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,7 +13,11 @@ export default async function DashboardPage() {
 
   return (
     <main className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Dashboard Admin</h1>
+      <Header />
+      <div className="mb-6 flex items-center justify-between">
+        <BackButton />
+        <h1 className="text-3xl font-bold">Dashboard Admin</h1>
+      </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/dashboard/products"
