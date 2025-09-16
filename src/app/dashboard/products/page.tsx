@@ -1,4 +1,6 @@
 import { deleteProduct } from "@/actions/products/delete";
+import BackButton from '@/components/common/back-button';
+import { Header } from '@/components/common/header';
 import { db } from "@/db";
 import { productTable } from "@/db/schema";
 import Link from "next/link";
@@ -9,7 +11,9 @@ export default async function ProductsPage() {
 
   return (
     <main className="p-8">
+      <Header />
       <div className="flex items-center justify-between mb-6">
+        <BackButton />
         <h1 className="text-2xl font-semibold">Produtos</h1>
         <Link href="/dashboard/products/new" className="btn">
           Novo produto
