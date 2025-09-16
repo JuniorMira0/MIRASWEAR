@@ -17,7 +17,8 @@ const UpdateVariantSchema = z.object({
 
 export async function updateProductVariant(data: z.infer<typeof UpdateVariantSchema>) {
   UpdateVariantSchema.parse(data);
-  await requireAdmin();
+  const admin = await requireAdmin();
+  if (!admin) throw new Error('Unauthorized: admin required');
 
   await db.transaction(async (tx) => {
     await tx.update(productVariantTable).set({

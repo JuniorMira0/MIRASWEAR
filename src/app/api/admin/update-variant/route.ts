@@ -7,7 +7,9 @@ export async function POST(req: Request) {
     await updateProductVariant(body);
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
-    const message = (err as any)?.message ?? 'Erro desconhecido';
-    return new NextResponse(JSON.stringify({ ok: false, error: message }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    const e: any = err;
+    const payload: any = { ok: false, error: e?.message ?? 'Erro desconhecido' };
+    if (e?.stack) payload.stack = e.stack;
+    return new NextResponse(JSON.stringify(payload), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 }

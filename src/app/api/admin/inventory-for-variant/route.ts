@@ -10,7 +10,9 @@ export async function POST(req: Request) {
     const items = await db.query.inventoryItemTable.findMany({ where: (t, { eq }) => eq(t.productVariantId, variantId) });
     return NextResponse.json({ ok: true, items });
   } catch (err: unknown) {
-    const message = (err as any)?.message ?? 'Erro desconhecido';
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    const e: any = err;
+    const payload: any = { ok: false, error: e?.message ?? 'Erro desconhecido' };
+    if (e?.stack) payload.stack = e.stack;
+    return NextResponse.json(payload, { status: 500 });
   }
 }
