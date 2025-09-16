@@ -1,6 +1,4 @@
 import { db } from "@/db";
-import { productTable, productVariantTable } from "@/db/schema";
-import { and, eq, ne } from "drizzle-orm";
 
 export const getProductVariantBySlug = async (slug: string) => {
   return await db.query.productVariantTable.findFirst({

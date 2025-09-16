@@ -1,7 +1,7 @@
 import { updateProduct } from "@/actions/products/update";
 import ProductForm from "@/app/dashboard/products/_form";
-import BackButton from '@/components/common/back-button';
 import ActiveCheckbox from '@/components/common/active-checkbox';
+import BackButton from '@/components/common/back-button';
 import { Header } from '@/components/common/header';
 import { db } from "@/db";
 import { redirect } from "next/navigation";

@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { productTable, productVariantTable } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { productTable } from "@/db/schema";
+import { desc } from "drizzle-orm";
 
 export const getProducts = async () => {
   const products = await db.query.productTable.findMany({
