@@ -102,6 +102,7 @@ export const productTable = pgTable("product", {
   name: text().notNull(),
   slug: text().notNull().unique(),
   description: text().notNull(),
+  isActive: boolean("is_active").$defaultFn(() => true).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -123,6 +124,7 @@ export const productVariantTable = pgTable("product_variant", {
   color: text().notNull(),
   priceInCents: integer("price_in_cents").notNull(),
   imageUrl: text("image_url").notNull(),
+  isActive: boolean("is_active").$defaultFn(() => true).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

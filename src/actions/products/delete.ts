@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { productTable } from "@/db/schema";
+import { productTable, productVariantTable } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-middleware";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -23,7 +23,8 @@ export async function deleteProduct(data: z.infer<typeof DeleteProductSchema>) {
     }
   }
 
-  await db.delete(productTable).where(eq(productTable.id, data.id));
+  await db.update(productVariantTable).set({ isActive: false }).where(eq(productVariantTable.productId, data.id));
+  await db.update(productTable).set({ isActive: false }).where(eq(productTable.id, data.id));
   return true;
 }
 

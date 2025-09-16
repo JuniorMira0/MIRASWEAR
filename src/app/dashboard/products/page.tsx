@@ -1,5 +1,5 @@
 import { getCategories } from '@/actions/get-categories';
-import { deleteProduct } from "@/actions/products/delete";
+import { setProductActive } from "@/actions/products/set-active";
 import BackButton from '@/components/common/back-button';
 import { Header } from '@/components/common/header';
 import {
@@ -99,10 +99,10 @@ export default async function ProductsPage() {
                           <form action={async (formData: FormData) => {
                             'use server'
                             const id = String(formData.get('id'));
-                            await deleteProduct({ id });
+                            await setProductActive({ id, active: false });
                           }}>
                             <input type="hidden" name="id" value={p.id} />
-                            <button type="submit" className="btn btn-danger">Remover</button>
+                            <button type="submit" className="btn btn-danger">Desativar</button>
                           </form>
                         </div>
                       </div>

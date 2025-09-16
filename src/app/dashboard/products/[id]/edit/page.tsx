@@ -1,7 +1,7 @@
 import { updateProduct } from "@/actions/products/update";
 import ProductForm from "@/app/dashboard/products/_form";
 import BackButton from '@/components/common/back-button';
-import DeleteProductButton from '@/components/common/delete-product-button';
+import ActiveCheckbox from '@/components/common/active-checkbox';
 import { Header } from '@/components/common/header';
 import { db } from "@/db";
 import { redirect } from "next/navigation";
@@ -37,7 +37,7 @@ export default async function EditProductPage({ params }: Props) {
         <BackButton />
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold">Editar produto</h1>
-          <DeleteProductButton id={prod.id} />
+          <ActiveCheckbox id={prod.id} initial={prod.isActive ?? true} />
         </div>
       </header>
       <ProductForm
