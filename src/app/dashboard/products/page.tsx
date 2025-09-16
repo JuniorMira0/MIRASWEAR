@@ -1,5 +1,4 @@
 import { getCategories } from '@/actions/get-categories';
-import { setProductActive } from "@/actions/products/set-active";
 import BackButton from '@/components/common/back-button';
 import { Header } from '@/components/common/header';
 import {
@@ -96,14 +95,6 @@ export default async function ProductsPage() {
                         </div>
                         <div className="space-x-2">
                           <Link href={`/dashboard/products/${p.id}/edit`} className="btn">Editar</Link>
-                          <form action={async (formData: FormData) => {
-                            'use server'
-                            const id = String(formData.get('id'));
-                            await setProductActive({ id, active: false });
-                          }}>
-                            <input type="hidden" name="id" value={p.id} />
-                            <button type="submit" className="btn btn-danger">Desativar</button>
-                          </form>
                         </div>
                       </div>
                     ))}
