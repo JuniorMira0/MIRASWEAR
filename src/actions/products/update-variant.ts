@@ -19,26 +19,31 @@ export async function updateProductVariant(data: z.infer<typeof UpdateVariantSch
   UpdateVariantSchema.parse(data);
   const admin = await requireAdmin();
   if (!admin) throw new Error('Unauthorized: admin required');
+  try {
+    await db.transaction(async (tx) => {
+      await tx.update(productVariantTable).set({
+        name: data.name,
+        color: data.color,
+        priceInCents: data.priceInCents,
+        imageUrl: data.imageUrl,
+      }).where(eq(productVariantTable.id, data.id));
 
-  await db.transaction(async (tx) => {
-    await tx.update(productVariantTable).set({
-      name: data.name,
-      color: data.color,
-      priceInCents: data.priceInCents,
-      imageUrl: data.imageUrl,
-    }).where(eq(productVariantTable.id, data.id));
-
-    if (typeof data.stock === 'number') {
-      const existing = await tx.query.inventoryItemTable.findFirst({
-        where: (t, { and, eq, isNull }) => and(eq(t.productVariantId, data.id), isNull(t.productVariantSizeId)),
-      });
-      if (existing) {
-        await tx.update(inventoryItemTable).set({ quantity: data.stock }).where(eq(inventoryItemTable.id, existing.id));
-      } else {
-        await tx.insert(inventoryItemTable).values({ productVariantId: data.id, quantity: data.stock });
+      if (typeof data.stock === 'number') {
+        const existing = await tx.query.inventoryItemTable.findFirst({
+          where: (t, { and, eq, isNull }) => and(eq(t.productVariantId, data.id), isNull(t.productVariantSizeId)),
+        });
+        if (existing) {
+          await tx.update(inventoryItemTable).set({ quantity: data.stock }).where(eq(inventoryItemTable.id, existing.id));
+        } else {
+          await tx.insert(inventoryItemTable).values({ productVariantId: data.id, quantity: data.stock });
+        }
       }
-    }
-  });
+    });
+  } catch (err: unknown) {
+    const e: any = err;
+    const msg = e?.message ?? String(e);
+    throw new Error(`DB error during updateProductVariant: ${msg}`);
+  }
 
   return true;
 }
