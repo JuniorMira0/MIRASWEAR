@@ -234,12 +234,17 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                   <Button type="button" variant="destructive" onClick={() => removeVariant(idx)}>Remover variante</Button>
                   <Button type="button" onClick={async () => {
                     try {
+                      if (!v.id) {
+                        toast.error('Salve o produto primeiro para criar/atualizar variantes.');
+                        return;
+                      }
                       const body = {
                         id: v.id,
                         name: v.name,
                         color: v.color,
                         priceInCents: v.priceInCents,
                         imageUrl: v.imageUrl,
+                        stock: v.stock ?? 0,
                       };
                       const res = await fetch('/api/admin/update-variant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                       const json = await res.json();
