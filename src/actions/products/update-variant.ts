@@ -34,7 +34,7 @@ export async function updateProductVariant(data: z.infer<typeof UpdateVariantSch
       if (existing) {
         await tx.update(inventoryItemTable).set({ quantity: data.stock }).where(eq(inventoryItemTable.id, existing.id));
       } else {
-        await tx.insert(inventoryItemTable).values({ productVariantId: data.id, productVariantSizeId: null, quantity: data.stock });
+        await tx.insert(inventoryItemTable).values({ productVariantId: data.id, quantity: data.stock });
       }
     }
   });

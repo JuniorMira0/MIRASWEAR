@@ -138,7 +138,6 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
           const qty = typeof v.stock === 'number' ? v.stock : 0;
           await tx.insert(inventoryItemTable).values({
             productVariantId: createdVariant.id,
-            productVariantSizeId: null,
             quantity: qty,
           } as any);
         }
