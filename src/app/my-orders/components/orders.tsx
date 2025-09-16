@@ -40,11 +40,11 @@ const Orders = ({ orders }: OrdersProps) => {
           <CardContent>
             <Accordion type="single" collapsible key={order.id}>
               <AccordionItem value={order.id}>
-                <div className="flex items-center justify-between gap-4">
-                  <div className="grid w-full grid-cols-5 items-center gap-4">
+                  <div className="flex items-center justify-between gap-4">
+                  <div className="grid w-full grid-cols-1 md:grid-cols-5 items-center gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Número do Pedido</p>
-                      <p className="font-medium">#{order.id}</p>
+                      <p className="font-medium break-words">#{order.id}</p>
                     </div>
 
                     <div>
@@ -95,11 +95,11 @@ const Orders = ({ orders }: OrdersProps) => {
                             height={78}
                             className="rounded-lg"
                           />
-                          <div className="flex flex-col gap-1">
-                            <p className="text-sm font-semibold">
+                          <div className="flex flex-col gap-1 max-w-[60vw] md:max-w-[40vw]">
+                            <p className="text-sm font-semibold break-words">
                               {product.productName}
                             </p>
-                            <p className="text-muted-foreground text-xs font-medium">
+                            <p className="text-muted-foreground text-xs font-medium break-words">
                               {product.productVariantName}
                               {product.sizeLabel ? ` · ${product.sizeLabel}` : ""}
                               {` x ${product.quantity}`}
