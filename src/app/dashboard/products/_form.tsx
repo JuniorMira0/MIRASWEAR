@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type VariantSize = { size: string; quantity: number };
-type Variant = { name: string; slug?: string; color?: string; priceInCents: number; imageUrl?: string; sizes?: VariantSize[]; stock?: number };
+type Variant = { id?: string; name: string; slug?: string; color?: string; priceInCents: number; imageUrl?: string; sizes?: VariantSize[]; stock?: number };
 
 type Props = {
   initial?: {
@@ -17,6 +17,7 @@ type Props = {
     slug?: string;
     description?: string;
     categoryId?: string | null;
+    variants?: Variant[];
   };
   categories?: { id: string; name: string }[];
   onSubmit: (form: FormData) => Promise<any>;
@@ -31,7 +32,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
   const [createCategoryName, setCreateCategoryName] = useState("");
   const [creatingCategory, setCreatingCategory] = useState(false);
 
-  const [variants, setVariants] = useState<Variant[]>([]);
+  const [variants, setVariants] = useState<Variant[]>(initial.variants ?? []);
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -229,7 +230,27 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
               </div>
 
               <div className="mt-2">
-                <Button type="button" variant="destructive" onClick={() => removeVariant(idx)}>Remover variante</Button>
+                <div className="flex gap-2">
+                  <Button type="button" variant="destructive" onClick={() => removeVariant(idx)}>Remover variante</Button>
+                  <Button type="button" onClick={async () => {
+                    try {
+                      const body = {
+                        id: v.id,
+                        name: v.name,
+                        color: v.color,
+                        priceInCents: v.priceInCents,
+                        imageUrl: v.imageUrl,
+                      };
+                      const res = await fetch('/api/admin/update-variant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                      const json = await res.json();
+                      if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao salvar variante');
+                      toast.success('Variante salva');
+                    } catch (err) {
+                      const msg = (err as any)?.message ?? String(err);
+                      toast.error(`Erro ao salvar variante: ${msg}`);
+                    }
+                  }}>Salvar variante</Button>
+                </div>
               </div>
             </div>
           ))}

@@ -9,6 +9,8 @@ export default async function EditProductPage({ params }: Props) {
   const prod = await db.query.productTable.findFirst({ where: (t, { eq }) => eq(t.id, params.id) });
   if (!prod) return <div>Produto não encontrado</div>;
 
+  const variants = await db.query.productVariantTable.findMany({ where: (t, { eq }) => eq(t.productId, params.id) });
+
   const onSubmit = async (formData: FormData) => {
     'use server'
     const id = formData.get('id') as string;
@@ -24,7 +26,19 @@ export default async function EditProductPage({ params }: Props) {
   return (
     <main className="p-8">
       <h1 className="text-2xl font-semibold mb-4">Editar produto</h1>
-  <ProductForm {...( { initial: { id: prod.id, name: prod.name, slug: prod.slug, description: prod.description, categoryId: prod.categoryId }, onSubmit } as any)} />
+      <ProductForm
+        {...({
+          initial: {
+            id: prod.id,
+            name: prod.name,
+            slug: prod.slug,
+            description: prod.description,
+            categoryId: prod.categoryId,
+            variants: variants.map((v) => ({ id: v.id, name: v.name, slug: v.slug, color: v.color, priceInCents: v.priceInCents, imageUrl: v.imageUrl })),
+          },
+          onSubmit,
+        } as any)}
+      />
     </main>
   );
 }

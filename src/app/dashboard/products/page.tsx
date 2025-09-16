@@ -13,19 +13,44 @@ import { productTable } from "@/db/schema";
 import { eq } from 'drizzle-orm';
 import Link from "next/link";
 
+type ProductWithImage = {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl?: string | null;
+};
+
 export default async function ProductsPage() {
 
   const categories = await getCategories();
 
-  // fetch products grouped by category
-  const productsByCategory = {} as Record<string, Awaited<ReturnType<typeof db.query.productTable.findMany>>>;
+  const productsByCategory: Record<string, ProductWithImage[]> = {};
   for (const cat of categories) {
     const prods = await db
       .select()
       .from(productTable)
       .where(eq(productTable.categoryId, cat.id))
       .orderBy(productTable.createdAt);
-    productsByCategory[cat.id] = prods;
+
+    const prodIds = prods.map((p) => p.id);
+    let variants: Array<{ productId: string; imageUrl: string; createdAt?: Date }> = [];
+    if (prodIds.length) {
+      const rows = await db.query.productVariantTable.findMany({
+        where: (pv, { inArray }) => inArray(pv.productId, prodIds),
+        orderBy: (pv, { asc }) => asc(pv.createdAt),
+      });
+
+      const map = new Map<string, string>();
+      for (const r of rows as any) {
+        if (!map.has(r.productId)) map.set(r.productId, r.imageUrl);
+      }
+      variants = Array.from(map.entries()).map(([productId, imageUrl]) => ({ productId, imageUrl }));
+    }
+
+    productsByCategory[cat.id] = prods.map((p) => {
+      const found = variants.find((v) => v.productId === p.id);
+      return { id: p.id, name: p.name, slug: p.slug, imageUrl: found?.imageUrl ?? null };
+    });
   }
 
   return (
@@ -58,9 +83,16 @@ export default async function ProductsPage() {
                   <div className="mt-4 space-y-3">
                     {(productsByCategory[cat.id] || []).map((p) => (
                       <div key={String(p.id)} className="p-3 border rounded flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium">{p.name}</h3>
-                          <p className="text-sm text-muted-foreground">{p.slug}</p>
+                        <div className="flex items-center gap-4">
+                          {p.imageUrl ? (
+                            <img src={p.imageUrl} alt={p.name} className="w-16 h-16 object-cover rounded" />
+                          ) : (
+                            <div className="w-16 h-16 bg-muted rounded" />
+                          )}
+                          <div>
+                            <h3 className="font-medium">{p.name}</h3>
+                            <p className="text-sm text-muted-foreground">{p.slug}</p>
+                          </div>
                         </div>
                         <div className="space-x-2">
                           <Link href={`/dashboard/products/${p.id}/edit`} className="btn">Editar</Link>
