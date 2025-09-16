@@ -33,11 +33,11 @@ export default async function EditProductPage({ params }: Props) {
     <main className="p-8">
       <Header />
       <header className="mb-6 flex items-center justify-between">
+        <BackButton />
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold">Editar produto</h1>
         </div>
       </header>
-            <BackButton />
       <ProductForm
         {...({
           initial: {
