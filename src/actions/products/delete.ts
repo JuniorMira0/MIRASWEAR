@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { productTable } from "@/db/schema";
+import { productTable, productVariantTable, orderItemTable } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-middleware";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -12,6 +12,16 @@ export async function deleteProduct(data: z.infer<typeof DeleteProductSchema>) {
   DeleteProductSchema.parse(data);
   const admin = await requireAdmin();
   if (!admin) throw new Error('Unauthorized: admin required');
+
+  const variants = await db.query.productVariantTable.findMany({ where: (t, { eq }) => eq(t.productId, data.id) });
+  const variantIds = variants.map((v) => v.id);
+
+  if (variantIds.length > 0) {
+    const existingOrder = await db.query.orderItemTable.findFirst({ where: (t, { inArray }) => inArray(t.productVariantId, variantIds) });
+    if (existingOrder) {
+      throw new Error('Não é possível remover produto porque há pedidos que referenciam suas variantes.');
+    }
+  }
 
   await db.delete(productTable).where(eq(productTable.id, data.id));
   return true;

@@ -64,6 +64,3 @@ export default async function EditProductPage({ params }: Props) {
     </main>
   );
 }
-
-// DeleteProductButton is a client component living in
-// src/components/common/delete-product-button.tsx
