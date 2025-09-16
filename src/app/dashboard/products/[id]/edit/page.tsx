@@ -3,7 +3,8 @@ import ProductForm from "@/app/dashboard/products/_form";
 import BackButton from '@/components/common/back-button';
 import { Header } from '@/components/common/header';
 import { db } from "@/db";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import { useState } from 'react';
 
 type Props = { params: { id: string } };
 
@@ -36,6 +37,7 @@ export default async function EditProductPage({ params }: Props) {
         <BackButton />
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-semibold">Editar produto</h1>
+          <DeleteProductButton id={prod.id} />
         </div>
       </header>
       <ProductForm
@@ -61,4 +63,38 @@ export default async function EditProductPage({ params }: Props) {
       />
     </main>
   );
+}
+
+function DeleteProductButtonClient(props: { id: string }) {
+  'use client';
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <button
+      className="ml-3 text-sm text-red-600 hover:underline"
+      disabled={loading}
+      onClick={async () => {
+        if (!confirm('Tem certeza que deseja remover este produto? Esta ação é irreversível.')) return;
+        setLoading(true);
+        try {
+          const res = await fetch('/api/admin/delete-product', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: props.id }) });
+          const json = await res.json();
+          if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao remover produto');
+          router.push('/dashboard/products');
+        } catch (err) {
+          const msg = (err as any)?.message ?? String(err);
+          alert(`Erro ao remover produto: ${msg}`);
+        } finally {
+          setLoading(false);
+        }
+      }}
+    >
+      {loading ? 'Removendo...' : 'Remover produto'}
+    </button>
+  );
+}
+
+function DeleteProductButton(props: { id: string }) {
+  return <DeleteProductButtonClient id={props.id} />;
 }

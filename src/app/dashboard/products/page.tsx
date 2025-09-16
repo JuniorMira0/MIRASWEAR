@@ -99,7 +99,7 @@ export default async function ProductsPage() {
                           <form action={async (formData: FormData) => {
                             'use server'
                             const id = String(formData.get('id'));
-                            await deleteProduct(id);
+                            await deleteProduct({ id });
                           }}>
                             <input type="hidden" name="id" value={p.id} />
                             <button type="submit" className="btn btn-danger">Remover</button>
