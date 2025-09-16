@@ -1,5 +1,7 @@
 import { updateProduct } from "@/actions/products/update";
 import ProductForm from "@/app/dashboard/products/_form";
+import BackButton from '@/components/common/back-button';
+import { Header } from '@/components/common/header';
 import { db } from "@/db";
 import { redirect } from "next/navigation";
 
@@ -29,7 +31,13 @@ export default async function EditProductPage({ params }: Props) {
 
   return (
     <main className="p-8">
-      <h1 className="text-2xl font-semibold mb-4">Editar produto</h1>
+      <Header />
+      <header className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold">Editar produto</h1>
+        </div>
+      </header>
+            <BackButton />
       <ProductForm
         {...({
           initial: {

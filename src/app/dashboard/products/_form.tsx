@@ -33,6 +33,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
   const [creatingCategory, setCreatingCategory] = useState(false);
 
   const [variants, setVariants] = useState<Variant[]>(initial.variants ?? []);
+  const [variantSaving, setVariantSaving] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -177,102 +178,112 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
               </ul>
             </div>
           )}
-          {variants.map((v, idx) => (
-            <div key={idx} className="p-3 border rounded">
-              <div className="flex justify-between items-center">
-                <div>
-                  <Label>Nome variante</Label>
-                  <Input value={v.name} onChange={(e) => updateVariant(idx, { ...v, name: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Cor <span className="text-red-500">*</span></Label>
-                  <Input value={v.color ?? ''} onChange={(e) => updateVariant(idx, { ...v, color: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Preço (centavos)</Label>
-                  <Input type="number" value={String(v.priceInCents ?? 0)} onChange={(e) => updateVariant(idx, { ...v, priceInCents: Number(e.target.value) })} />
-                </div>
-              </div>
-              <div className="mt-2">
-                <Label>Imagem (URL) <span className="text-red-500">*</span></Label>
-                <Input value={v.imageUrl ?? ''} onChange={(e) => updateVariant(idx, { ...v, imageUrl: e.target.value })} />
-              </div>
-
-              <div className="mt-2">
-                <label>Tamanhos</label>
-                <div className="space-y-2">
-                  {(v.sizes || []).map((s, si) => (
-                      <div key={si} className="flex gap-2">
-                        <Input placeholder="Tamanho" value={s.size} onChange={(e) => {
-                          const next = (v.sizes || []).map((it, i) => i === si ? { ...it, size: e.target.value } : it);
-                          updateVariant(idx, { ...v, sizes: next });
-                        }} />
-                        <Input placeholder="Quantidade" type="number" value={s.quantity} onChange={(e) => {
-                          const next = (v.sizes || []).map((it, i) => i === si ? { ...it, quantity: Number(e.target.value) } : it);
-                          updateVariant(idx, { ...v, sizes: next });
-                        }} />
-                        <Button type="button" variant="destructive" onClick={() => {
-                          const next = (v.sizes || []).filter((_, i) => i !== si);
-                          updateVariant(idx, { ...v, sizes: next });
-                        }}>Remover</Button>
+          {variants.map((v, idx) => {
+            const key = v.id ?? String(idx);
+            return (
+              <div key={key} className="p-4 border rounded-lg bg-white shadow-sm">
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 bg-gray-50 rounded overflow-hidden flex items-center justify-center">
+                    {v.imageUrl ? <img src={v.imageUrl} alt={v.name} className="object-cover w-full h-full" /> : <div className="text-sm text-muted-foreground">Sem imagem</div>}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold">{v.name || 'Nova variante'}</h4>
+                        <div className="text-sm text-muted-foreground">Cor: {v.color || '-'}</div>
                       </div>
-                  ))}
-                  <Button type="button" onClick={() => {
-                    const next = [...(v.sizes || []), { size: '', quantity: 0 }];
-                    updateVariant(idx, { ...v, sizes: next });
-                  }}>Adicionar tamanho</Button>
-                  <div className="mt-2">
-                    <Label>Estoque (se não usar tamanhos)</Label>
-                    <Input type="number" value={String(v.stock ?? 0)} onChange={(e) => updateVariant(idx, { ...v, stock: Number(e.target.value) })} />
-                    <p className="text-sm text-muted-foreground mt-1">Informe estoque por variante somente se não estiver usando tamanhos</p>
+                      <div className="text-sm">Preço: <strong>{((v.priceInCents ?? 0) / 100).toFixed(2)}</strong></div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <Input value={v.name} onChange={(e) => updateVariant(idx, { ...v, name: e.target.value })} />
+                      <Input value={v.color ?? ''} onChange={(e) => updateVariant(idx, { ...v, color: e.target.value })} />
+                      <Input type="number" value={String(v.priceInCents ?? 0)} onChange={(e) => updateVariant(idx, { ...v, priceInCents: Number(e.target.value) })} />
+                    </div>
+
+                    <div className="mt-3">
+                      <Input value={v.imageUrl ?? ''} onChange={(e) => updateVariant(idx, { ...v, imageUrl: e.target.value })} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Label className="mb-2">Tamanhos</Label>
+                  {v.sizes && v.sizes.length > 0 ? (
+                    <table className="w-full text-sm table-fixed">
+                      <thead>
+                        <tr className="text-left">
+                          <th className="w-2/3">Tamanho</th>
+                          <th className="w-1/3">Quantidade</th>
+                          <th />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {v.sizes.map((s, si) => (
+                          <tr key={si} className="border-t">
+                            <td className="py-2">
+                              <Input value={s.size} onChange={(e) => {
+                                const next = (v.sizes || []).map((it, i) => i === si ? { ...it, size: e.target.value } : it);
+                                updateVariant(idx, { ...v, sizes: next });
+                              }} />
+                            </td>
+                            <td className="py-2">
+                              <Input type="number" value={String(s.quantity)} onChange={(e) => {
+                                const next = (v.sizes || []).map((it, i) => i === si ? { ...it, quantity: Number(e.target.value) } : it);
+                                updateVariant(idx, { ...v, sizes: next });
+                              }} />
+                            </td>
+                            <td className="py-2">
+                              <Button type="button" variant="destructive" onClick={() => {
+                                const next = (v.sizes || []).filter((_, i) => i !== si);
+                                updateVariant(idx, { ...v, sizes: next });
+                              }}>Remover</Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Label>Estoque</Label>
+                      <Input type="number" value={String(v.stock ?? 0)} onChange={(e) => updateVariant(idx, { ...v, stock: Number(e.target.value) })} />
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex gap-2">
+                    <Button type="button" variant="destructive" onClick={() => removeVariant(idx)}>Remover variante</Button>
+                    <Button type="button" disabled={!!variantSaving[key]} onClick={async () => {
+                      try {
+                        if (!v.id) {
+                          toast.error('Salve o produto primeiro para criar/atualizar variantes.');
+                          return;
+                        }
+                        setVariantSaving((s) => ({ ...s, [key]: true }));
+
+                        const body: any = { id: v.id, name: v.name, color: v.color, priceInCents: v.priceInCents, imageUrl: v.imageUrl };
+                        if (v.sizes && v.sizes.length > 0) body.sizes = v.sizes.map((s) => ({ size: s.size, quantity: s.quantity }));
+                        else body.stock = v.stock ?? 0;
+
+                        const res = await fetch('/api/admin/update-variant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                        const json = await res.json();
+                        if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao salvar variante');
+
+                        if (v.sizes && v.sizes.length > 0) updateVariant(idx, { ...v, sizes: v.sizes.map((s) => ({ ...s })) });
+                        else updateVariant(idx, { ...v, stock: body.stock });
+
+                        toast.success('Variante salva');
+                      } catch (err) {
+                        const msg = (err as any)?.message ?? String(err);
+                        toast.error(`Erro ao salvar variante: ${msg}`);
+                      } finally {
+                        setVariantSaving((s) => ({ ...s, [key]: false }));
+                      }
+                    }}>Salvar variante</Button>
                   </div>
                 </div>
               </div>
-
-              <div className="mt-2">
-                <div className="flex gap-2">
-                  <Button type="button" variant="destructive" onClick={() => removeVariant(idx)}>Remover variante</Button>
-                  <Button type="button" onClick={async () => {
-                    try {
-                      if (!v.id) {
-                        toast.error('Salve o produto primeiro para criar/atualizar variantes.');
-                        return;
-                      }
-
-                      const body: any = {
-                        id: v.id,
-                        name: v.name,
-                        color: v.color,
-                        priceInCents: v.priceInCents,
-                        imageUrl: v.imageUrl,
-                      };
-
-                      if (v.sizes && v.sizes.length > 0) {
-                        body.sizes = v.sizes.map((s) => ({ size: s.size, quantity: s.quantity }));
-                      } else {
-                        body.stock = v.stock ?? 0;
-                      }
-
-                      const res = await fetch('/api/admin/update-variant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                      const json = await res.json();
-                      if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao salvar variante');
-
-                      if (v.sizes && v.sizes.length > 0) {
-                        updateVariant(idx, { ...v, sizes: v.sizes.map((s) => ({ ...s })) });
-                        toast.success('Variante salva (tamanhos atualizados)');
-                      } else {
-                        updateVariant(idx, { ...v, stock: body.stock });
-                        toast.success('Variante salva');
-                      }
-                    } catch (err) {
-                      const msg = (err as any)?.message ?? String(err);
-                      toast.error(`Erro ao salvar variante: ${msg}`);
-                    }
-                  }}>Salvar variante</Button>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
           <div>
             <Button type="button" onClick={addVariant}>Adicionar variante</Button>
           </div>
