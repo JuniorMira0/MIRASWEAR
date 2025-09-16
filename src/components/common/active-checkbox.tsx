@@ -10,11 +10,12 @@ export default function ActiveCheckbox({ id, initial }: { id: string; initial: b
   const toggle = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/set-product-active', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, active: !checked }) });
+      const newState = !checked;
+      const res = await fetch('/api/admin/set-product-active', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, active: newState }) });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao atualizar');
-      setChecked(!checked);
-      toast.success(`Produto ${!checked ? 'desativado' : 'ativado'} com sucesso`);
+      setChecked(newState);
+      toast.success(`Produto ${newState ? 'ativado' : 'desativado'} com sucesso`);
     } catch (err) {
       const msg = (err as any)?.message ?? String(err);
       toast.error(`Erro ao atualizar produto: ${msg}`);
