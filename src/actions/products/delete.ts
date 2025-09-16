@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { productTable, productVariantTable, orderItemTable } from "@/db/schema";
+import { productTable } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-middleware";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
