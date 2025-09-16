@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { inventoryItemTable, productVariantTable } from "@/db/schema";
+import { inventoryItemTable, productVariantTable, productVariantSizeTable } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-middleware";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -13,6 +13,14 @@ const UpdateVariantSchema = z.object({
   priceInCents: z.number().int().nonnegative(),
   imageUrl: z.string().min(1),
   stock: z.number().int().nonnegative().optional(),
+  sizes: z
+    .array(
+      z.object({
+        size: z.string().min(1),
+        quantity: z.number().int().min(0),
+      }),
+    )
+    .optional(),
 });
 
 export async function updateProductVariant(data: z.infer<typeof UpdateVariantSchema>) {
@@ -28,7 +36,29 @@ export async function updateProductVariant(data: z.infer<typeof UpdateVariantSch
         imageUrl: data.imageUrl,
       }).where(eq(productVariantTable.id, data.id));
 
-      if (typeof data.stock === 'number') {
+      if (Array.isArray(data.sizes) && data.sizes.length > 0) {
+        for (const s of data.sizes) {
+          const existingSize = await tx.query.productVariantSizeTable.findFirst({
+            where: (t, { and, eq }) => and(eq(t.productVariantId, data.id), eq(t.size, s.size)),
+          });
+          let sizeId: string;
+          if (existingSize) {
+            sizeId = existingSize.id;
+          } else {
+            const [created] = await tx.insert(productVariantSizeTable).values({ productVariantId: data.id, size: s.size }).returning();
+            sizeId = created.id;
+          }
+
+          const existingInv = await tx.query.inventoryItemTable.findFirst({
+            where: (t, { and, eq }) => and(eq(t.productVariantId, data.id), eq(t.productVariantSizeId, sizeId)),
+          });
+          if (existingInv) {
+            await tx.update(inventoryItemTable).set({ quantity: s.quantity }).where(eq(inventoryItemTable.id, existingInv.id));
+          } else {
+            await tx.insert(inventoryItemTable).values({ productVariantId: data.id, productVariantSizeId: sizeId, quantity: s.quantity });
+          }
+        }
+      } else if (typeof data.stock === 'number') {
         const existing = await tx.query.inventoryItemTable.findFirst({
           where: (t, { and, eq, isNull }) => and(eq(t.productVariantId, data.id), isNull(t.productVariantSizeId)),
         });

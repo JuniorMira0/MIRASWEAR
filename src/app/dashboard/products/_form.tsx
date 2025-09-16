@@ -238,18 +238,32 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                         toast.error('Salve o produto primeiro para criar/atualizar variantes.');
                         return;
                       }
-                      const body = {
+
+                      const body: any = {
                         id: v.id,
                         name: v.name,
                         color: v.color,
                         priceInCents: v.priceInCents,
                         imageUrl: v.imageUrl,
-                        stock: v.stock ?? 0,
                       };
+
+                      if (v.sizes && v.sizes.length > 0) {
+                        body.sizes = v.sizes.map((s) => ({ size: s.size, quantity: s.quantity }));
+                      } else {
+                        body.stock = v.stock ?? 0;
+                      }
+
                       const res = await fetch('/api/admin/update-variant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                       const json = await res.json();
                       if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao salvar variante');
-                      toast.success('Variante salva');
+
+                      if (v.sizes && v.sizes.length > 0) {
+                        updateVariant(idx, { ...v, sizes: v.sizes.map((s) => ({ ...s })) });
+                        toast.success('Variante salva (tamanhos atualizados)');
+                      } else {
+                        updateVariant(idx, { ...v, stock: body.stock });
+                        toast.success('Variante salva');
+                      }
                     } catch (err) {
                       const msg = (err as any)?.message ?? String(err);
                       toast.error(`Erro ao salvar variante: ${msg}`);
