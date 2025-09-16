@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { inventoryItemTable } from '@/db/schema';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
