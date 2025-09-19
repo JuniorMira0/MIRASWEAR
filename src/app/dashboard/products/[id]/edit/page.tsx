@@ -4,6 +4,7 @@ import ActiveCheckbox from '@/components/common/active-checkbox';
 import BackButton from '@/components/common/back-button';
 import { Header } from '@/components/common/header';
 import { db } from "@/db";
+import { categoryTable } from "@/db/schema";
 
 type Props = { params: { id: string } };
 
@@ -29,6 +30,8 @@ export default async function EditProductPage({ params }: Props) {
 
     await updateProduct({ id, name, slug, description, categoryId, variants });
   };
+
+  const categories = await db.select().from(categoryTable).orderBy(categoryTable.createdAt).limit(200);
 
   return (
     <main className="p-8">
@@ -59,6 +62,7 @@ export default async function EditProductPage({ params }: Props) {
             }),
           },
           onSubmit,
+          categories,
         } as any)}
       />
     </main>

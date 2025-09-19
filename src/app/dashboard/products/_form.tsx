@@ -35,6 +35,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
   const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
   const [createCategoryName, setCreateCategoryName] = useState("");
   const [creatingCategory, setCreatingCategory] = useState(false);
+  const [localCategories, setLocalCategories] = useState<{ id: string; name: string }[]>(categories ?? []);
 
   const [variants, setVariants] = useState<Variant[]>(initial.variants ?? []);
   const [variantSaving, setVariantSaving] = useState<Record<string, boolean>>({});
@@ -71,6 +72,10 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
       if (!res.ok) throw new Error('Falha ao criar categoria');
       const json = await res.json();
       setCategoryId(json.id);
+      setCreateCategoryName('');
+      if (json && json.id && json.name) {
+        setLocalCategories((s) => [...s, { id: json.id, name: json.name }]);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       toast.error(`Erro ao criar categoria: ${msg}`);
@@ -202,15 +207,18 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
           <label className="block">Categoria</label>
           <select name="categoryId" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input">
             <option value="">-- Selecione uma categoria --</option>
-            {categories.map((c) => (
+            {localCategories.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
+            <option value="__other__">Outra...</option>
           </select>
-          
-          <div className="mt-2 flex gap-2">
-            <Input placeholder="Criar nova categoria" value={createCategoryName} onChange={(e) => setCreateCategoryName(e.target.value)} aria-label="Nome nova categoria" />
-            <Button type="button" disabled={creatingCategory} onClick={onCreateCategory}>{creatingCategory ? 'Criando...' : 'Criar'}</Button>
-          </div>
+
+          {categoryId === '__other__' && (
+            <div className="mt-2 flex gap-2">
+              <Input placeholder="Criar nova categoria" value={createCategoryName} onChange={(e) => setCreateCategoryName(e.target.value)} aria-label="Nome nova categoria" />
+              <Button type="button" disabled={creatingCategory} onClick={onCreateCategory}>{creatingCategory ? 'Criando...' : 'Criar'}</Button>
+            </div>
+          )}
         </div>
 
         <div>
