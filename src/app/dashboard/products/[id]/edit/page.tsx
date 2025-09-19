@@ -4,7 +4,6 @@ import ActiveCheckbox from '@/components/common/active-checkbox';
 import BackButton from '@/components/common/back-button';
 import { Header } from '@/components/common/header';
 import { db } from "@/db";
-import { redirect } from "next/navigation";
 
 type Props = { params: { id: string } };
 
@@ -25,9 +24,10 @@ export default async function EditProductPage({ params }: Props) {
     const slug = formData.get('slug') as string;
     const description = formData.get('description') as string;
     const categoryId = (formData.get('categoryId') as string) || undefined;
+    const variantsJson = String(formData.get('variantsJson') || '[]');
+    const variants = JSON.parse(variantsJson);
 
-    await updateProduct({ id, name, slug, description, categoryId });
-    redirect('/dashboard/products');
+    await updateProduct({ id, name, slug, description, categoryId, variants });
   };
 
   return (

@@ -2,7 +2,6 @@ import { createProduct } from "@/actions/products/create";
 import ProductForm from "@/app/dashboard/products/_form";
 import { db } from "@/db";
 import { categoryTable } from "@/db/schema";
-import { redirect } from "next/navigation";
 
 export default async function NewProductPage() {
   const categories = await db.select().from(categoryTable).orderBy(categoryTable.createdAt).limit(200);
@@ -16,8 +15,7 @@ export default async function NewProductPage() {
     const variantsJson = String(formData.get('variantsJson') || '[]');
     const variants = JSON.parse(variantsJson);
 
-    await createProduct({ name, slug, description, categoryId, variants });
-    redirect('/dashboard/products');
+  await createProduct({ name, slug, description, categoryId, variants });
   };
 
   return (

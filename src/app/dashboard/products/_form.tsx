@@ -160,6 +160,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
 
         try {
           await onSubmit(fd);
+          toast.success('Produto salvo com sucesso');
         } catch (err: unknown) {
           try {
             const maybeMsg = (err as any)?.message ?? String(err);
@@ -186,7 +187,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
         </div>
 
         <div>
-          <Label>Slug (sugerido) <span className="text-red-500">*</span></Label>
+          <Label>Slug <span className="text-red-500">*</span></Label>
           <div className="p-2 bg-gray-50 rounded text-sm text-muted-foreground">{slug || '—'}</div>
           <input type="hidden" name="slug" value={slug} />
         </div>
@@ -331,33 +332,6 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
 
                     <div className="mt-3 flex gap-2">
                       <Button type="button" variant="destructive" onClick={() => removeVariant(idx)}>Remover variante</Button>
-                      <Button type="button" disabled={!!variantSaving[key]} onClick={async () => {
-                        try {
-                          if (!v.id) {
-                            toast.error('Salve o produto primeiro para criar/atualizar variantes.');
-                            return;
-                          }
-                          setVariantSaving((s) => ({ ...s, [key]: true }));
-
-                          const body: any = { id: v.id, name: v.name, color: v.color, priceInCents: v.priceInCents, imageUrl: v.imageUrl };
-                          if (v.sizes && v.sizes.length > 0) body.sizes = v.sizes.map((s) => ({ size: s.size, quantity: s.quantity }));
-                          else body.stock = v.stock ?? 0;
-
-                          const res = await fetch('/api/admin/update-variant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                          const json = await res.json();
-                          if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao salvar variante');
-
-                          if (v.sizes && v.sizes.length > 0) updateVariant(idx, { ...v, sizes: v.sizes.map((s) => ({ ...s })) });
-                          else updateVariant(idx, { ...v, stock: body.stock });
-
-                          toast.success('Variante salva');
-                        } catch (err) {
-                          const msg = (err as any)?.message ?? String(err);
-                          toast.error(`Erro ao salvar variante: ${msg}`);
-                        } finally {
-                          setVariantSaving((s) => ({ ...s, [key]: false }));
-                        }
-                      }}>Salvar variante</Button>
                     </div>
                   </div>
                 </div>
