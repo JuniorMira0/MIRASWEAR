@@ -281,7 +281,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
 
                   <div className="mt-4">
                     <Label className="mb-2">Tamanhos</Label>
-                    {v.sizes && v.sizes.length > 0 ? (
+                    {Array.isArray(v.sizes) ? (
                       <div className="space-y-2">
                         <table className="w-full text-sm table-fixed">
                         <thead>
@@ -337,8 +337,8 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                         <Input type="number" value={String(v.stock ?? 0)} onChange={(e) => updateVariant(idx, { ...v, stock: Number(e.target.value) })} />
                         <Button type="button" onClick={() => {
                           const qty = typeof v.stock === 'number' ? v.stock : 0;
-                          updateVariant(idx, { ...v, sizes: [], stock: undefined });
-                          setNewSizeInputs((s) => ({ ...s, [idx]: { size: '', quantity: qty } }));
+                          updateVariant(idx, { ...v, sizes: [{ size: '', quantity: qty }], stock: undefined });
+                          setNewSizeInputs((s) => ({ ...s, [idx]: { size: '', quantity: 0 } }));
                         }}>Usar tamanhos</Button>
                       </div>
                     )}
