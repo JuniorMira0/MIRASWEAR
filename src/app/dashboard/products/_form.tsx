@@ -288,7 +288,7 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                           <tr className="text-left">
                             <th className="w-2/3">Tamanho</th>
                             <th className="w-1/3">Quantidade</th>
-                            <th />
+                            <th className="w-24 text-right">&nbsp;</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -306,11 +306,13 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                                   updateVariant(idx, { ...v, sizes: next });
                                 }} />
                               </td>
-                              <td className="py-2">
-                                <Button type="button" variant="destructive" onClick={() => {
-                                  const next = (v.sizes || []).filter((_, i) => i !== si);
-                                  updateVariant(idx, { ...v, sizes: next });
-                                }}>Remover</Button>
+                              <td className="py-2 text-right">
+                                <div className="flex justify-end">
+                                  <Button type="button" variant="destructive" onClick={() => {
+                                    const next = (v.sizes || []).filter((_, i) => i !== si);
+                                    updateVariant(idx, { ...v, sizes: next });
+                                  }}>Remover</Button>
+                                </div>
                               </td>
                             </tr>
                           ))}
