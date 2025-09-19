@@ -335,6 +335,11 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                       <div className="flex items-center gap-2">
                         <Label>Estoque</Label>
                         <Input type="number" value={String(v.stock ?? 0)} onChange={(e) => updateVariant(idx, { ...v, stock: Number(e.target.value) })} />
+                        <Button type="button" onClick={() => {
+                          const qty = typeof v.stock === 'number' ? v.stock : 0;
+                          updateVariant(idx, { ...v, sizes: [], stock: undefined });
+                          setNewSizeInputs((s) => ({ ...s, [idx]: { size: '', quantity: qty } }));
+                        }}>Usar tamanhos</Button>
                       </div>
                     )}
 
