@@ -317,21 +317,29 @@ export default function ProductForm({ initial = {}, categories = [], onSubmit }:
                             </tr>
                           ))}
                         </tbody>
+                        <tfoot>
+                          <tr className="border-t">
+                            <td className="py-2">
+                              <Input placeholder="Tamanho (ex: M)" value={newSizeInputs[idx]?.size ?? ''} onChange={(e) => setNewSizeInputs((s) => ({ ...s, [idx]: { ...(s[idx] ?? { size: '', quantity: 0 }), size: e.target.value } }))} />
+                            </td>
+                            <td className="py-2">
+                              <Input placeholder="Quantidade" type="number" value={String(newSizeInputs[idx]?.quantity ?? '')} onChange={(e) => setNewSizeInputs((s) => ({ ...s, [idx]: { ...(s[idx] ?? { size: '', quantity: 0 }), quantity: Number(e.target.value) } }))} />
+                            </td>
+                            <td className="py-2 text-right">
+                              <Button type="button" onClick={() => {
+                                const input = newSizeInputs[idx] ?? { size: '', quantity: 0 };
+                                if (!input.size || input.size.trim() === '') {
+                                  toast.error('Informe o tamanho antes de adicionar');
+                                  return;
+                                }
+                                const next = [...(v.sizes || []), { size: input.size, quantity: Number(input.quantity || 0) }];
+                                updateVariant(idx, { ...v, sizes: next });
+                                setNewSizeInputs((s) => ({ ...s, [idx]: { size: '', quantity: 0 } }));
+                              }}>Adicionar tamanho</Button>
+                            </td>
+                          </tr>
+                        </tfoot>
                       </table>
-                        <div className="flex gap-2">
-                          <Input placeholder="Tamanho (ex: M)" value={newSizeInputs[idx]?.size ?? ''} onChange={(e) => setNewSizeInputs((s) => ({ ...s, [idx]: { ...(s[idx] ?? { size: '', quantity: 0 }), size: e.target.value } }))} />
-                          <Input placeholder="Quantidade" type="number" value={String(newSizeInputs[idx]?.quantity ?? '')} onChange={(e) => setNewSizeInputs((s) => ({ ...s, [idx]: { ...(s[idx] ?? { size: '', quantity: 0 }), quantity: Number(e.target.value) } }))} />
-                          <Button type="button" onClick={() => {
-                            const input = newSizeInputs[idx] ?? { size: '', quantity: 0 };
-                            if (!input.size || input.size.trim() === '') {
-                              toast.error('Informe o tamanho antes de adicionar');
-                              return;
-                            }
-                            const next = [...(v.sizes || []), { size: input.size, quantity: Number(input.quantity || 0) }];
-                            updateVariant(idx, { ...v, sizes: next });
-                            setNewSizeInputs((s) => ({ ...s, [idx]: { size: '', quantity: 0 } }));
-                          }}>Adicionar tamanho</Button>
-                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
