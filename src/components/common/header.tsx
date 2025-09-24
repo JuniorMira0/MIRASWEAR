@@ -14,6 +14,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -36,6 +37,17 @@ export const Header = ({ categories = [] }: HeaderProps) => {
   const isLogged = !!session?.user;
   const pathname = usePathname();
   useCartMigration();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const toggleSearch = () => setSearchOpen((v) => !v);
+
+  useEffect(() => {
+    function onEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') setSearchOpen(false);
+    }
+    document.addEventListener('keydown', onEsc);
+    return () => document.removeEventListener('keydown', onEsc);
+  }, []);
 
   return (
     <header className="bg-background relative z-10 w-full">
@@ -70,21 +82,21 @@ export const Header = ({ categories = [] }: HeaderProps) => {
           </Link>
         </div>
         <div className="flex min-w-[120px] items-center justify-end gap-3">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="hidden md:inline-flex">
-                <SearchIcon className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Pesquisar produtos</SheetTitle>
-              </SheetHeader>
-              <div className="mt-4">
-                <SearchBox />
+          {/* Desktop: inline expand-on-click search */}
+          <div className="hidden md:flex items-center">
+            <button
+              aria-label="Abrir busca"
+              onClick={toggleSearch}
+              className="inline-flex items-center justify-center rounded-md p-2 border border-input bg-transparent hover:bg-accent/5"
+            >
+              <SearchIcon className="h-5 w-5" />
+            </button>
+            <div className={`origin-top-right absolute right-0 mt-12 transition-all duration-200 ${searchOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+              <div className="w-[360px] bg-background p-3 rounded shadow">
+                <SearchBox inline visible={searchOpen} onClose={() => setSearchOpen(false)} />
               </div>
-            </SheetContent>
-          </Sheet>
+            </div>
+          </div>
           <div className="hidden md:inline-flex">
             <Cart />
           </div>
