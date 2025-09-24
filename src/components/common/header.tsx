@@ -26,6 +26,7 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { Cart } from "./cart";
+import SearchBox from "./search-box";
 interface HeaderProps {
   categories?: { id: string; name: string; slug: string }[];
 }
@@ -69,13 +70,21 @@ export const Header = ({ categories = [] }: HeaderProps) => {
           </Link>
         </div>
         <div className="flex min-w-[120px] items-center justify-end gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            className="hidden md:inline-flex"
-          >
-            <SearchIcon className="h-5 w-5" />
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="hidden md:inline-flex">
+                <SearchIcon className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Pesquisar produtos</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4">
+                <SearchBox />
+              </div>
+            </SheetContent>
+          </Sheet>
           <div className="hidden md:inline-flex">
             <Cart />
           </div>
@@ -222,3 +231,4 @@ export const Header = ({ categories = [] }: HeaderProps) => {
     </header>
   );
 };
+
