@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -24,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
@@ -120,7 +120,7 @@ const SignInForm = ({ redirect }: { redirect?: string }) => {
               />
             </CardContent>
             <CardFooter className="flex flex-col gap-3 pt-2">
-              <Button type="submit" className="w-full font-semibold text-base py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition">Entrar</Button>
+              <LoadingButton isLoading={form.formState.isSubmitting} type="submit" className="w-full font-semibold text-base py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition">Entrar</LoadingButton>
             </CardFooter>
           </form>
         </Form>
