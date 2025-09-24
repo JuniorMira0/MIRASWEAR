@@ -8,6 +8,8 @@ import { useEffect, useRef, useState } from "react";
 type Result = {
   id: string;
   name: string;
+  productName?: string | null;
+  variantName?: string | null;
   productSlug?: string;
   variantSlug?: string;
   imageUrl?: string | null;
@@ -135,14 +137,16 @@ export default function SearchBox({
                   <Link href={href} className="group flex items-center gap-3 p-2 rounded hover:bg-gray-50">
                     <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded bg-gray-100">
                       {r.imageUrl ? (
-                        <img src={r.imageUrl} alt={r.name} className="h-full w-full object-cover" />
+                        <img src={r.imageUrl} alt={r.variantName ?? r.productName ?? r.name} className="h-full w-full object-cover" />
                       ) : null}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="truncate text-sm font-medium">{r.name}</div>
-                      {typeof r.priceInCents === "number" && (
+                      <div className="truncate text-sm font-medium">{r.productName ?? r.variantName ?? r.name}</div>
+                      {r.variantName ? (
+                        <div className="text-xs text-muted-foreground">{r.variantName}</div>
+                      ) : typeof r.priceInCents === "number" ? (
                         <div className="text-xs text-muted-foreground">{formatCentsToBRL(r.priceInCents)}</div>
-                      )}
+                      ) : null}
                     </div>
                   </Link>
                 </li>
