@@ -120,7 +120,8 @@ const SignInForm = ({ redirect }: { redirect?: string }) => {
               />
             </CardContent>
             <CardFooter className="flex flex-col gap-3 pt-2">
-              <LoadingButton isLoading={form.formState.isSubmitting} type="submit" className="w-full font-semibold text-base py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition">Entrar</LoadingButton>
+              <LoadingButton isLoading={ form.formState.isSubmitting }
+              loadingText='Entrando...'  type="submit" className="w-full font-semibold text-base py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition">Entrar</LoadingButton>
             </CardFooter>
           </form>
         </Form>
