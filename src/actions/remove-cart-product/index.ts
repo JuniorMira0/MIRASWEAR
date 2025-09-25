@@ -1,21 +1,19 @@
-"use server";
+'use server';
 
-import { eq } from "drizzle-orm";
-import z from "zod";
+import { eq } from 'drizzle-orm';
+import z from 'zod';
 
-import { db } from "@/db";
-import { cartItemTable } from "@/db/schema";
-import { requireAuth } from "@/lib/auth-middleware";
+import { db } from '@/db';
+import { cartItemTable } from '@/db/schema';
+import { requireAuth } from '@/lib/auth-middleware';
 
-import { removeProductFromCartSchema } from "./schema";
+import { removeProductFromCartSchema } from './schema';
 
 /**
  * Action para remover um produto do carrinho de compras
  * Esta função é executada no servidor (server action)
  */
-export const removeProductFromCart = async (
-  data: z.infer<typeof removeProductFromCartSchema>,
-) => {
+export const removeProductFromCart = async (data: z.infer<typeof removeProductFromCartSchema>) => {
   // Valida os dados de entrada usando o schema Zod
   removeProductFromCartSchema.parse(data);
 
@@ -33,13 +31,13 @@ export const removeProductFromCart = async (
 
   // Verifica se o item do carrinho existe
   if (!cartItem) {
-    throw new Error("Cart item not found");
+    throw new Error('Cart item not found');
   }
 
   // Verifica se o carrinho pertence ao usuário autenticado (segurança)
   const cartDoesNotBelongToUser = cartItem.cart.userId !== userId;
   if (cartDoesNotBelongToUser) {
-    throw new Error("Unauthorized: Cart does not belong to user");
+    throw new Error('Unauthorized: Cart does not belong to user');
   }
 
   // Remove o item do carrinho do banco de dados

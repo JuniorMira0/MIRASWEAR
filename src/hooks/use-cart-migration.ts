@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { migrateLocalCartToServer } from "@/actions/migrate-local-cart";
-import { useCartStore } from "@/hooks/cart-store";
-import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
-import { authClient } from "@/lib/auth-client";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
-import { toast } from "sonner";
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
+
+import { migrateLocalCartToServer } from '@/actions/migrate-local-cart';
+import { useCartStore } from '@/hooks/cart-store';
+import { getUseCartQueryKey } from '@/hooks/queries/use-cart';
+import { authClient } from '@/lib/auth-client';
 
 export const useCartMigration = () => {
   const { data: session } = authClient.useSession();
@@ -22,7 +23,7 @@ export const useCartMigration = () => {
       (async () => {
         try {
           const result = await migrateLocalCartToServer(
-            state.items.map((i) => ({
+            state.items.map(i => ({
               productVariantId: i.productVariantId,
               quantity: i.quantity,
               productName: i.productName,
@@ -36,14 +37,14 @@ export const useCartMigration = () => {
           if (result.ok) {
             clear();
             queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
-            toast.success("Carrinho sincronizado com sua conta!");
+            toast.success('Carrinho sincronizado com sua conta!');
           } else {
-            console.error("Falha ao migrar carrinho:", result.error);
-            toast.error("Erro ao sincronizar carrinho");
+            console.error('Falha ao migrar carrinho:', result.error);
+            toast.error('Erro ao sincronizar carrinho');
           }
         } catch (e) {
-          console.error("Erro ao migrar carrinho", e);
-          toast.error("Erro ao sincronizar carrinho");
+          console.error('Erro ao migrar carrinho', e);
+          toast.error('Erro ao sincronizar carrinho');
         }
       })();
     }

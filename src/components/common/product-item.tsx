@@ -1,9 +1,9 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 
-import { productTable, productVariantTable } from "@/db/schema";
-import { formatCentsToBRL } from "@/helpers/money";
-import { cn } from "@/lib/utils";
+import { productTable, productVariantTable } from '@/db/schema';
+import { formatCentsToBRL } from '@/helpers/money';
+import { cn } from '@/lib/utils';
 
 interface ProductItemProps {
   product: typeof productTable.$inferSelect & {
@@ -17,15 +17,12 @@ interface ProductItemProps {
 
 const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
   const firstVariant = product.variants[0];
-  const allOutOfStock = product.variants.every((v) => {
-    if (typeof v.stock === "number") {
+  const allOutOfStock = product.variants.every(v => {
+    if (typeof v.stock === 'number') {
       return v.stock <= 0;
     }
     if (Array.isArray(v.inventoryItems)) {
-      return (
-        v.inventoryItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0) <=
-        0
-      );
+      return v.inventoryItems.reduce((sum, item) => sum + (item.quantity ?? 0), 0) <= 0;
     }
     return false;
   });
@@ -38,7 +35,7 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
           sizes="100vw"
           height={0}
           width={0}
-          className="h-[170px] w-full object-cover rounded-xl md:h-auto"
+          className="h-[170px] w-full rounded-xl object-cover md:h-auto"
         />
         {allOutOfStock && (
           <span className="bg-destructive absolute top-2 right-2 z-10 rounded px-2 py-1 text-xs font-bold text-white shadow">
@@ -48,15 +45,13 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
       </div>
       <div
         className={cn(
-          "flex w-full max-w-[160px] flex-col gap-1 md:max-w-[180px]",
+          'flex w-full max-w-[160px] flex-col gap-1 md:max-w-[180px]',
           textContainerClassName,
         )}
         style={{ minWidth: 0 }}
       >
         <p className="truncate text-sm font-medium">{product.name}</p>
-        <p className="text-muted-foreground truncate text-xs font-medium">
-          {product.description}
-        </p>
+        <p className="text-muted-foreground truncate text-xs font-medium">{product.description}</p>
         <p className="truncate text-sm font-semibold">
           {formatCentsToBRL(firstVariant.priceInCents)}
         </p>

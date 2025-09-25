@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db } from '@/db';
 
 export const getProductVariantBySlug = async (slug: string) => {
   return await db.query.productVariantTable.findFirst({
@@ -24,12 +24,10 @@ export const getProductVariantBySlug = async (slug: string) => {
   });
 };
 
-export const getLikelyProducts = async (
-  categoryId: string,
-  excludeProductId: string,
-) => {
+export const getLikelyProducts = async (categoryId: string, excludeProductId: string) => {
   return await db.query.productTable.findMany({
-    where: (t, { and, eq, ne }) => and(eq(t.categoryId, categoryId), ne(t.id, excludeProductId), eq(t.isActive, true)),
+    where: (t, { and, eq, ne }) =>
+      and(eq(t.categoryId, categoryId), ne(t.id, excludeProductId), eq(t.isActive, true)),
     with: {
       variants: {
         where: (v, { eq }) => eq(v.isActive, true),

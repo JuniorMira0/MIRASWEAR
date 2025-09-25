@@ -1,19 +1,15 @@
-import { getCart } from "@/actions/get-cart";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { addProductToCart } from "@/actions/add-cart-product";
+import { addProductToCart } from '@/actions/add-cart-product';
+import { getCart } from '@/actions/get-cart';
 
-import { getUseCartQueryKey } from "../queries/use-cart";
+import { getUseCartQueryKey } from '../queries/use-cart';
 
 export const getIncreaseCartProductMutationKey = (
   productVariantId: string,
   productVariantSizeId?: string | null,
 ) =>
-  [
-    "increase-cart-product-quantity",
-    productVariantId,
-    productVariantSizeId ?? "no-size",
-  ] as const;
+  ['increase-cart-product-quantity', productVariantId, productVariantSizeId ?? 'no-size'] as const;
 
 export const useIncreaseCartProduct = (
   productVariantId: string,
@@ -21,10 +17,7 @@ export const useIncreaseCartProduct = (
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getIncreaseCartProductMutationKey(
-      productVariantId,
-      productVariantSizeId,
-    ),
+    mutationKey: getIncreaseCartProductMutationKey(productVariantId, productVariantSizeId),
     mutationFn: () =>
       addProductToCart({
         productVariantId,
@@ -34,21 +27,16 @@ export const useIncreaseCartProduct = (
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: getUseCartQueryKey() });
       const prev =
-        queryClient.getQueryData<Awaited<ReturnType<typeof getCart>>>(
-          getUseCartQueryKey(),
-        );
+        queryClient.getQueryData<Awaited<ReturnType<typeof getCart>>>(getUseCartQueryKey());
       if (prev) {
-        const existing = prev.items.find(
-          (i) => i.productVariantId === productVariantId,
-        );
+        const existing = prev.items.find(i => i.productVariantId === productVariantId);
         if (existing) {
           const optimistic = {
             ...prev,
-            items: prev.items.map((i) =>
+            items: prev.items.map(i =>
               i.id === existing.id ? { ...i, quantity: i.quantity + 1 } : i,
             ),
-            totalPriceInCents:
-              prev.totalPriceInCents + existing.productVariant.priceInCents,
+            totalPriceInCents: prev.totalPriceInCents + existing.productVariant.priceInCents,
           } as typeof prev;
           queryClient.setQueryData(getUseCartQueryKey(), optimistic);
         }

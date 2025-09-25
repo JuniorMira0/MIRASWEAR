@@ -1,9 +1,9 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
-import * as schema from "@/db/schema";
+import * as schema from '@/db/schema';
 
 // Criando conexão específica para o Better-Auth
 const authPool = new Pool({
@@ -16,7 +16,7 @@ const authDb = drizzle(authPool, {
 
 export const auth = betterAuth({
   database: drizzleAdapter(authDb, {
-    provider: "pg",
+    provider: 'pg',
     schema: {
       user: schema.userTable,
       session: schema.sessionTable,
@@ -27,7 +27,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  trustedOrigins: ["http://localhost:3000", "https://miraswear.vercel.app"],
+  trustedOrigins: ['http://localhost:3000', 'https://miraswear.vercel.app'],
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
 });

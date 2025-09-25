@@ -1,9 +1,9 @@
+import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 import { db } from '@/db';
 import { userTable } from '@/db/schema';
 import { requireAuth } from '@/lib/auth-middleware';
-import { eq } from 'drizzle-orm';
 
 export async function GET() {
   try {

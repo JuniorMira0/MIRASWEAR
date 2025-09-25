@@ -1,19 +1,18 @@
-"use client";
+'use client';
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { VariantProps } from 'class-variance-authority';
+import { toast } from 'sonner';
 
-import { addProductToCart } from "@/actions/add-cart-product";
-import { getProductVariantDetails } from "@/actions/get-product-variant-details";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { useCartStore } from "@/hooks/cart-store";
-import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
-import { authClient } from "@/lib/auth-client";
-
-import { VariantProps } from "class-variance-authority";
+import { addProductToCart } from '@/actions/add-cart-product';
+import { getProductVariantDetails } from '@/actions/get-product-variant-details';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { useCartStore } from '@/hooks/cart-store';
+import { getUseCartQueryKey } from '@/hooks/queries/use-cart';
+import { authClient } from '@/lib/auth-client';
 
 interface AddToCartButtonProps
-  extends VariantProps<typeof import("@/components/ui/button").buttonVariants> {
+  extends VariantProps<typeof import('@/components/ui/button').buttonVariants> {
   productVariantId: string;
   quantity: number;
   productVariantSizeId?: string | null;
@@ -30,8 +29,8 @@ const AddToCartButton = ({
   sizeLabel,
   disabled,
   buttonText,
-  variant = "default",
-  size = "lg",
+  variant = 'default',
+  size = 'lg',
   className,
 }: AddToCartButtonProps) => {
   const queryClient = useQueryClient();
@@ -40,10 +39,10 @@ const AddToCartButton = ({
 
   const { mutate, isPending } = useMutation({
     mutationKey: [
-      "addProductToCart",
+      'addProductToCart',
       productVariantId,
       quantity,
-      productVariantSizeId ?? "no-size",
+      productVariantSizeId ?? 'no-size',
     ],
     mutationFn: () =>
       addProductToCart({
@@ -54,11 +53,11 @@ const AddToCartButton = ({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
-      toast.success("Produto adicionado à sacola!");
+      toast.success('Produto adicionado à sacola!');
     },
-    onError: (error) => {
+    onError: error => {
       const message = error instanceof Error ? error.message : String(error);
-      toast.error(message || "Erro ao adicionar produto à sacola");
+      toast.error(message || 'Erro ao adicionar produto à sacola');
       console.error(error);
     },
   });
@@ -79,14 +78,14 @@ const AddToCartButton = ({
           sizeLabel: sizeLabel ?? null,
         });
         setCartOpen(true);
-        toast.success("Produto adicionado à sacola!");
+        toast.success('Produto adicionado à sacola!');
       } catch (error) {
         addGuestItem(productVariantId, quantity, {
           productVariantSizeId: productVariantSizeId ?? null,
           sizeLabel: sizeLabel ?? null,
         });
         setCartOpen(true);
-        toast.success("Produto adicionado à sacola!");
+        toast.success('Produto adicionado à sacola!');
       }
     }
   };

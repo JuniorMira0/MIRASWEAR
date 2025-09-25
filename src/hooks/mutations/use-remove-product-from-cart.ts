@@ -1,12 +1,14 @@
-import { getCart } from "@/actions/get-cart";
-import { removeProductFromCart } from "@/actions/remove-cart-product";
-import { TOAST_MESSAGES } from "@/constants/toast-messages";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { getUseCartQueryKey } from "../queries/use-cart";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+import { getCart } from '@/actions/get-cart';
+import { removeProductFromCart } from '@/actions/remove-cart-product';
+import { TOAST_MESSAGES } from '@/constants/toast-messages';
+
+import { getUseCartQueryKey } from '../queries/use-cart';
 
 export const getRemoveCartProductMutationKey = (cartItemId: string) =>
-  ["remove-cart-product", cartItemId] as const;
+  ['remove-cart-product', cartItemId] as const;
 
 export const useRemoveProductFromCart = (cartItemId: string) => {
   const queryClient = useQueryClient();
@@ -17,19 +19,16 @@ export const useRemoveProductFromCart = (cartItemId: string) => {
       await queryClient.cancelQueries({ queryKey: getUseCartQueryKey() });
 
       const prev =
-        queryClient.getQueryData<Awaited<ReturnType<typeof getCart>>>(
-          getUseCartQueryKey(),
-        );
+        queryClient.getQueryData<Awaited<ReturnType<typeof getCart>>>(getUseCartQueryKey());
 
       if (prev) {
-        const removed = prev.items.find((i) => i.id === cartItemId);
+        const removed = prev.items.find(i => i.id === cartItemId);
         if (removed) {
           const optimistic = {
             ...prev,
-            items: prev.items.filter((i) => i.id !== cartItemId),
+            items: prev.items.filter(i => i.id !== cartItemId),
             totalPriceInCents:
-              prev.totalPriceInCents -
-              removed.productVariant.priceInCents * removed.quantity,
+              prev.totalPriceInCents - removed.productVariant.priceInCents * removed.quantity,
           } as typeof prev;
           queryClient.setQueryData(getUseCartQueryKey(), optimistic);
         }

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { Info, MinusIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { Info, MinusIcon, PlusIcon } from 'lucide-react';
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-import AddToCartButton from "./add-to-cart-button";
+import AddToCartButton from './add-to-cart-button';
 
 interface ProductActionsProps {
   productVariantId: string;
@@ -14,31 +14,25 @@ interface ProductActionsProps {
   variantStock?: number;
 }
 
-const ProductActions = ({
-  productVariantId,
-  sizes,
-  variantStock,
-}: ProductActionsProps) => {
+const ProductActions = ({ productVariantId, sizes, variantStock }: ProductActionsProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
-  const [selectedSizeLabel, setSelectedSizeLabel] = useState<string | null>(
-    null,
-  );
+  const [selectedSizeLabel, setSelectedSizeLabel] = useState<string | null>(null);
 
   const availableStock = (() => {
     if (sizes && sizes.length > 0) {
-      const s = sizes.find((x) => x.id === selectedSizeId);
+      const s = sizes.find(x => x.id === selectedSizeId);
       return s?.stock ?? 0;
     }
     return variantStock ?? 0;
   })();
 
   const handleDecrement = () => {
-    setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
+    setQuantity(prev => (prev > 1 ? prev - 1 : prev));
   };
 
   const handleIncrement = () => {
-    setQuantity((prev) => {
+    setQuantity(prev => {
       const next = prev + 1;
       if (availableStock && next > availableStock) return prev;
       return next;
@@ -46,9 +40,7 @@ const ProductActions = ({
   };
 
   const allOutOfStock =
-    sizes && sizes.length > 0
-      ? sizes.every((s) => (s.stock ?? 0) <= 0)
-      : (variantStock ?? 0) <= 0;
+    sizes && sizes.length > 0 ? sizes.every(s => (s.stock ?? 0) <= 0) : (variantStock ?? 0) <= 0;
 
   const sortedSizes = sizes
     ? [...sizes].sort((a, b) => {
@@ -70,17 +62,17 @@ const ProductActions = ({
         <div className="space-y-2.5">
           <h3 className="font-medium">Selecionar tamanho</h3>
           <div className="grid grid-cols-4 gap-2 md:grid-cols-6 md:gap-2.5">
-            {sortedSizes.map((s) => (
+            {sortedSizes.map(s => (
               <Button
                 key={s.id}
                 type="button"
                 variant="outline"
                 size="sm"
                 className={cn(
-                  "h-8 w-10 rounded-md px-0 text-sm md:h-9 md:w-12",
+                  'h-8 w-10 rounded-md px-0 text-sm md:h-9 md:w-12',
                   selectedSizeId === s.id
-                    ? "ring-primary border-primary font-semibold ring-2"
-                    : "opacity-90",
+                    ? 'ring-primary border-primary font-semibold ring-2'
+                    : 'opacity-90',
                 )}
                 onClick={() => {
                   if ((s.stock ?? 0) <= 0) return;
@@ -97,9 +89,7 @@ const ProductActions = ({
             ))}
           </div>
           {!selectedSizeId && (
-            <p className="text-muted-foreground text-[11px]">
-              Selecione um tamanho para continuar
-            </p>
+            <p className="text-muted-foreground text-[11px]">Selecione um tamanho para continuar</p>
           )}
         </div>
       )}
@@ -114,14 +104,12 @@ const ProductActions = ({
             <PlusIcon />
           </Button>
         </div>
-        {(sizes?.length ? !!selectedSizeId : true) &&
-          availableStock > 0 &&
-          availableStock <= 3 && (
-            <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-              <Info size={14} aria-label="informação" />
-              Últimas unidades! Não deixe pra depois
-            </span>
-          )}
+        {(sizes?.length ? !!selectedSizeId : true) && availableStock > 0 && availableStock <= 3 && (
+          <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+            <Info size={14} aria-label="informação" />
+            Últimas unidades! Não deixe pra depois
+          </span>
+        )}
 
         <div className="pt-0.5">
           <AddToCartButton

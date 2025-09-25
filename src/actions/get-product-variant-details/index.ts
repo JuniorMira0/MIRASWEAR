@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
+import { db } from '@/db';
 
 export const getProductVariantDetails = async (productVariantId: string) => {
   const productVariant = await db.query.productVariantTable.findFirst({
@@ -11,7 +11,7 @@ export const getProductVariantDetails = async (productVariantId: string) => {
   });
 
   if (!productVariant) {
-    throw new Error("Product variant not found");
+    throw new Error('Product variant not found');
   }
 
   return {

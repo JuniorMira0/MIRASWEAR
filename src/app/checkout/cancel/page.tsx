@@ -1,7 +1,9 @@
-import { db } from "@/db";
-import { reservationTable } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
-import CancelClient from "./client";
+import { desc, eq } from 'drizzle-orm';
+
+import { db } from '@/db';
+import { reservationTable } from '@/db/schema';
+
+import CancelClient from './client';
 
 type Props = { searchParams?: { orderId?: string } };
 

@@ -1,23 +1,24 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
+import { z } from 'zod';
+
+import { db } from '@/db';
 import {
   inventoryItemTable,
   productTable,
   productVariantSizeTable,
-  productVariantTable
-} from "@/db/schema";
-import { requireAdmin } from "@/lib/auth-middleware";
-import { logger } from "@/lib/logger";
-import { z } from "zod";
+  productVariantTable,
+} from '@/db/schema';
+import { requireAdmin } from '@/lib/auth-middleware';
+import { logger } from '@/lib/logger';
 
 function sanitizeSlug(input: string) {
   return input
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 const VariantSizeSchema = z.object({
@@ -47,7 +48,7 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
   try {
     CreateProductSchema.parse(data);
   } catch (err) {
-    logger.error("createProduct validation failed:", err, { data });
+    logger.error('createProduct validation failed:', err, { data });
     throw err;
   }
 
@@ -55,10 +56,15 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
 
   if (data.categoryId) {
     const catId = data.categoryId as string;
-    const cat = await db.query.categoryTable.findFirst({ where: (t, { eq }) => eq(t.id, catId) });
+    const cat = await db.query.categoryTable.findFirst({
+      where: (t, { eq }) => eq(t.id, catId),
+    });
     if (!cat) {
-      logger.error("createProduct: category not found", { categoryId: catId, data });
-      throw new Error("Categoria não encontrada");
+      logger.error('createProduct: category not found', {
+        categoryId: catId,
+        data,
+      });
+      throw new Error('Categoria não encontrada');
     }
   }
 
@@ -66,36 +72,49 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
   let productSlug = baseProductSlug;
   let attempt = 1;
   while (true) {
-    const existing = await db.query.productTable.findFirst({ where: (t, { eq }) => eq(t.slug, productSlug) });
+    const existing = await db.query.productTable.findFirst({
+      where: (t, { eq }) => eq(t.slug, productSlug),
+    });
     if (!existing) break;
     productSlug = `${baseProductSlug}-${attempt++}`;
   }
 
   try {
-    const createdProduct = await db.transaction(async (tx) => {
+    const createdProduct = await db.transaction(async tx => {
       const insertData: Record<string, any> = {
         name: data.name,
         slug: productSlug,
-        description: data.description ?? "",
+        description: data.description ?? '',
       };
       if (data.categoryId) insertData.categoryId = data.categoryId;
 
-      const [prod] = await tx.insert(productTable).values(insertData as any).returning();
+      const [prod] = await tx
+        .insert(productTable)
+        .values(insertData as any)
+        .returning();
       if (!prod) {
-        logger.error("createProduct: failed to insert product", { insertData });
-        throw new Error("Failed to create product");
+        logger.error('createProduct: failed to insert product', { insertData });
+        throw new Error('Failed to create product');
       }
 
       // ensure variant slugs are unique within this product
       const usedVariantSlugs = new Set<string>();
       for (const v of data.variants) {
-        const colorPart = (v.color || "").toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").trim();
-        const baseVariantSlugCandidate = colorPart ? `${productSlug}-${colorPart}` : `${productSlug}-${v.name}`;
+        const colorPart = (v.color || '')
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .trim();
+        const baseVariantSlugCandidate = colorPart
+          ? `${productSlug}-${colorPart}`
+          : `${productSlug}-${v.name}`;
         const baseVariantSlug = sanitizeSlug(baseVariantSlugCandidate);
         let variantSlug = baseVariantSlug;
         let vAttempt = 1;
         while (true) {
-          const exists = await tx.query.productVariantTable.findFirst({ where: (t, { eq }) => eq(t.slug, variantSlug) });
+          const exists = await tx.query.productVariantTable.findFirst({
+            where: (t, { eq }) => eq(t.slug, variantSlug),
+          });
           if (!exists && !usedVariantSlugs.has(variantSlug)) break;
           variantSlug = `${baseVariantSlug}-${vAttempt++}`;
         }
@@ -105,27 +124,38 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
           productId: prod.id,
           name: v.name,
           slug: variantSlug,
-          color: v.color ?? "",
+          color: v.color ?? '',
           priceInCents: v.priceInCents,
-          imageUrl: v.imageUrl ?? "",
+          imageUrl: v.imageUrl ?? '',
         };
 
-        const [createdVariant] = await tx.insert(productVariantTable).values(variantInsert as any).returning();
+        const [createdVariant] = await tx
+          .insert(productVariantTable)
+          .values(variantInsert as any)
+          .returning();
         if (!createdVariant) {
-          logger.error("createProduct: failed to insert variant", { variantInsert });
-          throw new Error("Failed to create product variant");
+          logger.error('createProduct: failed to insert variant', {
+            variantInsert,
+          });
+          throw new Error('Failed to create product variant');
         }
 
         if (v.sizes && v.sizes.length > 0) {
           for (const s of v.sizes) {
-            const [createdSize] = await tx.insert(productVariantSizeTable).values({
-              productVariantId: createdVariant.id,
-              size: s.size,
-            } as any).returning();
+            const [createdSize] = await tx
+              .insert(productVariantSizeTable)
+              .values({
+                productVariantId: createdVariant.id,
+                size: s.size,
+              } as any)
+              .returning();
 
             if (!createdSize) {
-              logger.error("createProduct: failed to insert variant size", { productVariantId: createdVariant.id, size: s.size });
-              throw new Error("Failed to create variant size");
+              logger.error('createProduct: failed to insert variant size', {
+                productVariantId: createdVariant.id,
+                size: s.size,
+              });
+              throw new Error('Failed to create variant size');
             }
 
             await tx.insert(inventoryItemTable).values({
@@ -148,12 +178,12 @@ export async function createProduct(data: z.infer<typeof CreateProductSchema>) {
 
     return createdProduct;
   } catch (err: unknown) {
-    logger.error("createProduct failed (final catch):", err, {
+    logger.error('createProduct failed (final catch):', err, {
       product: { name: data.name, slug: data.slug },
       variants: data.variants,
       stack: err instanceof Error ? err.stack : undefined,
     });
     if (err instanceof Error) throw new Error(`Erro ao criar produto: ${err.message}`);
-    throw new Error("Erro ao criar produto: motivo desconhecido");
+    throw new Error('Erro ao criar produto: motivo desconhecido');
   }
 }

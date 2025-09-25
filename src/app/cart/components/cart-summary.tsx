@@ -1,9 +1,9 @@
-import Image from "next/image";
+import Image from 'next/image';
+import Link from 'next/link';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { formatCentsToBRL } from "@/helpers/money";
-import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { formatCentsToBRL } from '@/helpers/money';
 
 interface CartSummaryProps {
   subtotalInCents: number;
@@ -32,7 +32,7 @@ const CartSummary = ({
   return (
     <Card>
       <CardHeader className="flex items-start justify-between">
-        <CardTitle>{title ?? "Seu pedido"}</CardTitle>
+        <CardTitle>{title ?? 'Seu pedido'}</CardTitle>
         {editUrl ? (
           <div className="pt-1">
             <Link href={editUrl} className="text-muted-foreground text-sm">
@@ -68,10 +68,7 @@ const CartSummary = ({
         {showProducts !== false && (
           <div className="space-y-4">
             {products.map((product, idx) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between"
-              >
+              <div key={product.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Image
                     src={product.imageUrl}
@@ -83,14 +80,11 @@ const CartSummary = ({
                   <div className="flex flex-col">
                     <p className="text-sm font-medium">{product.name}</p>
                     <p className="text-muted-foreground text-xs">
-                      {product.variantName}{" "}
-                      {product.sizeLabel ? `| ${product.sizeLabel}` : ""}
+                      {product.variantName} {product.sizeLabel ? `| ${product.sizeLabel}` : ''}
                     </p>
                   </div>
                 </div>
-                <div className="text-sm font-bold">
-                  {formatCentsToBRL(product.priceInCents)}
-                </div>
+                <div className="text-sm font-bold">{formatCentsToBRL(product.priceInCents)}</div>
               </div>
             ))}
           </div>

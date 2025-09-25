@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { finishOrder } from "@/actions/finish-order";
+import { finishOrder } from '@/actions/finish-order';
 
-import { getUseCartQueryKey } from "../queries/use-cart";
+import { getUseCartQueryKey } from '../queries/use-cart';
 
-export const getUseFinishOrderMutationKey = () => ["finish-order"];
+export const getUseFinishOrderMutationKey = () => ['finish-order'];
 
 export const useFinishOrder = () => {
   const queryClient = useQueryClient();
@@ -12,7 +12,7 @@ export const useFinishOrder = () => {
     mutationKey: getUseFinishOrderMutationKey(),
     mutationFn: async () => {
       const res = await finishOrder();
-      if (res && typeof res === "object" && "error" in res) {
+      if (res && typeof res === 'object' && 'error' in res) {
         throw new Error(JSON.stringify((res as any).error));
       }
       return res;

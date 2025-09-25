@@ -1,23 +1,25 @@
-"use client";
+'use client';
 
-import { useCartMigration } from "@/hooks/use-cart-migration";
-import { authClient } from "@/lib/auth-client";
 import {
   HomeIcon,
   LogInIcon,
   LogOutIcon,
   MenuIcon,
   PackageIcon,
-  SearchIcon,
+  Search,
   UserIcon,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+
+import { useCartMigration } from '@/hooks/use-cart-migration';
+import { authClient } from '@/lib/auth-client';
+
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
+import { Separator } from '../ui/separator';
 import {
   Sheet,
   SheetContent,
@@ -25,9 +27,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "../ui/sheet";
-import { Cart } from "./cart";
-import SearchBox from "./search-box";
+} from '../ui/sheet';
+import { Cart } from './cart';
 interface HeaderProps {
   categories?: { id: string; name: string; slug: string }[];
 }
@@ -37,17 +38,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
   const isLogged = !!session?.user;
   const pathname = usePathname();
   useCartMigration();
-  const [searchOpen, setSearchOpen] = useState(false);
-
-  const toggleSearch = () => setSearchOpen((v) => !v);
-
-  useEffect(() => {
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === 'Escape') setSearchOpen(false);
-    }
-    document.addEventListener('keydown', onEsc);
-    return () => document.removeEventListener('keydown', onEsc);
-  }, []);
+  const [query, setQuery] = useState('');
 
   return (
     <header className="bg-background relative z-10 w-full">
@@ -55,17 +46,9 @@ export const Header = ({ categories = [] }: HeaderProps) => {
         <div className="hidden min-w-[180px] items-center gap-2 md:flex">
           <UserIcon className="text-muted-foreground h-5 w-5" />
           <span className="text-sm font-medium">
-            Olá,{" "}
-            <Link
-              href={
-                isLogged
-                  ? "/profile"
-                  : "/authentication"
-              }
-            >
-              {isLogged
-                ? (session.user.name?.split(" ")?.[0] ?? "")
-                : "Faça Login"}
+            Olá,{' '}
+            <Link href={isLogged ? '/profile' : '/authentication'}>
+              {isLogged ? (session.user.name?.split(' ')?.[0] ?? '') : 'Faça Login'}
             </Link>
             !
           </span>
@@ -82,20 +65,16 @@ export const Header = ({ categories = [] }: HeaderProps) => {
           </Link>
         </div>
         <div className="flex min-w-[120px] items-center justify-end gap-3">
-          {/* Desktop: inline expand-on-click search */}
-          <div className="hidden md:flex items-center">
-            <button
-              aria-label="Abrir busca"
-              onClick={toggleSearch}
-              className="inline-flex items-center justify-center rounded-md p-2 border border-input bg-transparent hover:bg-accent/5"
-            >
-              <SearchIcon className="h-5 w-5" />
-            </button>
-            <div className={`origin-top-right absolute right-0 mt-12 transition-all duration-200 ${searchOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-              <div className="w-[360px] bg-background p-3 rounded shadow">
-                <SearchBox inline visible={searchOpen} onClose={() => setSearchOpen(false)} />
-              </div>
-            </div>
+          <div className="relative hidden w-10 items-center md:flex">
+            <Search className="pointer-events-none absolute top-1/2 left-2 z-20 h-5 w-5 -translate-y-1/2 text-gray-600" />
+
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Pesquisar..."
+              className="absolute top-1/2 right-0 z-30 w-0 -translate-y-1/2 rounded-full border border-gray-300 py-1 pr-3 pl-10 opacity-0 transition-all duration-200 ease-in-out hover:w-40 hover:opacity-100 focus:w-56 focus:opacity-100"
+            />
           </div>
           <div className="hidden md:inline-flex">
             <Cart />
@@ -112,8 +91,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
                 <SheetHeader>
                   <SheetTitle>Menu</SheetTitle>
                   <SheetDescription className="sr-only">
-                    Acesse sua conta, navegue pelo início, confira pedidos e
-                    categorias.
+                    Acesse sua conta, navegue pelo início, confira pedidos e categorias.
                   </SheetDescription>
                 </SheetHeader>
                 <div className="flex flex-col gap-4 py-4">
@@ -122,36 +100,26 @@ export const Header = ({ categories = [] }: HeaderProps) => {
                       <div className="flex justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarImage
-                              src={session.user.image as string | undefined}
-                            />
+                            <AvatarImage src={session.user.image as string | undefined} />
                             <AvatarFallback>
-                              {session.user.name?.split(" ")?.[0]?.[0]}
-                              {session.user.name?.split(" ")?.[1]?.[0]}
+                              {session.user.name?.split(' ')?.[0]?.[0]}
+                              {session.user.name?.split(' ')?.[1]?.[0]}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <h3 className="leading-none font-semibold">
-                              {session.user.name}
-                            </h3>
+                            <h3 className="leading-none font-semibold">{session.user.name}</h3>
                             <span className="text-muted-foreground block max-w-[140px] truncate text-xs">
                               {session.user.email}
                             </span>
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => authClient.signOut()}
-                        >
+                        <Button variant="outline" size="icon" onClick={() => authClient.signOut()}>
                           <LogOutIcon className="h-4 w-4" />
                         </Button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <h2 className="text-sm font-semibold">
-                          Olá. Faça seu login!
-                        </h2>
+                        <h2 className="text-sm font-semibold">Olá. Faça seu login!</h2>
                         <Button size="icon" asChild variant="outline">
                           <Link href="/authentication">
                             <LogInIcon className="h-4 w-4" />
@@ -162,32 +130,20 @@ export const Header = ({ categories = [] }: HeaderProps) => {
                   </div>
                   <Separator />
                   <div className="flex flex-col gap-2">
-                    <Button
-                      variant="ghost"
-                      className="justify-start gap-3"
-                      asChild
-                    >
+                    <Button variant="ghost" className="justify-start gap-3" asChild>
                       <Link href="/">
                         <HomeIcon className="h-4 w-4" />
                         Início
                       </Link>
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="justify-start gap-3"
-                      asChild
-                    >
-                      <Link href={session?.user ? "/profile" : "/authentication?redirect=/profile"}>
+                    <Button variant="ghost" className="justify-start gap-3" asChild>
+                      <Link href={session?.user ? '/profile' : '/authentication?redirect=/profile'}>
                         <UserIcon className="h-4 w-4" />
                         Perfil
                       </Link>
                     </Button>
                     {session?.user && (
-                      <Button
-                        variant="ghost"
-                        className="justify-start gap-3"
-                        asChild
-                      >
+                      <Button variant="ghost" className="justify-start gap-3" asChild>
                         <Link href="/my-orders">
                           <PackageIcon className="h-4 w-4" />
                           Meus Pedidos
@@ -200,13 +156,8 @@ export const Header = ({ categories = [] }: HeaderProps) => {
                     <h3 className="text-muted-foreground mb-1 text-xs font-semibold tracking-wide">
                       CATEGORIAS
                     </h3>
-                    {categories?.map((c) => (
-                      <Button
-                        key={c.id}
-                        variant="ghost"
-                        className="justify-start"
-                        asChild
-                      >
+                    {categories?.map(c => (
+                      <Button key={c.id} variant="ghost" className="justify-start" asChild>
                         <Link href={`/category/${c.slug}`}>{c.name}</Link>
                       </Button>
                     ))}
@@ -223,7 +174,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
       {categories.length > 0 && (
         <nav className="bg-background hidden w-full md:block">
           <div className="mx-auto flex max-w-7xl justify-center gap-20 overflow-x-auto px-6 pt-0 pb-3 text-sm md:px-10">
-            {categories.map((c) => (
+            {categories.map(c => (
               <Link
                 key={c.id}
                 href={`/category/${c.slug}`}
@@ -235,7 +186,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
           </div>
         </nav>
       )}
-      {categories.length > 0 && pathname !== "/" && (
+      {categories.length > 0 && pathname !== '/' && (
         <div className="hidden md:block">
           <Separator />
         </div>
@@ -243,4 +194,3 @@ export const Header = ({ categories = [] }: HeaderProps) => {
     </header>
   );
 };
-

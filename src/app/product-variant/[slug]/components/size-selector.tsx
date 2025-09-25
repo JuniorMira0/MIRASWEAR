@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 
 interface SizeSelectorProps {
   sizes: string[];
@@ -24,11 +25,11 @@ const SizeSelector = ({ sizes, value, onChange }: SizeSelectorProps) => {
     <div className="space-y-3">
       <h3 className="font-medium">Selecionar tamanho</h3>
       <div className="grid grid-cols-3 gap-3">
-        {sizes.map((size) => (
+        {sizes.map(size => (
           <Button
             key={size}
             type="button"
-            variant={selected === size ? "default" : "outline"}
+            variant={selected === size ? 'default' : 'outline'}
             className="rounded-xl"
             onClick={() => handleClick(size)}
           >

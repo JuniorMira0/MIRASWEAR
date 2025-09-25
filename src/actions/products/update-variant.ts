@@ -1,10 +1,11 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { inventoryItemTable, productVariantSizeTable, productVariantTable } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth-middleware";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { eq } from 'drizzle-orm';
+import { z } from 'zod';
+
+import { db } from '@/db';
+import { inventoryItemTable, productVariantSizeTable, productVariantTable } from '@/db/schema';
+import { requireAdmin } from '@/lib/auth-middleware';
 
 const UpdateVariantSchema = z.object({
   id: z.string().min(1),
@@ -28,13 +29,16 @@ export async function updateProductVariant(data: z.infer<typeof UpdateVariantSch
   const admin = await requireAdmin();
   if (!admin) throw new Error('Unauthorized: admin required');
   try {
-    await db.transaction(async (tx) => {
-      await tx.update(productVariantTable).set({
-        name: data.name,
-        color: data.color,
-        priceInCents: data.priceInCents,
-        imageUrl: data.imageUrl,
-      }).where(eq(productVariantTable.id, data.id));
+    await db.transaction(async tx => {
+      await tx
+        .update(productVariantTable)
+        .set({
+          name: data.name,
+          color: data.color,
+          priceInCents: data.priceInCents,
+          imageUrl: data.imageUrl,
+        })
+        .where(eq(productVariantTable.id, data.id));
 
       if (Array.isArray(data.sizes) && data.sizes.length > 0) {
         for (const s of data.sizes) {
@@ -45,27 +49,44 @@ export async function updateProductVariant(data: z.infer<typeof UpdateVariantSch
           if (existingSize) {
             sizeId = existingSize.id;
           } else {
-            const [created] = await tx.insert(productVariantSizeTable).values({ productVariantId: data.id, size: s.size }).returning();
+            const [created] = await tx
+              .insert(productVariantSizeTable)
+              .values({ productVariantId: data.id, size: s.size })
+              .returning();
             sizeId = created.id;
           }
 
           const existingInv = await tx.query.inventoryItemTable.findFirst({
-            where: (t, { and, eq }) => and(eq(t.productVariantId, data.id), eq(t.productVariantSizeId, sizeId)),
+            where: (t, { and, eq }) =>
+              and(eq(t.productVariantId, data.id), eq(t.productVariantSizeId, sizeId)),
           });
           if (existingInv) {
-            await tx.update(inventoryItemTable).set({ quantity: s.quantity }).where(eq(inventoryItemTable.id, existingInv.id));
+            await tx
+              .update(inventoryItemTable)
+              .set({ quantity: s.quantity })
+              .where(eq(inventoryItemTable.id, existingInv.id));
           } else {
-            await tx.insert(inventoryItemTable).values({ productVariantId: data.id, productVariantSizeId: sizeId, quantity: s.quantity });
+            await tx.insert(inventoryItemTable).values({
+              productVariantId: data.id,
+              productVariantSizeId: sizeId,
+              quantity: s.quantity,
+            });
           }
         }
       } else if (typeof data.stock === 'number') {
         const existing = await tx.query.inventoryItemTable.findFirst({
-          where: (t, { and, eq, isNull }) => and(eq(t.productVariantId, data.id), isNull(t.productVariantSizeId)),
+          where: (t, { and, eq, isNull }) =>
+            and(eq(t.productVariantId, data.id), isNull(t.productVariantSizeId)),
         });
         if (existing) {
-          await tx.update(inventoryItemTable).set({ quantity: data.stock }).where(eq(inventoryItemTable.id, existing.id));
+          await tx
+            .update(inventoryItemTable)
+            .set({ quantity: data.stock })
+            .where(eq(inventoryItemTable.id, existing.id));
         } else {
-          await tx.insert(inventoryItemTable).values({ productVariantId: data.id, quantity: data.stock });
+          await tx
+            .insert(inventoryItemTable)
+            .values({ productVariantId: data.id, quantity: data.stock });
         }
       }
     });

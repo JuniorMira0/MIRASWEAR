@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+build
+public/**/*.png
+public/**/*.jpg
+yarn.lock
+pnpm-lock.yaml
+package-lock.json

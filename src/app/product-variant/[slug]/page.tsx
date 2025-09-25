@@ -1,17 +1,14 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
 
-import { getCategories } from "@/actions/get-categories";
-import { Header } from "@/components/common/header";
-import ProductList from "@/components/common/product-list";
-import {
-    getLikelyProducts,
-    getProductVariantBySlug,
-} from "@/data/products/get-product-variant";
-import { formatCentsToBRL } from "@/helpers/money";
+import { getCategories } from '@/actions/get-categories';
+import ProductImageGallery from '@/app/product-variant/[slug]/components/product-image-gallery';
+import { Header } from '@/components/common/header';
+import ProductList from '@/components/common/product-list';
+import { getLikelyProducts, getProductVariantBySlug } from '@/data/products/get-product-variant';
+import { formatCentsToBRL } from '@/helpers/money';
 
-import ProductImageGallery from "@/app/product-variant/[slug]/components/product-image-gallery";
-import ProductActions from "./components/product-actions";
-import VariantSelector from "./components/variant-selector";
+import ProductActions from './components/product-actions';
+import VariantSelector from './components/variant-selector';
 
 interface ProductVariantPageProps {
   params: Promise<{ slug: string }>;
@@ -31,7 +28,7 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
     productVariant.product.id,
   );
   const hasMultipleVariants = productVariant.product.variants.length > 1;
-  const sizes = (productVariant.sizes ?? []).map((s) => ({
+  const sizes = (productVariant.sizes ?? []).map(s => ({
     id: s.id,
     size: s.size,
     stock: (s.inventoryItems ?? []).reduce((acc, it) => acc + it.quantity, 0),
@@ -50,21 +47,16 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
             imageUrl={productVariant.imageUrl}
             alt={productVariant.name}
             showOutOfStock={
-              sizes.length > 0
-                ? sizes.every((s) => (s.stock ?? 0) <= 0)
-                : (variantStock ?? 0) <= 0
+              sizes.length > 0 ? sizes.every(s => (s.stock ?? 0) <= 0) : (variantStock ?? 0) <= 0
             }
           />
           {hasMultipleVariants && (
             <div className="mt-4 md:hidden">
               <VariantSelector
                 selectedVariantSlug={productVariant.slug}
-                variants={productVariant.product.variants.map((v) => ({
+                variants={productVariant.product.variants.map(v => ({
                   ...v,
-                  stock: (v.inventoryItems ?? []).reduce(
-                    (acc, it) => acc + (it.quantity ?? 0),
-                    0,
-                  ),
+                  stock: (v.inventoryItems ?? []).reduce((acc, it) => acc + (it.quantity ?? 0), 0),
                 }))}
               />
             </div>
@@ -74,12 +66,8 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
         <div className="lg:col-span-5 lg:pr-2">
           <div className="space-y-4">
             <div>
-              <h1 className="text-2xl font-semibold">
-                {productVariant.product.name}
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                {productVariant.name}
-              </p>
+              <h1 className="text-2xl font-semibold">{productVariant.product.name}</h1>
+              <p className="text-muted-foreground text-sm">{productVariant.name}</p>
               <p className="mt-1 text-xl font-semibold">
                 {formatCentsToBRL(productVariant.priceInCents)}
               </p>
@@ -89,7 +77,7 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
               <div className="hidden md:block">
                 <VariantSelector
                   selectedVariantSlug={productVariant.slug}
-                  variants={productVariant.product.variants.map((v) => ({
+                  variants={productVariant.product.variants.map(v => ({
                     ...v,
                     stock: (v.inventoryItems ?? []).reduce(
                       (acc, it) => acc + (it.quantity ?? 0),
@@ -114,10 +102,7 @@ const ProductVariantPage = async ({ params }: ProductVariantPageProps) => {
       </div>
 
       <div className="mx-auto max-w-7xl space-y-6 pb-10">
-        <ProductList
-          title="Você também pode gostar"
-          products={likelyProducts}
-        />
+        <ProductList title="Você também pode gostar" products={likelyProducts} />
       </div>
     </>
   );

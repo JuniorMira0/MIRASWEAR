@@ -1,13 +1,13 @@
-"use server";
+'use server';
 
-import { eq } from "drizzle-orm";
-import z from "zod";
+import { eq } from 'drizzle-orm';
+import z from 'zod';
 
-import { db } from "@/db";
-import { cartItemTable } from "@/db/schema";
-
-import { decreaseCartProductQuantitySchema } from "./schema";
+import { db } from '@/db';
+import { cartItemTable } from '@/db/schema';
 import { requireAuth } from '@/lib/auth-middleware';
+
+import { decreaseCartProductQuantitySchema } from './schema';
 
 /**
  * Action para diminuir a quantidade de um produto no carrinho
@@ -30,13 +30,13 @@ export const decreaseCartProductQuantity = async (
 
   // Verifica se o item do carrinho existe
   if (!cartItem) {
-    throw new Error("Cart item not found");
+    throw new Error('Cart item not found');
   }
 
   // Verifica se o carrinho pertence ao usuário autenticado (segurança)
   const cartDoesNotBelongToUser = cartItem.cart.userId !== userId;
   if (cartDoesNotBelongToUser) {
-    throw new Error("Unauthorized");
+    throw new Error('Unauthorized');
   }
 
   // Se a quantidade atual é 1, remove o item completamente do carrinho

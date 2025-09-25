@@ -1,13 +1,15 @@
-import { TOAST_MESSAGES } from "@/constants/toast-messages";
-import { formatCentsToBRL } from "@/helpers/money";
-import { useCartStore } from "@/hooks/cart-store";
-import { useDecreaseCartProductQuantity } from "@/hooks/mutations/use-decrease-cart-product";
-import { useIncreaseCartProduct } from "@/hooks/mutations/use-increase-cart-product";
-import { useRemoveProductFromCart } from "@/hooks/mutations/use-remove-product-from-cart";
-import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
-import Image from "next/image";
-import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { MinusIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import Image from 'next/image';
+import { toast } from 'sonner';
+
+import { TOAST_MESSAGES } from '@/constants/toast-messages';
+import { formatCentsToBRL } from '@/helpers/money';
+import { useCartStore } from '@/hooks/cart-store';
+import { useDecreaseCartProductQuantity } from '@/hooks/mutations/use-decrease-cart-product';
+import { useIncreaseCartProduct } from '@/hooks/mutations/use-increase-cart-product';
+import { useRemoveProductFromCart } from '@/hooks/mutations/use-remove-product-from-cart';
+
+import { Button } from '../ui/button';
 
 interface CartItemProps {
   id: string;
@@ -37,8 +39,7 @@ const CartItem = ({
   const { removeItem, decrease, addItem } = useCartStore();
 
   const removeProductFromCartMutation = useRemoveProductFromCart(id);
-  const decreaseCartProductQuantityMutation =
-    useDecreaseCartProductQuantity(id);
+  const decreaseCartProductQuantityMutation = useDecreaseCartProductQuantity(id);
   const increaseCartProductQuantityMutation = useIncreaseCartProduct(
     productVariantId,
     productVariantSizeId ?? undefined,
@@ -61,7 +62,7 @@ const CartItem = ({
         onSuccess: () => {
           toast.success(TOAST_MESSAGES.CART.QUANTITY_DECREASED);
         },
-        onError: (error) => {
+        onError: error => {
           toast.error(TOAST_MESSAGES.CART.QUANTITY_DECREASED_ERROR);
         },
       });
@@ -76,7 +77,7 @@ const CartItem = ({
         onSuccess: () => {
           toast.success(TOAST_MESSAGES.CART.QUANTITY_INCREASED);
         },
-        onError: (error) => {
+        onError: error => {
           toast.error(TOAST_MESSAGES.CART.QUANTITY_DECREASED_ERROR);
         },
       });
@@ -95,13 +96,9 @@ const CartItem = ({
         />
         <div className="flex min-w-0 flex-col gap-1">
           <p className="text-sm font-semibold">{productName}</p>
-          <p className="text-muted-foreground text-xs font-medium">
-            Cor: {productVariantName}
-          </p>
+          <p className="text-muted-foreground text-xs font-medium">Cor: {productVariantName}</p>
           {sizeLabel && (
-            <p className="text-muted-foreground text-xs font-medium">
-              Tam: {sizeLabel}
-            </p>
+            <p className="text-muted-foreground text-xs font-medium">Tam: {sizeLabel}</p>
           )}
           <div className="mt-1 flex items-center gap-3">
             <div className="flex w-[104px] items-center justify-between rounded-lg border p-1">
@@ -128,9 +125,7 @@ const CartItem = ({
         <Button variant="outline" size="icon" onClick={handleDeleteClick}>
           <TrashIcon />
         </Button>
-        <p className="text-sm font-bold">
-          {formatCentsToBRL(productVariantPriceInCents)}
-        </p>
+        <p className="text-sm font-bold">{formatCentsToBRL(productVariantPriceInCents)}</p>
       </div>
     </div>
   );

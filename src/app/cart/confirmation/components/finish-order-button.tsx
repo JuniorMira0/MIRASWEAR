@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from '@stripe/stripe-js';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
-import { createCheckoutSession } from "@/actions/create-checkout-session";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
-import { getUseCartQueryKey } from "@/hooks/queries/use-cart";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { createCheckoutSession } from '@/actions/create-checkout-session';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { useFinishOrder } from '@/hooks/mutations/use-finish-order';
+import { getUseCartQueryKey } from '@/hooks/queries/use-cart';
 
 const FinishOrderButton = () => {
   const finishOrderMutation = useFinishOrder();
@@ -25,17 +25,14 @@ const FinishOrderButton = () => {
   useEffect(() => {
     if (!expiresAt) return;
     const id = setInterval(() => {
-      const diff = Math.max(
-        0,
-        Math.floor((expiresAt.getTime() - Date.now()) / 1000),
-      );
+      const diff = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
       setTimeLeft(diff);
     }, 1000);
     return () => clearInterval(id);
   }, [expiresAt]);
   const handleFinishOrder = async () => {
     if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-      throw new Error("Stripe publishable key is not set");
+      throw new Error('Stripe publishable key is not set');
     }
     let orderId: string | undefined;
     try {
@@ -43,7 +40,7 @@ const FinishOrderButton = () => {
       if ((res as any).removedItems) {
         const items = (res as any).removedItems as Array<any>;
         setRemovedItems(items);
-        toast.error("Esse carrinho tem itens fora de estoque");
+        toast.error('Esse carrinho tem itens fora de estoque');
         queryClient.invalidateQueries({ queryKey: getUseCartQueryKey() });
         return;
       }
@@ -59,22 +56,22 @@ const FinishOrderButton = () => {
     } catch (err: unknown) {
       let message: string | undefined;
       if (err instanceof Error) message = err.message;
-      else if (typeof err === "string") message = err;
-      else if (err && typeof err === "object" && "message" in err) {
+      else if (typeof err === 'string') message = err;
+      else if (err && typeof err === 'object' && 'message' in err) {
         message = (err as any).message;
       }
 
       if (message) {
         try {
           const payload = JSON.parse(message);
-          if (payload?.code === "INSUFFICIENT_STOCK") {
+          if (payload?.code === 'INSUFFICIENT_STOCK') {
             const items: Array<any> = payload.items ?? [];
             const list = items
               .map(
-                (it) =>
+                it =>
                   `${it.variantName ?? it.productVariantId} (disponível: ${it.available}, pedido: ${it.requested})`,
               )
-              .join("; ");
+              .join('; ');
             toast.error(`Estoque insuficiente: ${list}`);
             return;
           }
@@ -84,36 +81,34 @@ const FinishOrderButton = () => {
         return;
       }
 
-      toast.error("Erro ao finalizar o pedido");
+      toast.error('Erro ao finalizar o pedido');
       return;
     }
     try {
       if (!orderId) {
-        toast.error("Erro interno: ordem não criada");
+        toast.error('Erro interno: ordem não criada');
         return;
       }
       const checkoutSession = await createCheckoutSession({ orderId });
-      const stripe = await loadStripe(
-        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      );
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
       if (!stripe) {
-        toast.error("Falha ao carregar o Stripe. Tente novamente mais tarde.");
+        toast.error('Falha ao carregar o Stripe. Tente novamente mais tarde.');
         return;
       }
       await stripe.redirectToCheckout({ sessionId: checkoutSession.id });
     } catch (err: unknown) {
       let message: string | undefined;
       if (err instanceof Error) message = err.message;
-      else if (typeof err === "string") message = err;
-      else if (err && typeof err === "object" && "message" in err) {
+      else if (typeof err === 'string') message = err;
+      else if (err && typeof err === 'object' && 'message' in err) {
         message = (err as any).message;
       }
 
       if (message) {
         try {
           const payload = JSON.parse(message);
-          if (payload?.code === "STRIPE_ERROR") {
-            toast.error(payload.message || "Erro no Stripe");
+          if (payload?.code === 'STRIPE_ERROR') {
+            toast.error(payload.message || 'Erro no Stripe');
             return;
           }
         } catch (_) {}
@@ -121,16 +116,14 @@ const FinishOrderButton = () => {
         return;
       }
 
-      toast.error("Erro ao criar sessão de pagamento");
+      toast.error('Erro ao criar sessão de pagamento');
       return;
     }
   };
   return (
     <>
       {timeLeft !== null && timeLeft <= 0 ? (
-        <div className="text-destructive text-sm font-medium">
-          Reserva expirada
-        </div>
+        <div className="text-destructive text-sm font-medium">Reserva expirada</div>
       ) : (
         <LoadingButton
           className="w-full rounded-full"
@@ -147,11 +140,9 @@ const FinishOrderButton = () => {
           <div className="mb-2 text-sm font-medium">Itens indisponíveis</div>
           <ul className="space-y-1 text-sm">
             {removedItems.map((it: any) => (
-              <li
-                key={`${it.productVariantId}-${it.productVariantSizeId ?? "none"}`}
-              >
-                {it.variantName ?? it.productVariantId} - disponível:{" "}
-                {it.available} - pedido: {it.requested}
+              <li key={`${it.productVariantId}-${it.productVariantSizeId ?? 'none'}`}>
+                {it.variantName ?? it.productVariantId} - disponível: {it.available} - pedido:{' '}
+                {it.requested}
               </li>
             ))}
           </ul>
