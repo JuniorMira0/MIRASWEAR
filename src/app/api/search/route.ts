@@ -1,7 +1,8 @@
-import { sql } from 'drizzle-orm';
+import { eq, type SQL, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 import { db } from '@/db';
+import { inventoryItemTable, productTable, productVariantTable } from '@/db/schema';
 
 export async function GET(req: Request) {
   try {
@@ -18,86 +19,101 @@ export async function GET(req: Request) {
         .toLowerCase();
     const paramNormalized = `%${normalize(q)}%`;
 
-    let variantRows: any[] = [];
+    const accents = 'áàãâäéèêëíìîïóòõôöúùûüçñ';
+    const replacements = 'aaaaaeeeeiiiiooooouuuucn';
+
+    const buildWhereClause = (useUnaccent: boolean): SQL => {
+      const variantNameExpr = useUnaccent
+        ? sql`unaccent(${productVariantTable.name})`
+        : sql`translate(lower(${productVariantTable.name}), ${sql`${accents}`}, ${sql`${replacements}`})`;
+      const variantColorExpr = useUnaccent
+        ? sql`unaccent(${productVariantTable.color})`
+        : sql`translate(lower(${productVariantTable.color}), ${sql`${accents}`}, ${sql`${replacements}`})`;
+      const productNameExpr = useUnaccent
+        ? sql`unaccent(${productTable.name})`
+        : sql`translate(lower(${productTable.name}), ${sql`${accents}`}, ${sql`${replacements}`})`;
+
+      const searchParam = useUnaccent ? param : paramNormalized;
+
+      return sql`(
+        (${variantNameExpr} ILIKE ${searchParam}
+          OR ${variantColorExpr} ILIKE ${searchParam}
+          OR ${productNameExpr} ILIKE ${searchParam})
+        AND ${productVariantTable.isActive} = true
+        AND ${productTable.isActive} = true
+        AND EXISTS (
+          SELECT 1
+          FROM ${inventoryItemTable}
+          WHERE ${inventoryItemTable.productVariantId} = ${productVariantTable.id}
+            AND ${inventoryItemTable.quantity} > 0
+        )
+      )`;
+    };
+
+    const runVariantQuery = async (whereClause: SQL) => {
+      return db
+        .select({
+          id: productVariantTable.id,
+          productId: productVariantTable.productId,
+          variantName: productVariantTable.name,
+          variantSlug: productVariantTable.slug,
+          imageUrl: productVariantTable.imageUrl,
+          priceInCents: productVariantTable.priceInCents,
+          productName: productTable.name,
+          productSlug: productTable.slug,
+        })
+        .from(productVariantTable)
+        .innerJoin(productTable, eq(productVariantTable.productId, productTable.id))
+        .where(whereClause)
+        .orderBy(productTable.name, productVariantTable.name)
+        .limit(60);
+    };
+
+    let variantRows: Array<{
+      id: string;
+      productId: string;
+      variantName: string;
+      variantSlug: string;
+      imageUrl: string | null;
+      priceInCents: number | null;
+      productName: string;
+      productSlug: string;
+    }> = [];
+
+    let usedFallback = false;
     try {
-      variantRows = await db.query.productVariantTable.findMany({
-        where: pv => sql`(
-          (unaccent(${pv.name}) ILIKE ${param} OR unaccent(${pv.color}) ILIKE ${param})
-          AND ${pv.isActive} = true
-          AND EXISTS (SELECT 1 FROM product p WHERE p.id = ${pv.productId} AND p.is_active = true)
-        )`,
-        limit: 20,
-        with: { product: true },
-      });
-    } catch (e) {
-      const accents = 'áàãâäéèêëíìîïóòõôöúùûüçñ';
-      const replacements = 'aaaaaeeeeiiiiooooouuuucn';
-      variantRows = await db.query.productVariantTable.findMany({
-        where: pv => sql`(
-          (translate(lower(${pv.name}), ${sql`${accents}`}, ${sql`${replacements}`}) ILIKE ${paramNormalized} OR translate(lower(${pv.color}), ${sql`${accents}`}, ${sql`${replacements}`}) ILIKE ${paramNormalized})
-          AND ${pv.isActive} = true
-          AND EXISTS (SELECT 1 FROM product p WHERE p.id = ${pv.productId} AND p.is_active = true)
-        )`,
-        limit: 20,
-        with: { product: true },
-      });
+      variantRows = await runVariantQuery(buildWhereClause(true));
+    } catch {
+      usedFallback = true;
+      variantRows = await runVariantQuery(buildWhereClause(false));
     }
 
-    let productRows: any[] = [];
-    try {
-      productRows = await db.query.productTable.findMany({
-        where: p => sql`unaccent(${p.name}) ILIKE ${param} AND ${p.isActive} = true`,
-        limit: 20,
-      });
-    } catch (e) {
-      const accents = 'áàãâäéèêëíìîïóòõôöúùûüçñ';
-      const replacements = 'aaaaaeeeeiiiiooooouuuucn';
-      productRows = await db.query.productTable.findMany({
-        where: p =>
-          sql`translate(lower(${p.name}), ${sql`${accents}`}, ${sql`${replacements}`}) ILIKE ${paramNormalized} AND ${p.isActive} = true`,
-        limit: 20,
-      });
+    if (!usedFallback && variantRows.length === 0) {
+      variantRows = await runVariantQuery(buildWhereClause(false));
     }
 
-    const variantsFromProducts: any[] = [];
-    for (const p of productRows) {
-      const v = await db.query.productVariantTable.findFirst({
-        where: pv => sql`${pv.productId} = ${p.id} AND ${pv.isActive} = true`,
-        with: { product: true },
-      });
-      if (v) variantsFromProducts.push({ ...v, product: p });
-    }
-
-    let chosenVariants: any[] = [];
-    if (variantRows && variantRows.length > 0) {
-      const byProduct = new Map<string, any>();
-      for (const v of variantRows) {
-        const productId = v.product?.id ?? v.productId ?? v.product_id ?? null;
-        const key = productId ?? v.id;
-        if (!byProduct.has(key)) byProduct.set(key, v);
+    const byProduct = new Map<string, (typeof variantRows)[number]>();
+    for (const variant of variantRows) {
+      const key = variant.productId ?? variant.id;
+      if (!byProduct.has(key)) {
+        byProduct.set(key, variant);
       }
-      chosenVariants = Array.from(byProduct.values());
-    } else {
-      chosenVariants = variantsFromProducts || [];
     }
 
-    const allVariantsMap = new Map<string, any>();
-    for (const r of chosenVariants) allVariantsMap.set(r.id, r);
-
-    const mapped = Array.from(allVariantsMap.values())
+    const mapped = Array.from(byProduct.values())
       .slice(0, 20)
-      .map((r: any) => ({
-        id: r.id,
-        productName: r.product?.name ?? null,
-        variantName: r.name ?? null,
-        productSlug: r.product?.slug ?? null,
-        variantSlug: r.slug,
-        imageUrl: r.imageUrl ?? null,
-        priceInCents: r.priceInCents ?? null,
+      .map(variant => ({
+        id: variant.id,
+        productName: variant.productName ?? null,
+        variantName: variant.variantName ?? null,
+        productSlug: variant.productSlug ?? null,
+        variantSlug: variant.variantSlug,
+        imageUrl: variant.imageUrl ?? null,
+        priceInCents: variant.priceInCents ?? null,
       }));
 
     return NextResponse.json({ results: mapped });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ results: [] }, { status: 500 });
   }
 }
