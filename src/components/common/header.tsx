@@ -1,19 +1,11 @@
 'use client';
 
-import {
-  HomeIcon,
-  LogInIcon,
-  LogOutIcon,
-  MenuIcon,
-  PackageIcon,
-  Search,
-  UserIcon,
-} from 'lucide-react';
+import { HomeIcon, LogInIcon, LogOutIcon, MenuIcon, PackageIcon, UserIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 
+import SearchBox from '@/components/common/search-box';
 import { useCartMigration } from '@/hooks/use-cart-migration';
 import { authClient } from '@/lib/auth-client';
 
@@ -38,7 +30,6 @@ export const Header = ({ categories = [] }: HeaderProps) => {
   const isLogged = !!session?.user;
   const pathname = usePathname();
   useCartMigration();
-  const [query, setQuery] = useState('');
 
   return (
     <header className="bg-background relative z-10 w-full">
@@ -65,16 +56,8 @@ export const Header = ({ categories = [] }: HeaderProps) => {
           </Link>
         </div>
         <div className="flex min-w-[120px] items-center justify-end gap-3">
-          <div className="relative hidden w-10 items-center md:flex">
-            <Search className="pointer-events-none absolute top-1/2 left-2 z-20 h-5 w-5 -translate-y-1/2 text-gray-600" />
-
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Pesquisar..."
-              className="absolute top-1/2 right-0 z-30 w-0 -translate-y-1/2 rounded-full border border-gray-300 py-1 pr-3 pl-10 opacity-0 transition-all duration-200 ease-in-out hover:w-40 hover:opacity-100 focus:w-56 focus:opacity-100"
-            />
+          <div className="relative hidden items-center md:flex">
+            <SearchBox collapsible expandLeft showResults={false} />
           </div>
           <div className="hidden md:inline-flex">
             <Cart />
