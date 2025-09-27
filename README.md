@@ -161,6 +161,12 @@ Outros arquivos relevantes:
 - **Schema Drizzle**: `src/db/schema.ts` centraliza todas as tabelas e relações.
 - **Ações do servidor**: `src/actions/*` documenta os flows críticos (cart, checkout, admin).
 
+## Diagrama entidade-relacionamento
+
+<p align="center">
+  <img src="./docs/der.svg" alt="Diagrama ER do MIRASWEAR" width="100%" />
+</p>
+
 ## Contribuição
 
 Pull requests são bem-vindos! Antes de enviar:
