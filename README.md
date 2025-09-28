@@ -15,6 +15,7 @@
 - [Qualidade de código](#qualidade-de-código)
 - [Documentação adicional](#documentação-adicional)
 - [Contribuição](#contribuição)
+- [Licença](#licença)
 
 ## Visão geral
 
@@ -184,3 +185,12 @@ Pull requests são bem-vindos! Antes de enviar:
 ---
 
 Caso tenha dúvidas ou identifique pontos de melhoria, abra uma issue ou entre em contato com a equipe MIRASWEAR.
+
+## Licença
+
+Este projeto está licenciado sob a [MIRASWEAR Custom Non-Commercial License](./LICENSE); leia o arquivo `LICENSE` para conhecer todos os termos.
+
+- O uso é restrito a finalidades não comerciais (sem revenda, licenciamento pago ou oferta como serviço).
+- Qualquer redistribuição deve incluir esta licença, avisos de copyright e o código-fonte completo das modificações.
+- Implantações acessíveis via rede devem disponibilizar o código-fonte para os usuários que interagirem com o projeto.
+- Para licenciamento comercial ou dúvidas específicas, entre em contato com o autor indicado no arquivo `LICENSE`.
