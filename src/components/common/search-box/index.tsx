@@ -101,10 +101,12 @@ export default function SearchBox({
   );
 
   const handleIconClick = useCallback(() => {
-    if (open && query.trim()) {
-      handleSubmit();
+    if (!query.trim()) {
+      return;
     }
-  }, [open, query, handleSubmit]);
+
+    handleSubmit();
+  }, [query, handleSubmit]);
 
   return (
     <div ref={containerRef} className="max-w-full">
