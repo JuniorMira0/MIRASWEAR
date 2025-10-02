@@ -76,7 +76,7 @@ export function CollapsibleSearchField({
           className={cn(
             'text-muted-foreground absolute inset-y-0 flex w-9 items-center justify-center transition-colors focus:outline-none',
             expandLeft ? 'right-0' : 'left-0',
-            open ? 'text-primary' : 'group-hover:text-primary',
+            open ? 'text-primary cursor-pointer' : 'group-hover:text-primary',
           )}
           onMouseDown={onIconMouseDown}
           onClick={onIconClick}
