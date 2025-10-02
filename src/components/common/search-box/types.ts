@@ -1,13 +1,6 @@
-export type Result = {
-  id: string;
-  name: string;
-  productName?: string | null;
-  variantName?: string | null;
-  productSlug?: string;
-  variantSlug?: string;
-  imageUrl?: string | null;
-  priceInCents?: number | null;
-};
+import type { ProductItemProduct } from '@/components/common/product-item';
+
+export type Result = ProductItemProduct;
 
 export type SearchBoxProps = {
   inline?: boolean;

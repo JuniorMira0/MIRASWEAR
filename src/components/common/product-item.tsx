@@ -1,22 +1,36 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { productTable, productVariantTable } from '@/db/schema';
 import { formatCentsToBRL } from '@/helpers/money';
 import { cn } from '@/lib/utils';
 
+export type ProductItemVariant = {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl: string;
+  priceInCents: number | null;
+  stock?: number | null;
+  inventoryItems?: { quantity: number }[];
+};
+
+export type ProductItemProduct = {
+  id: string;
+  name: string;
+  description: string | null;
+  variants: ProductItemVariant[];
+};
+
 interface ProductItemProps {
-  product: typeof productTable.$inferSelect & {
-    variants: (typeof productVariantTable.$inferSelect & {
-      inventoryItems?: { quantity: number }[];
-      stock?: number;
-    })[];
-  };
+  product: ProductItemProduct;
   textContainerClassName?: string;
 }
 
 const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
   const firstVariant = product.variants[0];
+  if (!firstVariant || !firstVariant.slug || !firstVariant.imageUrl) {
+    return null;
+  }
   const allOutOfStock = product.variants.every(v => {
     if (typeof v.stock === 'number') {
       return v.stock <= 0;
@@ -52,9 +66,11 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
       >
         <p className="truncate text-sm font-medium">{product.name}</p>
         <p className="text-muted-foreground truncate text-xs font-medium">{product.description}</p>
-        <p className="truncate text-sm font-semibold">
-          {formatCentsToBRL(firstVariant.priceInCents)}
-        </p>
+        {typeof firstVariant.priceInCents === 'number' ? (
+          <p className="truncate text-sm font-semibold">
+            {formatCentsToBRL(firstVariant.priceInCents)}
+          </p>
+        ) : null}
       </div>
     </Link>
   );

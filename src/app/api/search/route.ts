@@ -41,43 +41,56 @@ export async function GET(req: Request) {
           OR ${productNameExpr} ILIKE ${searchParam})
         AND ${productVariantTable.isActive} = true
         AND ${productTable.isActive} = true
-        AND EXISTS (
-          SELECT 1
-          FROM ${inventoryItemTable}
-          WHERE ${inventoryItemTable.productVariantId} = ${productVariantTable.id}
-            AND ${inventoryItemTable.quantity} > 0
-        )
       )`;
     };
 
     const runVariantQuery = async (whereClause: SQL) => {
       return db
         .select({
-          id: productVariantTable.id,
-          productId: productVariantTable.productId,
+          productId: productTable.id,
+          productName: productTable.name,
+          productDescription: productTable.description,
+          productSlug: productTable.slug,
+          variantId: productVariantTable.id,
           variantName: productVariantTable.name,
           variantSlug: productVariantTable.slug,
-          imageUrl: productVariantTable.imageUrl,
-          priceInCents: productVariantTable.priceInCents,
-          productName: productTable.name,
-          productSlug: productTable.slug,
+          variantImageUrl: productVariantTable.imageUrl,
+          variantPriceInCents: productVariantTable.priceInCents,
+          stock: sql<number>`COALESCE(SUM(${inventoryItemTable.quantity}), 0)`,
         })
         .from(productVariantTable)
         .innerJoin(productTable, eq(productVariantTable.productId, productTable.id))
+        .leftJoin(
+          inventoryItemTable,
+          eq(inventoryItemTable.productVariantId, productVariantTable.id),
+        )
         .where(whereClause)
+        .groupBy(
+          productTable.id,
+          productTable.name,
+          productTable.description,
+          productTable.slug,
+          productVariantTable.id,
+          productVariantTable.name,
+          productVariantTable.slug,
+          productVariantTable.imageUrl,
+          productVariantTable.priceInCents,
+        )
         .orderBy(productTable.name, productVariantTable.name)
-        .limit(60);
+        .limit(100);
     };
 
     let variantRows: Array<{
-      id: string;
       productId: string;
-      variantName: string;
-      variantSlug: string;
-      imageUrl: string | null;
-      priceInCents: number | null;
       productName: string;
-      productSlug: string;
+      productDescription: string | null;
+      productSlug: string | null;
+      variantId: string;
+      variantName: string;
+      variantSlug: string | null;
+      variantImageUrl: string | null;
+      variantPriceInCents: number | null;
+      stock: number;
     }> = [];
 
     let usedFallback = false;
@@ -92,25 +105,55 @@ export async function GET(req: Request) {
       variantRows = await runVariantQuery(buildWhereClause(false));
     }
 
-    const byProduct = new Map<string, (typeof variantRows)[number]>();
-    for (const variant of variantRows) {
-      const key = variant.productId ?? variant.id;
-      if (!byProduct.has(key)) {
-        byProduct.set(key, variant);
+    const productsMap = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        description: string | null;
+        slug: string | null;
+        variants: {
+          id: string;
+          name: string;
+          slug: string;
+          imageUrl: string;
+          priceInCents: number | null;
+          stock: number;
+        }[];
+      }
+    >();
+
+    for (const row of variantRows) {
+      if (!row.variantSlug || !row.variantImageUrl) {
+        continue;
+      }
+
+      const existing = productsMap.get(row.productId);
+      const product = existing ?? {
+        id: row.productId,
+        name: row.productName,
+        description: row.productDescription ?? null,
+        slug: row.productSlug ?? null,
+        variants: [],
+      };
+
+      product.variants.push({
+        id: row.variantId,
+        name: row.variantName,
+        slug: row.variantSlug,
+        imageUrl: row.variantImageUrl,
+        priceInCents: row.variantPriceInCents ?? null,
+        stock: Number(row.stock ?? 0),
+      });
+
+      if (!existing) {
+        productsMap.set(row.productId, product);
       }
     }
 
-    const mapped = Array.from(byProduct.values())
-      .slice(0, 20)
-      .map(variant => ({
-        id: variant.id,
-        productName: variant.productName ?? null,
-        variantName: variant.variantName ?? null,
-        productSlug: variant.productSlug ?? null,
-        variantSlug: variant.variantSlug,
-        imageUrl: variant.imageUrl ?? null,
-        priceInCents: variant.priceInCents ?? null,
-      }));
+    const mapped = Array.from(productsMap.values())
+      .filter(product => product.variants.length > 0)
+      .slice(0, 20);
 
     return NextResponse.json({ results: mapped });
   } catch {
