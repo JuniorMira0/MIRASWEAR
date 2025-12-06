@@ -1,5 +1,6 @@
-import { createCategory } from "@/actions/categories/create";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+
+import { createCategory } from '@/actions/categories/create';
 
 export async function POST(req: Request) {
   try {

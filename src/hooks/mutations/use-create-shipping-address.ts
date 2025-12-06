@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { createShippingAddress } from "@/actions/create-shipping-address";
+import { createShippingAddress } from '@/actions/create-shipping-address';
 
-import { getUserAddressesQueryKey } from "../queries/use-user-addresses";
+import { getUserAddressesQueryKey } from '../queries/use-user-addresses';
 
-export const getCreateShippingAddressMutationKey = () =>
-  ["create-shipping-address"] as const;
+export const getCreateShippingAddressMutationKey = () => ['create-shipping-address'] as const;
 
 export const useCreateShippingAddress = () => {
   const queryClient = useQueryClient();

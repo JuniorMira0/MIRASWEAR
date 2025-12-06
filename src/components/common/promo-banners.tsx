@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import Image from 'next/image';
+
+import { Button } from '@/components/ui/button';
 
 function Tile({ title, imageSrc }: { title: string; imageSrc: string }) {
   return (

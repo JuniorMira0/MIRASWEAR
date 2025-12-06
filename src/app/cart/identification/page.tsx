@@ -1,30 +1,27 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-import { Header } from "@/components/common/header";
-import {
-  getCartWithItems,
-  getUserShippingAddresses,
-} from "@/data/cart/get-cart";
-import { auth } from "@/lib/auth";
+import { getCategories } from '@/actions/get-categories';
+import CheckoutSteps from '@/components/common/checkout-steps';
+import { Header } from '@/components/common/header';
+import { getCartWithItems, getUserShippingAddresses } from '@/data/cart/get-cart';
+import { auth } from '@/lib/auth';
 
-import { getCategories } from "@/actions/get-categories";
-import CheckoutSteps from "@/components/common/checkout-steps";
-import CartSummary from "../components/cart-summary";
-import Addresses from "./components/addresses";
+import CartSummary from '../components/cart-summary';
+import Addresses from './components/addresses';
 
 const IdentificationPage = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
   if (!session?.user.id) {
-    redirect("/authentication");
+    redirect('/authentication');
   }
   const cart = await getCartWithItems(session.user.id);
   const categories = await getCategories();
 
   if (!cart || cart?.items.length === 0) {
-    redirect("/");
+    redirect('/');
   }
 
   const shippingAddresses = await getUserShippingAddresses(session.user.id);
@@ -55,7 +52,7 @@ const IdentificationPage = async () => {
                 <CartSummary
                   subtotalInCents={cartTotalInCents}
                   totalInCents={cartTotalInCents}
-                  products={cart.items.map((item) => ({
+                  products={cart.items.map(item => ({
                     id: item.productVariant.id,
                     name: item.productVariant.product.name,
                     variantName: item.productVariant.name,
@@ -70,9 +67,7 @@ const IdentificationPage = async () => {
           </div>
         </div>
       </div>
-      <div className="mt-12">
-      
-      </div>
+      <div className="mt-12"></div>
     </div>
   );
 };

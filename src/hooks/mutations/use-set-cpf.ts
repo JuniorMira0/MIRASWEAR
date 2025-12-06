@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-export const getSetCpfMutationKey = () => ["set-cpf"] as const;
+export const getSetCpfMutationKey = () => ['set-cpf'] as const;
 
 export const useSetCpf = () => {
   const queryClient = useQueryClient();
@@ -8,16 +8,16 @@ export const useSetCpf = () => {
     mutationKey: getSetCpfMutationKey(),
     mutationFn: async (cpf: string) => {
       const res = await fetch(`/api/set-cpf`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cpf }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || "Erro ao salvar CPF");
+      if (!res.ok) throw new Error(json?.error || 'Erro ao salvar CPF');
       return json;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
 };

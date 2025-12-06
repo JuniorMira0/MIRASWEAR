@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { cartTable } from "@/db/schema";
-import { requireAuth } from "@/lib/auth-middleware";
+import { db } from '@/db';
+import { cartTable } from '@/db/schema';
+import { requireAuth } from '@/lib/auth-middleware';
 
 export const getCart = async () => {
   const userId = await requireAuth();

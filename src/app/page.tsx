@@ -1,10 +1,12 @@
-import { getCategories } from "@/actions/get-categories";
-import BrandPartners from "@/components/common/brand-partners";
-import ProductListClient from "@/components/common/product-list-client";
-import PromoBanners from "@/components/common/promo-banners";
-import { getProducts } from "@/data/products/get-products";
-import Image from "next/image";
-import { Header } from "../components/common/header";
+import Image from 'next/image';
+
+import { getCategories } from '@/actions/get-categories';
+import BrandPartners from '@/components/common/brand-partners';
+import ProductListClient from '@/components/common/product-list-client';
+import PromoBanners from '@/components/common/promo-banners';
+import { getProducts } from '@/data/products/get-products';
+
+import { Header } from '../components/common/header';
 
 export default async function Home() {
   const categories = await getCategories();
@@ -39,22 +41,14 @@ export default async function Home() {
           <BrandPartners />
 
           <div className="">
-            <ProductListClient
-              title="Mais vendidos"
-              type="best"
-              initialProducts={products}
-            />
+            <ProductListClient title="Mais vendidos" type="best" initialProducts={products} />
           </div>
 
           <PromoBanners />
 
           <div className="flex flex-col gap-8 md:flex-row md:gap-6">
             <div className="md:w-2/3">
-              <ProductListClient
-                title="Novidades"
-                type="new"
-                initialProducts={products}
-              />
+              <ProductListClient title="Novidades" type="new" initialProducts={products} />
             </div>
             <div className="flex items-center justify-center overflow-hidden rounded-3xl md:w-1/3">
               <Image
@@ -68,7 +62,6 @@ export default async function Home() {
             </div>
           </div>
         </div>
-        
       </main>
     </>
   );

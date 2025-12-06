@@ -1,11 +1,14 @@
-"use client";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type Resolver } from "react-hook-form";
-import z from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { type Resolver, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import { checkCpfExists } from "@/actions/check-cpf";
-import { updateUser } from "@/actions/update-user";
+import { checkCpfExists } from '@/actions/check-cpf';
+import { updateUser } from '@/actions/update-user';
 import {
   Card,
   CardContent,
@@ -13,7 +16,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -21,47 +24,46 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { isValidBRMobilePhone, isValidCPF } from "@/helpers/br-validators";
-import { useSetCpf } from "@/hooks/mutations/use-set-cpf";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { isValidBRMobilePhone, isValidCPF } from '@/helpers/br-validators';
+import { useSetCpf } from '@/hooks/mutations/use-set-cpf';
+import { authClient } from '@/lib/auth-client';
 
 const formSchema = z
   .object({
     cpf: z
       .string()
-      .min(11, "CPF é obrigatório")
-      .refine((v) => isValidCPF(v.replace(/\D/g, "")), {
-        message: "CPF inválido",
+      .min(11, 'CPF é obrigatório')
+      .refine(v => isValidCPF(v.replace(/\D/g, '')), {
+        message: 'CPF inválido',
       }),
     phone: z
       .string()
-      .min(10, "Telefone é obrigatório")
-      .refine((v) => isValidBRMobilePhone(v.replace(/\D/g, "")), {
-        message: "Telefone inválido",
+      .min(10, 'Telefone é obrigatório')
+      .refine(v => isValidBRMobilePhone(v.replace(/\D/g, '')), {
+        message: 'Telefone inválido',
       }),
     birthDate: z
       .string()
-      .min(8, "Data de nascimento é obrigatória")
-      .refine((v) => /^(\d{2}\/\d{2}\/\d{4})$/.test(v), {
-        message: "Data deve ter o formato DD/MM/AAAA",
+      .min(8, 'Data de nascimento é obrigatória')
+      .refine(v => /^(\d{2}\/\d{2}\/\d{4})$/.test(v), {
+        message: 'Data deve ter o formato DD/MM/AAAA',
       }),
     gender: z
-      .union([z.enum(["female", "male", "other"]), z.literal("")])
-      .refine((v) => v !== "", { message: "Selecione um gênero" }),
-    name: z.string().trim().min(1, "O nome é obrigatório."),
-    email: z.string().email("Formato de e-mail inválido. Use o formato: exemplo@email.com"),
-    password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
-    passwordConfirmation: z.string().min(8, "A confirmação de senha deve ter pelo menos 8 caracteres."),
+      .union([z.enum(['female', 'male', 'other']), z.literal('')])
+      .refine(v => v !== '', { message: 'Selecione um gênero' }),
+    name: z.string().trim().min(1, 'O nome é obrigatório.'),
+    email: z.string().email('Formato de e-mail inválido. Use o formato: exemplo@email.com'),
+    password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres.'),
+    passwordConfirmation: z
+      .string()
+      .min(8, 'A confirmação de senha deve ter pelo menos 8 caracteres.'),
   })
-  .refine((data) => data.password === data.passwordConfirmation, {
-    message: "As senhas não coincidem. Verifique se digitou corretamente.",
-    path: ["passwordConfirmation"],
+  .refine(data => data.password === data.passwordConfirmation, {
+    message: 'As senhas não coincidem. Verifique se digitou corretamente.',
+    path: ['passwordConfirmation'],
   });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -71,14 +73,14 @@ const SignUpForm = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as unknown as Resolver<FormValues>,
     defaultValues: {
-  cpf: "",
-  phone: "",
-  birthDate: "",
-  gender: "",
-  name: "",
-  email: "",
-  password: "",
-  passwordConfirmation: "",
+      cpf: '',
+      phone: '',
+      birthDate: '',
+      gender: '',
+      name: '',
+      email: '',
+      password: '',
+      passwordConfirmation: '',
     },
   });
 
@@ -87,59 +89,60 @@ const SignUpForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const maskCPF = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 11);
+    const digits = value.replace(/\D/g, '').slice(0, 11);
     return digits
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-      .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
   };
 
   const maskPhone = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 11);
+    const digits = value.replace(/\D/g, '').slice(0, 11);
     if (digits.length <= 2) return digits;
     if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    if (digits.length <= 10)
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   };
 
   const maskBirthDate = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 8);
+    const digits = value.replace(/\D/g, '').slice(0, 8);
     if (digits.length <= 2) return digits;
     if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
     return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
   };
 
   async function onSubmit(values: FormValues) {
-  if (isSubmitting) return;
-  setIsSubmitting(false);
+    if (isSubmitting) return;
+    setIsSubmitting(false);
 
-  const cleanedCpf = values.cpf.replace(/\D/g, "");
-    const cleanedPhone = values.phone.replace(/\D/g, "");
+    const cleanedCpf = values.cpf.replace(/\D/g, '');
+    const cleanedPhone = values.phone.replace(/\D/g, '');
 
     if (!cleanedCpf || !isValidCPF(cleanedCpf)) {
-      form.setError("cpf", { message: "CPF inválido." });
-  form.setFocus("cpf");
-  setIsSubmitting(false);
-  return;
+      form.setError('cpf', { message: 'CPF inválido.' });
+      form.setFocus('cpf');
+      setIsSubmitting(false);
+      return;
     }
 
     if (!isValidBRMobilePhone(cleanedPhone)) {
-      form.setError("phone", { message: "Telefone inválido." });
-  form.setFocus("phone");
-  setIsSubmitting(false);
-  return;
+      form.setError('phone', { message: 'Telefone inválido.' });
+      form.setFocus('phone');
+      setIsSubmitting(false);
+      return;
     }
 
     const exists = await checkCpfExists(cleanedCpf);
     if (exists) {
-      form.setError("cpf", { message: "CPF já cadastrado." });
-  form.setFocus("cpf");
-  setIsSubmitting(false);
-  return;
+      form.setError('cpf', { message: 'CPF já cadastrado.' });
+      form.setFocus('cpf');
+      setIsSubmitting(false);
+      return;
     }
-  setIsSubmitting(true);
+    setIsSubmitting(true);
 
-  try {
+    try {
       await authClient.signUp.email({
         name: values.name,
         email: values.email,
@@ -147,14 +150,17 @@ const SignUpForm = () => {
       });
 
       try {
-        await authClient.signIn.email({ email: values.email, password: values.password });
+        await authClient.signIn.email({
+          email: values.email,
+          password: values.password,
+        });
       } catch (err) {
-        console.error("Falha ao autenticar após cadastro:", err);
+        console.error('Falha ao autenticar após cadastro:', err);
       }
 
       const birthIso = (() => {
         try {
-          const parts = values.birthDate.split("/");
+          const parts = values.birthDate.split('/');
           if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
           return values.birthDate;
         } catch {
@@ -163,28 +169,35 @@ const SignUpForm = () => {
       })();
 
       try {
-        await updateUser({ phone: cleanedPhone, birthDate: birthIso, gender: values.gender });
+        await updateUser({
+          phone: cleanedPhone,
+          birthDate: birthIso,
+          gender: values.gender,
+        });
       } catch (e) {
-        console.error("Falha ao salvar dados adicionais:", e);
+        console.error('Falha ao salvar dados adicionais:', e);
       }
 
       try {
-        await setCpfMutation.mutateAsync(cleanedCpf || "");
+        await setCpfMutation.mutateAsync(cleanedCpf || '');
       } catch (e) {
         console.error(e);
-        toast.error("Conta criada, mas não foi possível registrar CPF: " + (e instanceof Error ? e.message : ""));
+        toast.error(
+          'Conta criada, mas não foi possível registrar CPF: ' +
+            (e instanceof Error ? e.message : ''),
+        );
       }
 
-      router.push("/");
-  } catch (error: any) {
-      if (error?.error?.code === "USER_ALREADY_EXISTS") {
-        toast.error("E-mail já cadastrado.");
-        form.setError("email", {
-          message: "E-mail já cadastrado.",
+      router.push('/');
+    } catch (error: any) {
+      if (error?.error?.code === 'USER_ALREADY_EXISTS') {
+        toast.error('E-mail já cadastrado.');
+        form.setError('email', {
+          message: 'E-mail já cadastrado.',
         });
-        form.setFocus("email");
-  setIsSubmitting(false);
-  return;
+        form.setFocus('email');
+        setIsSubmitting(false);
+        return;
       }
       toast.error(error?.error?.message || String(error));
     } finally {
@@ -226,7 +239,7 @@ const SignUpForm = () => {
                       <Input
                         placeholder="000.000.000-00"
                         value={field.value}
-                        onChange={(e) => field.onChange(maskCPF(e.target.value))}
+                        onChange={e => field.onChange(maskCPF(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -256,7 +269,7 @@ const SignUpForm = () => {
                       <Input
                         placeholder="(00) 9 0000-0000"
                         value={field.value}
-                        onChange={(e) => field.onChange(maskPhone(e.target.value))}
+                        onChange={e => field.onChange(maskPhone(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -274,7 +287,7 @@ const SignUpForm = () => {
                       <Input
                         placeholder="DD/MM/AAAA"
                         value={field.value}
-                        onChange={(e) => field.onChange(maskBirthDate(e.target.value))}
+                        onChange={e => field.onChange(maskBirthDate(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />

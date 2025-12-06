@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull } from 'drizzle-orm';
 
-import { db } from "@/db";
+import { db } from '@/db';
 import {
   cartItemTable,
   cartTable,
@@ -10,15 +10,15 @@ import {
   orderItemTable,
   orderTable,
   reservationTable,
-} from "@/db/schema";
-import { requireAuth } from "@/lib/auth-middleware";
+} from '@/db/schema';
+import { requireAuth } from '@/lib/auth-middleware';
 
 export const finishOrder = async () => {
   try {
     const userId = await requireAuth();
     if (!userId) {
       return {
-        error: { code: "UNAUTHORIZED", message: "User must be logged in" },
+        error: { code: 'UNAUTHORIZED', message: 'User must be logged in' },
       };
     }
 
@@ -34,10 +34,10 @@ export const finishOrder = async () => {
       },
     });
     if (!cart) {
-      throw new Error("Cart not found");
+      throw new Error('Cart not found');
     }
     if (!cart.shippingAddress) {
-      throw new Error("Shipping address not found");
+      throw new Error('Shipping address not found');
     }
     const totalPriceInCents = cart.items.reduce(
       (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
@@ -45,7 +45,7 @@ export const finishOrder = async () => {
     );
     let orderId: string | undefined;
     let reservationExpiresAt: Date | undefined;
-    const isStrict = process.env.INVENTORY_STRICT === "true";
+    const isStrict = process.env.INVENTORY_STRICT === 'true';
     let removedItems: Array<{
       productVariantId: string;
       productVariantSizeId?: string | null;
@@ -55,7 +55,7 @@ export const finishOrder = async () => {
     }> = [];
 
     try {
-      await db.transaction(async (tx) => {
+      await db.transaction(async tx => {
         const stockChecks: Array<{
           item: (typeof cart.items)[number];
           stockRow: typeof inventoryItemTable.$inferSelect | undefined;
@@ -86,7 +86,7 @@ export const finishOrder = async () => {
           const { item, stockRow } = chk;
           if (!stockRow) {
             if (isStrict) {
-              throw new Error("Produto sem controle de estoque configurado");
+              throw new Error('Produto sem controle de estoque configurado');
             }
             continue;
           }
@@ -111,10 +111,7 @@ export const finishOrder = async () => {
                   and(
                     eq(cartItemTable.cartId, cart.id),
                     eq(cartItemTable.productVariantId, it.productVariantId),
-                    eq(
-                      cartItemTable.productVariantSizeId,
-                      it.productVariantSizeId,
-                    ),
+                    eq(cartItemTable.productVariantSizeId, it.productVariantSizeId),
                   ),
                 );
             } else {
@@ -134,7 +131,7 @@ export const finishOrder = async () => {
         }
 
         if (!cart.shippingAddress) {
-          throw new Error("Shipping address not found");
+          throw new Error('Shipping address not found');
         }
 
         const [order] = await tx
@@ -158,7 +155,7 @@ export const finishOrder = async () => {
           })
           .returning();
         if (!order) {
-          throw new Error("Failed to create order");
+          throw new Error('Failed to create order');
         }
         orderId = order.id;
         const orderItemsPayload: Array<typeof orderItemTable.$inferInsert> = [];
@@ -178,7 +175,7 @@ export const finishOrder = async () => {
 
         const reserveMinutes = Number(process.env.RESERVATION_MINUTES) || 15;
         const expiresAt = new Date(Date.now() + reserveMinutes * 60 * 1000);
-        const reservationsPayload = orderItemsPayload.map((oi) => ({
+        const reservationsPayload = orderItemsPayload.map(oi => ({
           orderId: oi.orderId,
           productVariantId: oi.productVariantId,
           productVariantSizeId: oi.productVariantSizeId ?? null,
@@ -196,7 +193,7 @@ export const finishOrder = async () => {
       if (err instanceof Error) {
         try {
           const parsed = JSON.parse(err.message);
-          if (parsed?.code === "INSUFFICIENT_STOCK") {
+          if (parsed?.code === 'INSUFFICIENT_STOCK') {
             return { error: parsed };
           }
         } catch (_) {}
@@ -204,8 +201,8 @@ export const finishOrder = async () => {
 
       return {
         error: {
-          code: "SERVER_ERROR",
-          message: "Internal server error while creating order",
+          code: 'SERVER_ERROR',
+          message: 'Internal server error while creating order',
           detail: err instanceof Error ? err.message : String(err),
         },
       };
@@ -217,7 +214,7 @@ export const finishOrder = async () => {
 
     if (!orderId) {
       return {
-        error: { code: "SERVER_ERROR", message: "Failed to create order" },
+        error: { code: 'SERVER_ERROR', message: 'Failed to create order' },
       };
     }
 
@@ -225,8 +222,8 @@ export const finishOrder = async () => {
   } catch (err: unknown) {
     return {
       error: {
-        code: "SERVER_ERROR",
-        message: "Unexpected server error",
+        code: 'SERVER_ERROR',
+        message: 'Unexpected server error',
         detail: err instanceof Error ? err.message : String(err),
       },
     };

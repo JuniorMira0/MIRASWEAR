@@ -1,17 +1,14 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 
-import { productVariantTable } from "@/db/schema";
+import { productVariantTable } from '@/db/schema';
 
 interface VariantSelectorProps {
   selectedVariantSlug: string;
   variants: (typeof productVariantTable.$inferSelect & { stock?: number })[];
 }
 
-const VariantSelector = ({
-  selectedVariantSlug,
-  variants,
-}: VariantSelectorProps) => {
+const VariantSelector = ({ selectedVariantSlug, variants }: VariantSelectorProps) => {
   const sortedVariants = [...variants].sort((a, b) => {
     const aOut = (a.stock ?? 0) <= 0;
     const bOut = (b.stock ?? 0) <= 0;
@@ -21,14 +18,12 @@ const VariantSelector = ({
 
   return (
     <div className="flex items-center gap-2.5">
-      {sortedVariants.map((variant) => (
+      {sortedVariants.map(variant => (
         <Link
           href={`/product-variant/${variant.slug}`}
           key={variant.id}
           className={
-            selectedVariantSlug === variant.slug
-              ? "border-primary rounded-xl border-2"
-              : ""
+            selectedVariantSlug === variant.slug ? 'border-primary rounded-xl border-2' : ''
           }
         >
           <Image

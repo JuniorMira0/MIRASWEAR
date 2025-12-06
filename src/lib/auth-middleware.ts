@@ -1,8 +1,9 @@
-import { db } from "@/db";
-import { userTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
-import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
+import { eq } from 'drizzle-orm';
+import { headers } from 'next/headers';
+
+import { db } from '@/db';
+import { userTable } from '@/db/schema';
+import { auth } from '@/lib/auth';
 
 export const requireAuth = async (): Promise<string> => {
   const session = await auth.api.getSession({
@@ -10,13 +11,16 @@ export const requireAuth = async (): Promise<string> => {
   });
 
   if (!session?.user) {
-    throw new Error("Unauthorized: User must be logged in");
+    throw new Error('Unauthorized: User must be logged in');
   }
 
   return session.user.id;
 };
 
-export const requireAdmin = async (): Promise<{ id: string; email: string } | null> => {
+export const requireAdmin = async (): Promise<{
+  id: string;
+  email: string;
+} | null> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

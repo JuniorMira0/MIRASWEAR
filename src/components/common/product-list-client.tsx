@@ -1,21 +1,22 @@
-"use client";
-import ProductList from "@/components/common/product-list";
-import { useQuery } from "@tanstack/react-query";
+'use client';
+import { useQuery } from '@tanstack/react-query';
+
+import ProductList from '@/components/common/product-list';
 
 interface ProductListClientProps {
   title: string;
-  type?: "best" | "new";
+  type?: 'best' | 'new';
   initialProducts?: any[];
 }
 
 export default function ProductListClient(props: ProductListClientProps) {
-  const { title, type = "best", initialProducts = [] } = props;
+  const { title, type = 'best', initialProducts = [] } = props;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["products-home"],
+    queryKey: ['products-home'],
     queryFn: async () => {
-      const res = await fetch("/api/products");
-      if (!res.ok) throw new Error("Erro ao buscar produtos");
+      const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('Erro ao buscar produtos');
       return res.json();
     },
     refetchInterval: 5000,
@@ -26,13 +27,11 @@ export default function ProductListClient(props: ProductListClientProps) {
   });
 
   let products = [];
-  if (type === "best") {
+  if (type === 'best') {
     products = data?.products ?? initialProducts;
-  } else if (type === "new") {
+  } else if (type === 'new') {
     products = data?.newlyAddedProducts ?? initialProducts;
   }
 
-  return (
-    <ProductList title={title} products={products} isLoading={isLoading} />
-  );
+  return <ProductList title={title} products={products} isLoading={isLoading} />;
 }

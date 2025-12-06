@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import { productTable, productVariantTable } from "@/db/schema";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import ProductItem from "./product-item";
+import { productTable, productVariantTable } from '@/db/schema';
+
+import ProductItem from './product-item';
 
 interface ProductListProps {
   title: string;
@@ -35,13 +36,13 @@ const ProductList = ({ title, products, isLoading }: ProductListProps) => {
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => update();
-    el.addEventListener("scroll", onScroll, { passive: true });
+    el.addEventListener('scroll', onScroll, { passive: true });
     const onResize = () => update();
-    window.addEventListener("resize", onResize);
+    window.addEventListener('resize', onResize);
 
     return () => {
-      el.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
+      el.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
     };
   }, [update]);
 
@@ -59,36 +60,34 @@ const ProductList = ({ title, products, isLoading }: ProductListProps) => {
   const scrollByAmount = (dir: 1 | -1) => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: "smooth" });
+    el.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowRight") {
+    if (e.key === 'ArrowRight') {
       e.preventDefault();
       scrollByAmount(1);
-    } else if (e.key === "ArrowLeft") {
+    } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       scrollByAmount(-1);
     }
   };
 
   const sortedProducts = [...products].sort((a, b) => {
-    const isAOut = a.variants.every((v) => {
+    const isAOut = a.variants.every(v => {
       if (!v.inventoryItems || v.inventoryItems.length === 0) return true;
       return (
         v.inventoryItems.reduce(
-          (sum: number, item: { quantity: number }) =>
-            sum + (item.quantity ?? 0),
+          (sum: number, item: { quantity: number }) => sum + (item.quantity ?? 0),
           0,
         ) <= 0
       );
     });
-    const isBOut = b.variants.every((v) => {
+    const isBOut = b.variants.every(v => {
       if (!v.inventoryItems || v.inventoryItems.length === 0) return true;
       return (
         v.inventoryItems.reduce(
-          (sum: number, item: { quantity: number }) =>
-            sum + (item.quantity ?? 0),
+          (sum: number, item: { quantity: number }) => sum + (item.quantity ?? 0),
           0,
         ) <= 0
       );
@@ -113,7 +112,7 @@ const ProductList = ({ title, products, isLoading }: ProductListProps) => {
             aria-label={`Lista de produtos: ${title}`}
             className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-5 md:gap-3 md:px-11 [&::-webkit-scrollbar]:hidden"
           >
-            {sortedProducts.map((product) => (
+            {sortedProducts.map(product => (
               <div
                 key={product.id}
                 className="min-w-[140px] snap-start md:min-w-[168px] lg:min-w-[180px]"

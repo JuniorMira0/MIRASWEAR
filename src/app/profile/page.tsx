@@ -1,11 +1,13 @@
-import { getCategories } from "@/actions/get-categories";
-import { Header } from "@/components/common/header";
-import { db } from "@/db";
-import { userTable } from "@/db/schema";
-import { requireAuth } from "@/lib/auth-middleware";
-import { eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
-import ProfileShell from "./components/shell";
+import { eq } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
+
+import { getCategories } from '@/actions/get-categories';
+import { Header } from '@/components/common/header';
+import { db } from '@/db';
+import { userTable } from '@/db/schema';
+import { requireAuth } from '@/lib/auth-middleware';
+
+import ProfileShell from './components/shell';
 
 const ProfilePage = async () => {
   const categories = await getCategories();

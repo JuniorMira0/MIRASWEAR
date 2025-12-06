@@ -1,7 +1,11 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { TrashIcon } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -10,15 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { RadioGroupItem } from "@/components/ui/radio-group";
-import { shippingAddressTable } from "@/db/schema";
-import { useDeleteShippingAddress } from "@/hooks/mutations/use-delete-shipping-address";
-import { TrashIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { formatAddress } from "../../helpers/address";
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { RadioGroupItem } from '@/components/ui/radio-group';
+import { shippingAddressTable } from '@/db/schema';
+import { useDeleteShippingAddress } from '@/hooks/mutations/use-delete-shipping-address';
+
+import { formatAddress } from '../../helpers/address';
 
 interface AddressCardItemProps {
   address: typeof shippingAddressTable.$inferSelect;
@@ -32,13 +34,12 @@ export function AddressCardItem({ address, onDeleted }: AddressCardItemProps) {
   const handleDelete = async () => {
     try {
       const res = await deleteMutation.mutateAsync(address.id);
-      toast.success("Endereço excluído com sucesso");
+      toast.success('Endereço excluído com sucesso');
       onDeleted?.(address.id);
       setOpen(false);
       return res;
     } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "Não foi possível excluir o endereço";
+      const msg = e instanceof Error ? e.message : 'Não foi possível excluir o endereço';
       toast.error(msg);
     }
   };
@@ -57,12 +58,7 @@ export function AddressCardItem({ address, onDeleted }: AddressCardItemProps) {
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                aria-label="Excluir endereço"
-              >
+              <Button type="button" variant="outline" size="icon" aria-label="Excluir endereço">
                 <TrashIcon className="h-4 w-4" />
               </Button>
             </DialogTrigger>
@@ -70,8 +66,7 @@ export function AddressCardItem({ address, onDeleted }: AddressCardItemProps) {
               <DialogHeader>
                 <DialogTitle>Excluir endereço?</DialogTitle>
                 <DialogDescription>
-                  Essa ação não pode ser desfeita. Deseja remover este endereço
-                  da sua conta?
+                  Essa ação não pode ser desfeita. Deseja remover este endereço da sua conta?
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -83,7 +78,7 @@ export function AddressCardItem({ address, onDeleted }: AddressCardItemProps) {
                   onClick={handleDelete}
                   disabled={deleteMutation.isPending}
                 >
-                  {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+                  {deleteMutation.isPending ? 'Excluindo...' : 'Excluir'}
                 </Button>
               </DialogFooter>
             </DialogContent>

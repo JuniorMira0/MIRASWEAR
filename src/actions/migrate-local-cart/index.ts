@@ -1,11 +1,12 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { cartItemTable, cartTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
+import { eq } from 'drizzle-orm';
+import { headers } from 'next/headers';
+
+import { db } from '@/db';
+import { cartItemTable, cartTable } from '@/db/schema';
+import { auth } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 export interface LocalCartItem {
   productVariantId: string;
@@ -36,20 +37,15 @@ export const migrateLocalCartToServer = async (
     });
 
     if (!cart) {
-      const [newCart] = await db
-        .insert(cartTable)
-        .values({ userId })
-        .returning();
+      const [newCart] = await db.insert(cartTable).values({ userId }).returning();
       cart = newCart;
     }
 
-    const variantIds = Array.from(
-      new Set(localCartItems.map((i) => i.productVariantId)),
-    );
+    const variantIds = Array.from(new Set(localCartItems.map(i => i.productVariantId)));
     const variants = await db.query.productVariantTable.findMany({
       where: (pv, { inArray }) => inArray(pv.id, variantIds),
     });
-    const variantMap = new Map(variants.map((v) => [v.id, v]));
+    const variantMap = new Map(variants.map(v => [v.id, v]));
 
     let sizeTableSupported = true;
     let sizesByVariant = new Map<string, { id: string; size: string }[]>();
@@ -67,9 +63,7 @@ export const migrateLocalCartToServer = async (
       );
     } catch (e) {
       sizeTableSupported = false;
-      logger.warn(
-        "product_variant_size table not available; migrating without sizes",
-      );
+      logger.warn('product_variant_size table not available; migrating without sizes');
     }
 
     let migrated = 0;
@@ -82,17 +76,13 @@ export const migrateLocalCartToServer = async (
       if (!variant) continue;
 
       // Resolve a valid size id for this variant (by id or label), else null
-      const variantSizes = sizeTableSupported
-        ? (sizesByVariant.get(variant.id) ?? [])
-        : [];
+      const variantSizes = sizeTableSupported ? (sizesByVariant.get(variant.id) ?? []) : [];
       const resolvedSizeId = (() => {
-        const byId = variantSizes.find(
-          (s) => s.id === (localItem.productVariantSizeId ?? undefined),
-        );
+        const byId = variantSizes.find(s => s.id === (localItem.productVariantSizeId ?? undefined));
         if (byId) return byId.id;
         if (localItem.sizeLabel) {
           const byLabel = variantSizes.find(
-            (s) => s.size?.toLowerCase() === localItem.sizeLabel?.toLowerCase(),
+            s => s.size?.toLowerCase() === localItem.sizeLabel?.toLowerCase(),
           );
           if (byLabel) return byLabel.id;
         }
@@ -115,7 +105,7 @@ export const migrateLocalCartToServer = async (
           cartItemSizeSupported = true;
         } catch (e) {
           logger.warn(
-            "cart_item.product_variant_size_id not available; migrating without size dimension",
+            'cart_item.product_variant_size_id not available; migrating without size dimension',
           );
           cartItemSizeSupported = false;
         }
@@ -145,9 +135,7 @@ export const migrateLocalCartToServer = async (
               quantity: localItem.quantity,
             });
           } catch (e) {
-            logger.warn(
-              "Insert with size failed; retrying without size column",
-            );
+            logger.warn('Insert with size failed; retrying without size column');
             cartItemSizeSupported = false;
             await db.insert(cartItemTable).values({
               cartId: cart.id,
@@ -167,7 +155,7 @@ export const migrateLocalCartToServer = async (
     }
     return { ok: true, migrated };
   } catch (err) {
-    logger.error("migrateLocalCartToServer error:", err);
-    return { ok: false, error: err instanceof Error ? err.message : "unknown" };
+    logger.error('migrateLocalCartToServer error:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'unknown' };
   }
 };

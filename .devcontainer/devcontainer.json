@@ -1,0 +1,14 @@
+{
+  "name": "Meu Projeto Pesado",
+  "settings": {},
+  "extensions": [
+    "dbaeumer.vscode-eslint"
+  ],
+  "features": {},
+  "forwardPorts": [3000],
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  }
+}

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -11,7 +11,11 @@ export default function ActiveCheckbox({ id, initial }: { id: string; initial: b
     setLoading(true);
     try {
       const newState = !checked;
-      const res = await fetch('/api/admin/set-product-active', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, active: newState }) });
+      const res = await fetch('/api/admin/set-product-active', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, active: newState }),
+      });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || 'Erro ao atualizar');
       setChecked(newState);
@@ -27,7 +31,7 @@ export default function ActiveCheckbox({ id, initial }: { id: string; initial: b
   return (
     <label className="flex items-center gap-2">
       <input type="checkbox" checked={checked} disabled={loading} onChange={toggle} />
-      <span className="text-sm text-muted-foreground">Ativo</span>
+      <span className="text-muted-foreground text-sm">Ativo</span>
     </label>
   );
 }

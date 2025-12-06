@@ -1,4 +1,11 @@
-"use client";
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { PatternFormat } from 'react-number-format';
+import { toast } from 'sonner';
+import z from 'zod';
 
 import {
   Form,
@@ -7,25 +14,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { authClient } from "@/lib/auth-client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { PatternFormat } from "react-number-format";
-import { toast } from "sonner";
-import z from "zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { authClient } from '@/lib/auth-client';
 
 const formSchema = z.object({
-  zipCode: z.string().min(9, "Por favor, digite um CEP válido"),
-  address: z.string().min(1, "Por favor, digite seu endereço"),
-  number: z.string().min(1, "Por favor, digite o número"),
+  zipCode: z.string().min(9, 'Por favor, digite um CEP válido'),
+  address: z.string().min(1, 'Por favor, digite seu endereço'),
+  number: z.string().min(1, 'Por favor, digite o número'),
   complement: z.string().optional(),
-  neighborhood: z.string().min(1, "Por favor, digite o bairro"),
-  city: z.string().min(1, "Por favor, digite a cidade"),
-  state: z.string().min(1, "Por favor, digite o estado"),
+  neighborhood: z.string().min(1, 'Por favor, digite o bairro'),
+  city: z.string().min(1, 'Por favor, digite a cidade'),
+  state: z.string().min(1, 'Por favor, digite o estado'),
 });
 
 export type AddressFormValues = z.infer<typeof formSchema>;
@@ -39,62 +40,59 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-  zipCode: "",
-      address: "",
-      number: "",
-      complement: "",
-      neighborhood: "",
-      city: "",
-      state: "",
+      zipCode: '',
+      address: '',
+      number: '',
+      complement: '',
+      neighborhood: '',
+      city: '',
+      state: '',
     },
   });
 
   const { data: session } = authClient.useSession();
   // no personal fields here; address-only form
-  useEffect(() => {
-  }, [session, form]);
+  useEffect(() => {}, [session, form]);
 
   // CEP auto lookup
-  const zipCodeValue = form.watch("zipCode");
-  const [cepStatus, setCepStatus] = useState<
-    "idle" | "loading" | "done" | "error"
-  >("idle");
-  const [lastFetchedCep, setLastFetchedCep] = useState<string>("");
+  const zipCodeValue = form.watch('zipCode');
+  const [cepStatus, setCepStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [lastFetchedCep, setLastFetchedCep] = useState<string>('');
   useEffect(() => {
-    const cleanCep = (zipCodeValue || "").replace(/\D/g, "");
+    const cleanCep = (zipCodeValue || '').replace(/\D/g, '');
     if (cleanCep.length !== 8 || cleanCep === lastFetchedCep) return;
     let cancelled = false;
     const lookup = async () => {
       try {
-        setCepStatus("loading");
+        setCepStatus('loading');
         const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-        if (!res.ok) throw new Error("Falha ao buscar CEP");
+        if (!res.ok) throw new Error('Falha ao buscar CEP');
         const data = await res.json();
         if (cancelled) return;
         if (data?.erro) {
-          setCepStatus("error");
-          toast.error("CEP não encontrado");
+          setCepStatus('error');
+          toast.error('CEP não encontrado');
           return;
         }
-        form.setValue("address", data.logradouro || "", {
+        form.setValue('address', data.logradouro || '', {
           shouldValidate: true,
         });
-        form.setValue("neighborhood", data.bairro || "", {
+        form.setValue('neighborhood', data.bairro || '', {
           shouldValidate: true,
         });
-        form.setValue("city", data.localidade || "", { shouldValidate: true });
-        form.setValue("state", data.uf || "", { shouldValidate: true });
+        form.setValue('city', data.localidade || '', { shouldValidate: true });
+        form.setValue('state', data.uf || '', { shouldValidate: true });
         if (data.complemento) {
-          form.setValue("complement", data.complemento, {
+          form.setValue('complement', data.complemento, {
             shouldValidate: true,
           });
         }
         setLastFetchedCep(cleanCep);
-        setCepStatus("done");
+        setCepStatus('done');
       } catch (e) {
         if (cancelled) return;
-        setCepStatus("error");
-        toast.error("Não foi possível buscar o CEP");
+        setCepStatus('error');
+        toast.error('Não foi possível buscar o CEP');
       }
     };
     lookup();
@@ -105,10 +103,7 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(async (v) => onSubmit(v))}
-        className="mt-4 space-y-4"
-      >
+      <form onSubmit={form.handleSubmit(async v => onSubmit(v))} className="mt-4 space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -125,10 +120,8 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
                   />
                 </FormControl>
                 <FormMessage />
-                {cepStatus === "loading" && (
-                  <p className="text-muted-foreground text-xs">
-                    Buscando endereço pelo CEP…
-                  </p>
+                {cepStatus === 'loading' && (
+                  <p className="text-muted-foreground text-xs">Buscando endereço pelo CEP…</p>
                 )}
               </FormItem>
             )}
@@ -166,10 +159,7 @@ export function AddressForm({ onSubmit, isSubmitting }: AddressFormProps) {
               <FormItem>
                 <FormLabel>Complemento</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Apto, bloco, etc. (opcional)"
-                    {...field}
-                  />
+                  <Input placeholder="Apto, bloco, etc. (opcional)" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

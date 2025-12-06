@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import clsx from "clsx";
+import clsx from 'clsx';
 
 export default function CheckoutSteps({ current }: { current: 1 | 2 | 3 }) {
-  const steps = ["Sacola", "Identificação", "Pagamento"];
+  const steps = ['Sacola', 'Identificação', 'Pagamento'];
   return (
     <div className="mx-auto w-full max-w-7xl px-5 py-3">
       <div className="flex items-center">
@@ -16,12 +16,10 @@ export default function CheckoutSteps({ current }: { current: 1 | 2 | 3 }) {
               <div className="flex items-center gap-3">
                 <div
                   className={clsx(
-                    "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold",
+                    'flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold',
                     {
-                      "bg-primary border-primary text-white":
-                        isDone || isActive,
-                      "text-muted-foreground border-muted bg-white":
-                        !isDone && !isActive,
+                      'bg-primary border-primary text-white': isDone || isActive,
+                      'text-muted-foreground border-muted bg-white': !isDone && !isActive,
                     },
                   )}
                 >
@@ -48,9 +46,9 @@ export default function CheckoutSteps({ current }: { current: 1 | 2 | 3 }) {
 
                 <div className="hidden md:block">
                   <div
-                    className={clsx("text-sm font-medium", {
-                      "text-primary": isDone || isActive,
-                      "text-muted-foreground": !isDone && !isActive,
+                    className={clsx('text-sm font-medium', {
+                      'text-primary': isDone || isActive,
+                      'text-muted-foreground': !isDone && !isActive,
                     })}
                   >
                     {label}
@@ -61,9 +59,9 @@ export default function CheckoutSteps({ current }: { current: 1 | 2 | 3 }) {
               {idx < steps.length - 1 && (
                 <div
                   aria-hidden
-                  className={clsx("mx-4 hidden h-1 flex-1 rounded md:block", {
-                    "bg-primary": isDone,
-                    "bg-muted": !isDone,
+                  className={clsx('mx-4 hidden h-1 flex-1 rounded md:block', {
+                    'bg-primary': isDone,
+                    'bg-muted': !isDone,
                   })}
                 />
               )}

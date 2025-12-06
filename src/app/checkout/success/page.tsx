@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 
-import { Header } from "@/components/common/header";
-import { Button } from "@/components/ui/button";
+import { Header } from '@/components/common/header';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
 const CheckoutSuccessPage = () => {
   return (
@@ -28,20 +28,15 @@ const CheckoutSuccessPage = () => {
           />
           <DialogTitle className="mt-4 text-2xl">Pedido efetuado!</DialogTitle>
           <DialogDescription className="font-medium">
-            Seu pedido foi efetuado com sucesso. Você pode acompanhar o status
-            na seção de “Meus Pedidos”.
+            Seu pedido foi efetuado com sucesso. Você pode acompanhar o status na seção de “Meus
+            Pedidos”.
           </DialogDescription>
 
           <DialogFooter>
             <Button className="rounded-full" size="lg">
               <Link href="/my-orders">Meus Pedidos</Link>
             </Button>
-            <Button
-              className="rounded-full"
-              variant="outline"
-              size="lg"
-              asChild
-            >
+            <Button className="rounded-full" variant="outline" size="lg" asChild>
               <Link href="/">Voltar para a loja</Link>
             </Button>
           </DialogFooter>

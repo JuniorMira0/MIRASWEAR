@@ -1,23 +1,19 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { formatCentsToBRL } from "@/helpers/money";
-import { useCartStore } from "@/hooks/cart-store";
-import { useCart } from "@/hooks/queries/use-cart";
-import { authClient } from "@/lib/auth-client";
-import { ShoppingBasketIcon } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "../ui/sheet";
-import CartItem from "./cart-item";
+import { ShoppingBasketIcon } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
+import { formatCentsToBRL } from '@/helpers/money';
+import { useCartStore } from '@/hooks/cart-store';
+import { useCart } from '@/hooks/queries/use-cart';
+import { authClient } from '@/lib/auth-client';
+
+import { ScrollArea } from '../ui/scroll-area';
+import { Separator } from '../ui/separator';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+import CartItem from './cart-item';
 
 export const Cart = () => {
   const { data: session } = authClient.useSession();
@@ -26,7 +22,7 @@ export const Cart = () => {
   const { state: guestState, cartOpen, setCartOpen } = useCartStore();
   const router = useRouter();
   const cartItems = isLogged
-    ? (serverCart?.items?.filter((i) => i) ?? []).map((i) => ({
+    ? (serverCart?.items?.filter(i => i) ?? []).map(i => ({
         id: i.id,
         cartId: i.cartId,
         productVariantId: i.productVariantId,
@@ -35,19 +31,19 @@ export const Cart = () => {
         sizeLabel: i.size?.size ?? null,
         productVariant: i.productVariant,
       }))
-    : guestState.items.map((i) => ({
-        id: `local-${i.productVariantId}-${i.productVariantSizeId ?? ""}`,
-        cartId: "local",
+    : guestState.items.map(i => ({
+        id: `local-${i.productVariantId}-${i.productVariantSizeId ?? ''}`,
+        cartId: 'local',
         productVariantId: i.productVariantId,
         productVariantSizeId: i.productVariantSizeId ?? null,
         quantity: i.quantity,
         sizeLabel: i.sizeLabel ?? null,
         productVariant: {
           id: i.productVariantId,
-          name: i.productVariantName || "Produto",
-          imageUrl: i.productVariantImageUrl || "/logo.png",
+          name: i.productVariantName || 'Produto',
+          imageUrl: i.productVariantImageUrl || '/logo.png',
           priceInCents: i.productVariantPriceInCents || 0,
-          product: { id: "local-product", name: i.productName || "Produto" },
+          product: { id: 'local-product', name: i.productName || 'Produto' },
         },
       }));
   const totalPriceInCents = cartItems.reduce(
@@ -58,15 +54,11 @@ export const Cart = () => {
   return (
     <Sheet open={cartOpen} onOpenChange={setCartOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="relative md:h-12 md:w-12"
-        >
+        <Button variant="outline" size="icon" className="relative md:h-12 md:w-12">
           <ShoppingBasketIcon className="md:h-7 md:w-7" />
           {totalItems > 0 && (
             <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold">
-              {totalItems > 99 ? "99+" : totalItems}
+              {totalItems > 99 ? '99+' : totalItems}
             </span>
           )}
         </Button>
@@ -94,7 +86,7 @@ export const Cart = () => {
                         className="rounded-full"
                         onClick={() => {
                           setCartOpen(false);
-                          router.push("/");
+                          router.push('/');
                         }}
                       >
                         Continuar comprando
@@ -102,7 +94,7 @@ export const Cart = () => {
                     </div>
                   </div>
                 ) : (
-                  cartItems.map((item) => (
+                  cartItems.map(item => (
                     <CartItem
                       key={item.id}
                       id={item.id}
@@ -111,9 +103,7 @@ export const Cart = () => {
                       productName={item.productVariant.product.name}
                       productVariantName={item.productVariant.name}
                       productVariantImageUrl={item.productVariant.imageUrl}
-                      productVariantPriceInCents={
-                        item.productVariant.priceInCents
-                      }
+                      productVariantPriceInCents={item.productVariant.priceInCents}
                       quantity={item.quantity}
                       sizeLabel={item.sizeLabel}
                       isLocal={!isLogged}
@@ -145,15 +135,13 @@ export const Cart = () => {
                   onClick={() => {
                     setCartOpen(false);
                     if (isLogged) {
-                      router.push("/cart/identification");
+                      router.push('/cart/identification');
                     } else {
-                      router.push(
-                        "/authentication?redirect=/cart/identification",
-                      );
+                      router.push('/authentication?redirect=/cart/identification');
                     }
                   }}
                 >
-                  {isLogged ? "Finalizar compra" : "Fazer login para continuar"}
+                  {isLogged ? 'Finalizar compra' : 'Fazer login para continuar'}
                 </Button>
               </div>
             </div>

@@ -1,37 +1,29 @@
-"use server";
+'use server';
 
-import { eq } from "drizzle-orm";
+import { eq } from 'drizzle-orm';
 
-import { db } from "@/db";
-import { cartTable } from "@/db/schema";
-
-import {
-  UpdateCartShippingAddressSchema,
-  updateCartShippingAddressSchema,
-} from "./schema";
+import { db } from '@/db';
+import { cartTable } from '@/db/schema';
 import { requireAuth } from '@/lib/auth-middleware';
 
-export const updateCartShippingAddress = async (
-  data: UpdateCartShippingAddressSchema,
-) => {
+import { UpdateCartShippingAddressSchema, updateCartShippingAddressSchema } from './schema';
+
+export const updateCartShippingAddress = async (data: UpdateCartShippingAddressSchema) => {
   updateCartShippingAddressSchema.parse(data);
 
   const userId = await requireAuth();
 
   if (!userId) {
-    throw new Error("Unauthorized");
+    throw new Error('Unauthorized');
   }
 
   const shippingAddress = await db.query.shippingAddressTable.findFirst({
     where: (shippingAddress, { eq, and }) =>
-      and(
-        eq(shippingAddress.id, data.shippingAddressId),
-        eq(shippingAddress.userId, userId),
-      ),
+      and(eq(shippingAddress.id, data.shippingAddressId), eq(shippingAddress.userId, userId)),
   });
 
   if (!shippingAddress) {
-    throw new Error("Shipping address not found or unauthorized");
+    throw new Error('Shipping address not found or unauthorized');
   }
 
   const cart = await db.query.cartTable.findFirst({
@@ -39,7 +31,7 @@ export const updateCartShippingAddress = async (
   });
 
   if (!cart) {
-    throw new Error("Cart not found");
+    throw new Error('Cart not found');
   }
 
   await db

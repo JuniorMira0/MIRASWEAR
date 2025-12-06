@@ -1,9 +1,9 @@
-"use server";
+'use server';
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull } from 'drizzle-orm';
 
-import { db } from "@/db";
-import { inventoryItemTable } from "@/db/schema";
+import { db } from '@/db';
+import { inventoryItemTable } from '@/db/schema';
 
 export const getVariantStock = async (
   productVariantId: string,

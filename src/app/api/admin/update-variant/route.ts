@@ -1,5 +1,6 @@
-import { updateProductVariant } from '@/actions/products/update-variant';
 import { NextResponse } from 'next/server';
+
+import { updateProductVariant } from '@/actions/products/update-variant';
 
 export async function POST(req: Request) {
   try {
@@ -8,8 +9,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
     const e: any = err;
-    const payload: any = { ok: false, error: e?.message ?? 'Erro desconhecido' };
+    const payload: any = {
+      ok: false,
+      error: e?.message ?? 'Erro desconhecido',
+    };
     if (e?.stack) payload.stack = e.stack;
-    return new NextResponse(JSON.stringify(payload), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    return new NextResponse(JSON.stringify(payload), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

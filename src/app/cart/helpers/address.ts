@@ -9,7 +9,7 @@ export const formatAddress = (address: {
   zipCode: string;
 }) => {
   const complement = address.complement?.toString().trim();
-  const complementPart = complement ? `, ${complement}` : "";
+  const complementPart = complement ? `, ${complement}` : '';
 
   return `${address.recipientName} • ${address.street}, ${address.number}${complementPart}, ${address.neighborhood}, ${address.city} - ${address.state} • CEP: ${address.zipCode}`;
 };

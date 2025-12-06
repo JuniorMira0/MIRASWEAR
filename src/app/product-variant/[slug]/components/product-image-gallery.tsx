@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useState } from "react";
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface ProductImageGalleryProps {
   imageUrl: string;
@@ -9,11 +9,7 @@ interface ProductImageGalleryProps {
   showOutOfStock?: boolean;
 }
 
-const ProductImageGallery = ({
-  imageUrl,
-  alt,
-  showOutOfStock,
-}: ProductImageGalleryProps) => {
+const ProductImageGallery = ({ imageUrl, alt, showOutOfStock }: ProductImageGalleryProps) => {
   const images = [imageUrl, imageUrl, imageUrl, imageUrl, imageUrl];
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -25,7 +21,7 @@ const ProductImageGallery = ({
             key={i}
             type="button"
             onClick={() => setActiveIndex(i)}
-            className={`relative aspect-square w-full overflow-hidden rounded-lg ring-2 transition ${activeIndex === i ? "ring-primary" : "ring-transparent"}`}
+            className={`relative aspect-square w-full overflow-hidden rounded-lg ring-2 transition ${activeIndex === i ? 'ring-primary' : 'ring-transparent'}`}
             aria-label={`Imagem ${i + 1}`}
           >
             <Image
