@@ -6,21 +6,10 @@ const nextConfig: NextConfig = {
     // Diminui overhead de hot reload
     optimizeCss: false,
   },
-  // Configura webpack para usar menos memória
-  webpack: (config, { dev, isServer }) => {
-    if (dev) {
-      // Reduz threads em desenvolvimento
-      config.parallelism = 1;
-      // Limita cache do webpack
-      config.cache = false;
-    }
-    return config;
-  },
+  // Configuração para Turbopack (Next.js 16+)
+  turbopack: {},
   typescript: {
     ignoreBuildErrors: true, // evita parada por erro TS
-  },
-  eslint: {
-    ignoreDuringBuilds: true, // não roda lint no build
   },
   images: {
     remotePatterns: [
